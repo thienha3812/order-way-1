@@ -6,7 +6,7 @@ import { convertToVnd } from '../utils'
 
 const OrderDetail  = (props ) =>{ 
     return( 
-        <ul {...props} style={{ margin: "0" }}>
+        <ul style={{ margin: "0" }}>
         <li style={{ fontSize: "25px" }}>Bàn: {props.table}</li>
         <li>Nhân viên: {props.staff_name}</li>
         <li>Khách hàng: {props.customerName}</li>

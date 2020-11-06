@@ -8,20 +8,16 @@ import {
   Divider,
   Grid,
   IconButton,
-  Input,
   makeStyles,
-  TextField,
 } from "@material-ui/core";
 import styled from "styled-components";
-import { MdAdd,MdRemove } from "react-icons/md";
-import {GrFormSubtract} from 'react-icons/gr';
+import { MdAdd } from "react-icons/md";
+import {RiSubtractLine} from 'react-icons/ri';
 import { Context } from "../Context";
 import MenuService from "../../../../../services/menu";
 import { useSelector } from "react-redux";
 import { userSelector } from "../../../../../features/user/userSlice";
-import apiConfig from "../../../../../services/apiConfig";
-import TableService from "../../../../../services/tables";
-import { Billment } from "../types";
+import { Order } from "../types";
 import {convertToVnd} from '../../../../../utils'
 import CustomerService from "../../../../../services/customer";
 import CustomAlert from "../../../../../components/Alert";
@@ -67,6 +63,14 @@ const P = styled.div`
   font-size:16px;
   
 `
+const NoteInput = styled.input`
+  outline:none;
+  &:focus { 
+    outline:none;
+  }
+  font-size:13px;
+  border:0;
+`
 const OrderItem = (props:Menu) => {
   return (
     <div
@@ -102,7 +106,7 @@ const OrderItem = (props:Menu) => {
     </div>
   );
 };
-const useStyles = makeStyles((theme)=>({
+const useStyles = makeStyles(()=>({
     active: {
         backgroundColor:"#e6e6e6",
     },
@@ -112,9 +116,10 @@ const useStyles = makeStyles((theme)=>({
 }))
 const IncrementButton = (props) => {
     const {billment,setBillMent} = useContext(Context)
-    const {data,setMenu,menu,selectedCategory,setData} = useContext(MenuContext)
+    const {menu} = useContext(MenuContext)
     const handleAddItem =() =>{       
       let orders= billment.orders
+      console.log(props)
       const index =  orders.findIndex(o=> o.foodId === props.id)
       if(index>-1){
           orders.forEach(o=>{
@@ -126,36 +131,16 @@ const IncrementButton = (props) => {
       }else{
           orders = [...orders,{amount:1,name:props.name,foodId:props.id,index:orders.length,price:props.price,quantity:1,stt:`${orders.length}`}]
       }
-        setBillMent({...billment,price:billment.price+props.price,orders})
-        updateData("add")
+      setBillMent({...billment,orders,payment_info:{...billment.payment_info,total:billment.payment_info?.total + props.price,sub_total:billment.payment_info?.sub_total + props.price}})
+      increaseCount("add")
     }
-    const updateData = (type) => {
+    const increaseCount = (type) => {
         let _menu = menu
         _menu.forEach(m=>{
             if(m.id === props.id){
                 type === "add" ? m.count+=1 : m.count-=1
             }
         })
-    }
-    const handleRemoveItem =() =>{ 
-        if(props.count ===0){
-          return         
-        }
-        if(props.count > 1){
-          let orders= billment.orders
-          orders.forEach(o=>{
-            if(o.foodId === props.id){
-              o.quantity -= 1
-              o.amount= o.quantity * o.price
-            }
-          })
-            setBillMent({...billment,price:billment.price-props.price,orders})
-            updateData("sub")
-        }else{
-          setBillMent({...billment,price:billment.price-props.price,orders:[...billment.orders.filter(o=>o.foodId !== props.id)]})
-            updateData("sub")
-        }
-        
     }
   
   return (
@@ -164,10 +149,6 @@ const IncrementButton = (props) => {
         <MdAdd fontSize={20} />
       </Button>
       <IncrementInput value={props.count} disabled />  
-      <Button onClick={()=>handleRemoveItem()} style={{ borderRadius: "0", height: "40px" }} variant="outlined">
-        <MdRemove fontSize={20} />
-      </Button>
-      
     </Fragment>
   );
 };
@@ -197,11 +178,13 @@ type IMenuContext = {
     setData: (dat:Data[]) => void
     selectedCategory:string
 }
+///
+
 const MenuContext = React.createContext<IMenuContext>({
     menu:[],
     data: [],
-    setMenu:(menu:Menu[])=>{},
-    setData : (data:Data[]) => {},
+    setMenu:()=>{},
+    setData : () => {},
     selectedCategory :""
 })
 const MenuProvider = MenuContext.Provider
@@ -219,7 +202,7 @@ const Menu = () => {
 
   const fetch = async () => {
     const response = await MenuService.getMenuByStoreID(47)
-    setCategories(response.data.map(d=>({category:d.name})))
+    setCategories([{category:"Tất cả"},...response.data.map(d=>({category:d.name}))])
     setData(response.data)
     initMenu(response.data)
     setSelectedCategory(response.data[0].name)
@@ -241,8 +224,11 @@ const Menu = () => {
   }, []);
   const handleSelect=  (category) =>{ 
       setSelectedCategory(category)
+      if(category === "Tất cả"){
+        return setMenu(data.map(d=> d.menus).flat())
+      }
       let {menus} = data.filter(d => d.name === category)[0]
-        setMenu(menus)
+      setMenu(menus)
   }
   const handleCloseMenu = () => {
     setBillMent({all_price:0,price:0,coupon:"",currency_type:"",orders:[],table_name:'',tableId:""})
@@ -256,16 +242,66 @@ const Menu = () => {
     return convertToVnd(sum)
   }
   const handleSendOrder = async () => {
-      CustomerService.sendOrder({customerId:null,customerName:null, tableId:billment.tableId,userType:"staff",staffId:user.staff_info.pk,storeId:user.staff_info.fields.store_id.toString(),request:null,staffName:user.staff_info.fields.name,orders:billment.orders}).then((result)=>{
+    if(billment.orders.length === 0 ){
+      setMessagBox({open:true,message:"Vui lòng chọn món ăn trước khi đặt món !",type:"warning"})      
+      return 
+    }
+      CustomerService.sendOrder({customerId:null,customerName:null, tableId:billment.tableId,userType:"staff",staffId:user.staff_info.pk,storeId:user.staff_info.fields.store_id.toString(),request:null,staffName:user.staff_info.fields.name,orders:billment.orders}).then(()=>{
         setMessagBox({open:true,message:"Đặt món thành công vui lòng chờ đợi !",type:"info"})      
-        setTimeout(()=>{
-          handleCloseMenu()
-        },500)
+        resetData()
+
+      }).catch(err=>{
+        setMessagBox({open:true,message:err.toString(),type:"error"})      
       })
+  }
+  const resetData = () => {
+      let _menu = menu 
+      _menu.forEach(m=>{
+        m.count = 0
+      })
+      setBillMent({...billment,orders:[]})
+      setMenu(menu)
   }
   const handleCloseMessageBox =() =>{
     setMessagBox({open:false,message:"",type:"info"})
-} 
+  }
+  const updateAmount = (order:Order,type) =>{ 
+    let orders = billment.orders  
+    if(type === "sub"){
+      orders.forEach(o=>{
+        if(o.foodId === order.foodId && o.quantity >= 1){
+            o.quantity -= 1
+            o.amount -= o.price
+
+        }
+      })
+      setBillMent({...billment,orders})
+    }  
+    if(type === "add"){
+      orders.forEach(o=>{
+        if(o.foodId === order.foodId){
+            o.quantity += 1
+            o.amount += o.price
+
+        }
+      })
+      setBillMent({...billment,orders,payment_info:{...billment.payment_info,total:billment.payment_info?.total + order.price,sub_total:billment.payment_info?.sub_total+order.price}})
+    }
+    let _menu = menu
+        _menu.forEach(m=>{
+            if(m.id === order.foodId){
+              if(type === "add"){
+                m.count+=1
+              }else{
+                if(m.count>=1){
+                  m.count-=1
+                }
+              }
+              
+            }
+    })
+    
+  } 
   return (
       <MenuProvider value={{
           menu,
@@ -279,7 +315,6 @@ const Menu = () => {
       aria-labelledby="simple-dialog-title"
       fullScreen
       onClose={handleCloseMenu}
-    //   classes={{paper:styles.menu}}
     >
       <DialogTitle
         style={{ color: "black !important" }}
@@ -290,12 +325,10 @@ const Menu = () => {
       <DialogContent>
         <Divider style={{ marginBottom: "2%" }} />
         <Grid spacing={3} container >
-        {/* style={{position:"fixed",borderRight:"1px solid #e6e6e6",height:"100vh"}}  */}
           <Grid item xs={2}  style={{borderRight:"1px solid #333",height:"100vh"}} >
               {categories.map((c,index)=>(
                 <Cagtegory key={index} className={active(c.category)} onClick={()=>handleSelect(c.category)}>{c.category}</Cagtegory>
             ))}  
-            
           </Grid>
           <Grid item xs={4}  style={{borderRight:"1px solid #333",height:"100vh"}}>
             {menu.map((m,index)=> ( 
@@ -303,8 +336,26 @@ const Menu = () => {
             ))}
           </Grid>
           <Grid item xs={3} style={{borderRight:"1px solid #333",height:"100vh"}}>
-                {billment.orders.map((o,index)=>( 
-                  <p>{index+1 + '.' + ' '}{o.quantity + 'x' +' '}{o.name}</p>
+                {billment.orders.map((o)=>( 
+                  <Fragment>
+                  <div style={{display:'flex',alignItems:'center'}}>
+                    <IconButton onClick={()=>updateAmount(o,"add")} size="small" style={{backgroundColor:"green",color:"white",height:"30px",borderRadius:"0"}} disableFocusRipple disableRipple>
+                        <MdAdd fontSize={25}/>
+                    </IconButton>
+                    <div style={{color:'red',marginLeft:'5px'}}>
+                      <b>{o.quantity}</b>
+                    </div>
+                    <IconButton  onClick={()=>updateAmount(o,"sub")} size="small" style={{backgroundColor:"#e0e0e0",marginLeft:"5px",color:"white",height:"30px",borderRadius:"0"}} disableFocusRipple disableRipple>
+                        <RiSubtractLine fontSize={25}/>
+                    </IconButton>
+                    <p style={{marginLeft:"5px"}}>{o.name}</p>
+                  </div>
+                  <div style={{display:'flex',justifyContent:'space-between'}}>
+                    <NoteInput  placeholder="Thêm ghi chú..."/>                    
+                    <small><b>{convertToVnd(o.amount)}</b></small>
+                  </div>
+                  <Divider/>
+                  </Fragment>
                 ))}
                 <Text>
                   Tổng tiền: {sumPrice()}
@@ -317,10 +368,10 @@ const Menu = () => {
           </Grid>
           {/* style={{position:"fixed",width:"40%",paddingTop:"0",marginLeft:"60%"}} */}
           <Grid item xs={3}  >
-            <Text><b>Bàn:</b> {billment.table_name}</Text>
-            <Text><b>Thành tiền:</b></Text>
-            <Text>Tổng tiền món: {convertToVnd(billment.price)}</Text>
-            <Text>Khách hàng:</Text>
+            <Text><b>Bàn:</b> {billment.payment_info?.table_name || billment.table_name}</Text>
+                <Text><b>Thành tiền:</b>{convertToVnd(billment.payment_info?.total || 0)}</Text>
+            <Text>Tổng tiền món: {convertToVnd(billment.payment_info?.sub_total || 0)}</Text>
+            <Text>Khách hàng:{billment.payment_info?.customer_name || ""}</Text>
             <Text>Khuyến mãi:</Text>
             <Text>Phí dịch vụ, phụ thu:</Text>
             <Text>Loại tiền:</Text>

@@ -52,7 +52,7 @@
     ]
   },
   "build": {
-    "productName": "ElectronReact",
+    "productName": "OrderWay",
     "appId": "org.develar.ElectronReact",
     "files": [
       "dist/",

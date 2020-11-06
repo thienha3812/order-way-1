@@ -29,7 +29,7 @@ class StaffService {
             const response = await apiConfig.post('staff/get-payment-info', {
                 id : tableID
             })
-            return response.data
+            return response.data.data
         }catch(err){
             return Promise.reject(err)
         }

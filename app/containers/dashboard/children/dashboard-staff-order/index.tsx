@@ -8,6 +8,7 @@ import {
   Grid,
   IconButton,
   Input,
+  makeStyles,
   TextField,
 } from '@material-ui/core';
 import React, { Fragment, useContext, useEffect, useState } from 'react';
@@ -39,18 +40,30 @@ const Box = styled.div`
   &:hover {
     cursor: pointer;
     background-color: #e8e8e8;
-  }
+    color:black;
+  }  
 `;
+const useStyles = makeStyles((theme)=>({
+  not_active : {
+    backgroundColor:"#FF6347",
+    color:"white"
+  }
+}))
 const RenderTable = () =>{ 
+  const styles = useStyles()  
   const {tables,setOpenMenu,billment,setBillMent} = useContext(Context)
   const openMenu = async (table) =>{
     setOpenMenu(true)
-    setBillMent({...billment,table_name:table.fields.name,tableId:table.pk.toString()})
+    const {payment_info,pmts} = await StaffService.getPaymentInfo(table.pk)
+    setBillMent({...billment,table_name:table.fields.name,tableId:table.pk.toString(),payment_info,pmts})
+  }
+  const isActive = (status) => {
+    return status === 0 ? styles.not_active : undefined
   }
   return ( 
     <Fragment>
         {tables.map((table,index)=> ( 
-          <Box onClick={()=>openMenu(table)} key={index}>{table.fields.name}</Box>
+          <Box className={isActive(table.fields.status)}  onClick={()=>openMenu(table)} key={index}>{table.fields.name}</Box>
       ))}
     </Fragment>
   )
@@ -58,7 +71,7 @@ const RenderTable = () =>{
 const StaffOrder = (props: any) => {
   const [tables,setTables] = useState<Table[]>([])
   const [openMenu,setOpenMenu] = useState(false)
-  const [billment,setBillMent] = useState<Billment>({all_price:0,price:0,coupon:"",currency_type:"",orders:[],table_name:'',tableId:""})
+  const [billment,setBillMent] = useState<Billment>({all_price:0,price:0,coupon:"",currency_type:"",orders:[],table_name:'',tableId:"",payment_info:{total:0,sub_total:0}})
   const fetch = async () =>{ 
     const data = await TableService.listByCounter()
     setTables(data.data)

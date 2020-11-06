@@ -21,6 +21,10 @@ export default {
           },
         },
       },
+      {
+        test: /\.(mp3|wav|mpe?g|ogg)?$/,
+        use: 'file-loader'
+      }
     ],
   },
 

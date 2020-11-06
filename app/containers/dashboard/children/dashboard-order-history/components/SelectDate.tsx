@@ -54,7 +54,7 @@ const  SelectDate = () =>  {
         <Grid item xs={3}>
         <Wrapper className={styles.datePicker}>
         <KeyboardDatePicker
-        label="Từ ngày"
+        label="Đến ngày"
         value={toDate}
         onChange={date => handleToDateChange(date)}
         format="yyyy/MM/dd"

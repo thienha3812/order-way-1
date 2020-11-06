@@ -22,7 +22,7 @@ const BillDetail  = ({service_price,pmts,cash,credit,e_money,table_name,total,su
         <li>Chi tiết món: 
           <ul>
               {foods.map((f,index)=>(
-                <li key={index}>{f.quantity + "x"} {f.name + "(" + convertToVnd(f.price) + ")"} {":" + convertToVnd(f.amount)} </li>
+                <li key={index}>{f.quantity + "x"} {f.name + "(" + convertToVnd(f.price) + ")"} {": " + convertToVnd(f.amount)} </li>
                 
               ))}
             </ul>
@@ -32,7 +32,7 @@ const BillDetail  = ({service_price,pmts,cash,credit,e_money,table_name,total,su
           <ul>
             {service.map((s,index)=>(
                 <li key={index}>
-                    {"Loại: " + (s.type == "service" ? "Dịch vụ,v" : "Phụ thu, " )}  {"Tên:" + s.name +", "} {"Giá:" + convertToVnd(s.price)}
+                    {"Loại: " + (s.type == "service" ? "Dịch vụ,v" : "Phụ thu, " )}  {"Tên:" + s.name +", "} {"Giá: " + convertToVnd(s.price)}
                 </li>
             ))}
             

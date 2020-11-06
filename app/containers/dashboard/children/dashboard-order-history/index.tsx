@@ -7,7 +7,6 @@ import SelectStatus from './components/SelectStatus';
 import SelectType from './components/SelectType';
 import { Provider } from './Context';
 import moment from 'moment'
-import ReactPaginate from 'react-paginate';
 import Pagination from '../../../../components/Pagination';
 import OrderDetail from '../../../../components/OrderDetail';
 

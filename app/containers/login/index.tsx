@@ -63,10 +63,7 @@ const LoginPage: React.FC = () => {
   });
   const {
     user: { token },
-    error,
-    loading,
   } = useSelector(userSelector);
-  const history = useHistory();
   const handleInputPhone = (event: any) => {
     setForm({
       phone_number: event.currentTarget.value,
@@ -87,9 +84,6 @@ const LoginPage: React.FC = () => {
       login({ phone_number: form.phone_number, password: form.password })
     );
   };
-  // useEffect(()=>{
-  //   console.log(token)
-  // },[token])
   return (
     <Wrapper>
       {token !== '' && <Redirect to={DASHBOARD} />}

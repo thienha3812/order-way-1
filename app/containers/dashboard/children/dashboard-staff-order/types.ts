@@ -17,8 +17,45 @@ export type Billment  = {
     coupon: any,
     orders: Array<Order>
     tableId: string
-    
+    pmts?: Array<any>
+    payment_info?: Partial<PaymentInfo>
 }
+type PaymentInfo = {
+    id: number
+    customer_id: number
+    customer_name: string
+    table_id: number
+    table_name: string
+    total: number | 0
+    foods: Array<Food>
+    sub_total: number | 0
+    discount_amount: number
+    content_discount: number
+    vat_percent: number
+    vat_value: number
+    bill_sequence:number
+    bill_number: number
+    is_payment: boolean
+    cus_order_id: Array<number>
+    time_in: string
+    address: string 
+    store_name: string
+    phone_number: string
+    cash: number
+    credit: number
+    e_money: number
+    store_id?: string
+    service: Array<any>
+}
+type Food = {
+    index: number 
+    stt: string
+    foodId: number
+    name: string
+    price: number
+    quantity: number
+    amout: number
+} 
 export type Order = {
     amount:number
     foodId:number
@@ -27,6 +64,7 @@ export type Order = {
     price:number
     quantity:number
     stt:string
+    topping?: Array<string>
 
 }
 

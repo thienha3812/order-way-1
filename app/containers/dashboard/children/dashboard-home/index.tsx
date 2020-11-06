@@ -11,8 +11,8 @@ import { manageOrderSocket }  from "../../../../utils/socket"
 import {Order, Orders} from './types'
 const electron = require('electron') 
 const BrowserWindow = electron.remote.BrowserWindow
-
 import { DashBoarHomeContext, Provider } from "./Context";
+import Sound  from '../../../../assets/mp3/onmessage.mp3'
 import { useSelector } from "react-redux";
 import { userSelector } from "../../../../features/user/userSlice";
 import { useHistory } from "react-router";
@@ -174,9 +174,11 @@ const DashboardHome = (props: any) => {
   }, []);  
   useEffect(()=>{
     const socket = manageOrderSocket(staff_info.fields.store_id)
-    socket.onmessage = function(message){
-        fetch()
-}   
+    socket.onmessage = function(){    
+      let sound = new Audio(Sound)    
+      sound.play()
+      fetch()
+    }   
   },[orders])
   const handleSelect = (status) => {
     setSelected(status);
@@ -219,6 +221,7 @@ const DashboardHome = (props: any) => {
       <Divider />
       <RenderList  />     
     </Wrapper>
+  
    </Provider>
   );
 };
