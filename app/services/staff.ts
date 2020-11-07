@@ -20,7 +20,17 @@ type SearchBillHistoryDTO =  {
     toDate: string
 }
 
-
+type MergeTableDTO = {
+    table_id: number
+    merge_with: Array<number>
+}
+type CleanTableDTO = {
+    tableId : number
+}
+type ChangeTableDTO ={
+    table_id_new: number 
+    table_id_old: number
+}
 class StaffService { 
     constructor() {
     }
@@ -34,6 +44,22 @@ class StaffService {
             return Promise.reject(err)
         }
     }
+    static async mergeTable(data:MergeTableDTO){
+        try{            
+            const response = await apiConfig.post('staff/merge-table',data)
+            return response.data
+        }catch(err){
+            return Promise.reject(err)
+        }
+    }
+    static async cleanTable(data:CleanTableDTO){
+        try{            
+            const response = await apiConfig.post('staff/clean-table',data)
+            return response.data
+        }catch(err){
+            return Promise.reject(err)
+        }
+    }
     static async  searchOrderHistory(data:SearchOrderHistoryDTO){        
         try{
             if(data.type === "all"){
@@ -43,6 +69,14 @@ class StaffService {
                 data.status = null
             }
             const response = await apiConfig.post('staff/search-order-his',data)
+            return response.data
+        }catch(err){
+            return Promise.reject(err)
+        }
+    }
+    static async changeTable(data:ChangeTableDTO){
+        try{
+            const response = await apiConfig.post('staff/change-table',data)
             return response.data
         }catch(err){
             return Promise.reject(err)

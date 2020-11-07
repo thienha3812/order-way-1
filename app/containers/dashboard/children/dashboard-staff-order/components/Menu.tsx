@@ -22,6 +22,7 @@ import {convertToVnd} from '../../../../../utils'
 import CustomerService from "../../../../../services/customer";
 import CustomAlert from "../../../../../components/Alert";
 import SelectTopping from "./SelectTopping";
+import StaffService from "../../../../../services/staff";
 
 
 
@@ -201,7 +202,7 @@ const Menu = () => {
   const {  openMenu, setOpenMenu } = useContext(Context);
   const [categories,setCategories] = useState<Category[]>([])
   const [data,setData]  = useState<Data[]>([])
-  const {billment,setBillMent,setOpenMergeTable} = useContext(Context)
+  const {billment,setBillMent,setOpenMergeTable,setOpenChangeTable} = useContext(Context)
   const [selectedCategory,setSelectedCategory] = useState("")
   const [menu,setMenu] = useState<Menu[]>([])
   const [messageBox,setMessagBox] = useState({open:false,message:"",type:""})
@@ -226,6 +227,7 @@ const Menu = () => {
     return category === selectedCategory ? styles.active : undefined
   }
   useEffect(() => {
+    console.log(billment.status)
       fetch()
   }, []);
   const handleSelect=  (category) =>{ 
@@ -314,6 +316,15 @@ const Menu = () => {
     })
     console.log(billment)
   } 
+  const cleanTable = async() =>{
+      StaffService.cleanTable({tableId:Number(billment.tableId)}).then(()=>{
+        setOpenMenu(false)
+      }).catch(err=>{
+        const {mess} = JSON.parse(err.request.response)
+        setMessagBox({open:true,message:mess,type:"error"}) 
+      })
+      
+  }
   return (
       <MenuProvider value={{
           menu,
@@ -411,9 +422,9 @@ const Menu = () => {
             <>
             <Button variant="contained">Hủy order</Button>
           <Button variant="contained">Hủy món</Button>
-          <Button variant="contained">Dọn bàn</Button>
+          <Button variant="contained" onClick={cleanTable}>Dọn bàn</Button>
           
-          <Button variant="contained">Đổi bàn</Button>
+          <Button variant="contained" onClick={()=>setOpenChangeTable(true)}>Đổi bàn</Button>
             </>
           )}
       </DialogActions>

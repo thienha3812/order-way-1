@@ -1,26 +1,25 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react'
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
-import { Order } from '../types';
 import { Context } from '../Context';
 import TableService from '../../../../../services/tables';
 import { Checkbox, DialogActions,Button } from '@material-ui/core';
-import StaffService from '../../../../../services/staff';
 import CustomAlert from '../../../../../components/Alert';
+import StaffService from '../../../../../services/staff';
 
-const MergeTable = () =>{ 
-    const {setOpenMergeTable,billment} = useContext(Context)
+const ChangeTable = () =>{ 
+    const {setOpenChangeTable,billment,setOpenMenu} = useContext(Context)
     const [tables,setTables]= useState([])
     const [messageBox,setMessagBox] = useState({open:false,message:"",type:""})
     useEffect(()=>{ 
         fetch()
     },[])
     const fetch = async () =>{ 
-        let data = await TableService.listByCounter()
-        data.data.forEach((table)=>{
+        let {data:tables} = await TableService.listByCounter()
+        tables.forEach((table)=>{
             table.selected = false
         })
-        setTables(data.data)
+        setTables(tables.filter(table=> table.fields.status == 0))
     }
     const handleChange = (table) =>{ 
         let _tables = tables
@@ -28,31 +27,32 @@ const MergeTable = () =>{
             if(table.pk == t.pk){
                 t.selected = !t.selected
             }
+            if(table.pk !== t.pk){
+                t.selected = false
+            }
         })
         
         setTables([...tables])
     }
-    const handleMergeTable = async  () =>{ 
-        let tablesID  : Array<number> = tables.filter(table=> table.selected === true).map(table=> table.pk)
-        StaffService.mergeTable({table_id : Number(billment.tableId),merge_with:tablesID}).then(async(result)=>{
-            setMessagBox({open:true,message:"Gộp bàn thành công!",type:"success"})            
-            setTimeout(()=>{
-                setOpenMergeTable(false)
-            },500)
+    const handleCloseMessageBox =() =>{
+        setMessagBox({open:false,message:"",type:messageBox.type})
+    }
+    const handleChangeTable = async () => {
+        const {pk:table_id_new} = tables.filter(table => table.selected)[0]
+        StaffService.changeTable({table_id_old:Number(billment.tableId),table_id_new}).then((result)=>{
+            setOpenChangeTable(false)
+            setOpenMenu(false)
         }).catch(err=>{
             const {mess} = JSON.parse(err.request.response)
             setMessagBox({open:false,message:mess,type:"error"})
         })
     }
-    const handleCloseMessageBox =() =>{
-        setMessagBox({open:false,message:"",type:messageBox.type})
-      }
     return ( 
         <Fragment>
             <Dialog maxWidth="sm" fullWidth  open={true}>
                 <DialogContent>
                     <div style={{textAlign:'center'}}>
-                        <h2>Gộp bàn</h2>
+                        <h2>Đổi bàn</h2>
                     </div>
                     <ul style={{listStyleType:"none"}}>
                         {tables.map((table,index)=>(
@@ -61,8 +61,8 @@ const MergeTable = () =>{
                     </ul>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={()=>setOpenMergeTable(false)}>Hủy</Button>
-                    <Button onClick={()=>handleMergeTable()}>Xác nhận</Button>
+                    <Button onClick={()=>setOpenChangeTable(false)}>Hủy</Button>
+                    <Button onClick={()=>handleChangeTable()}>Xác nhận</Button>
                 </DialogActions>
             </Dialog>
             <CustomAlert type={messageBox.type} closeMessage={handleCloseMessageBox} message={messageBox.message} open={messageBox.open} />      
@@ -70,4 +70,4 @@ const MergeTable = () =>{
     )
 }
 
-export default MergeTable
+export default ChangeTable

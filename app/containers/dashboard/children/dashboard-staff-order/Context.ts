@@ -15,6 +15,8 @@ type IContext = {
     openSelectTopping: boolean
     openMergeTable : boolean
     setOpenMergeTable : (boolean) => void
+    openChangeTable : boolean
+    setOpenChangeTable : (boolean) => void
 }
 
 
@@ -38,6 +40,8 @@ export const Context = React.createContext<IContext>({
     selectedOrder : null,
     openMergeTable : false,
     setOpenMergeTable : (value:boolean) =>{},
+    openChangeTable: false,
+    setOpenChangeTable :(value:boolean) =>{},
 })
 
 
