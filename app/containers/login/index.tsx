@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Grid, TextField } from '@material-ui/core';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { stringify } from 'querystring';
 import { useDispatch, useSelector } from 'react-redux';
-import { Redirect, useHistory } from 'react-router';
+import { Redirect } from 'react-router';
 import Background from '../../assets/images/login-bg.jpg';
 import { login, userSelector } from '../../features/user/userSlice';
-import UserService from '../../services/user';
 import { DASHBOARD } from '../../constants/routes';
 
 const Wrapper = styled.div`

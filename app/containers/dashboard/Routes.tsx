@@ -9,7 +9,7 @@ import BillHistory from './children/dashboard-bill-history';
 const Routes = () => {
   return (
     <>
-      <Route exact path={DASHBOARD} component={DashboardHome} />
+      <Route exact  path={DASHBOARD} component={DashboardHome} />
       <Route path={DASHBOARD_STAFF_ORDER} component={ManageOrder} />
       <Route path={DASHBOARD_ORDER_HISTORY} component={OrderHistory} />
       <Route path={DASHBOARD_BILL_HISTORY} component={BillHistory} />

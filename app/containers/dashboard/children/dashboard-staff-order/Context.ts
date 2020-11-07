@@ -1,5 +1,5 @@
 import React from 'react'
-import { Billment, Table } from './types'
+import { Billment, Order, Table } from './types'
 
 
 
@@ -9,6 +9,12 @@ type IContext = {
     setOpenMenu : (boolean) => void
     billment:Billment
     setBillMent : (billment:Billment) => void
+    selectedOrder : Order | null
+    setOrder: (order:Order | null) => void
+    setOpenSelectTopping : (boolean) => void
+    openSelectTopping: boolean
+    openMergeTable : boolean
+    setOpenMergeTable : (boolean) => void
 }
 
 
@@ -25,7 +31,13 @@ export const Context = React.createContext<IContext>({
         table_name:"",
         tableId:""
     },
+    setOpenSelectTopping :(boolean) =>{ },
+    openSelectTopping : false,
+    setOrder : (order:Order | null) => {},
     setBillMent : (billment:Billment) => {},
+    selectedOrder : null,
+    openMergeTable : false,
+    setOpenMergeTable : (value:boolean) =>{},
 })
 
 

@@ -21,6 +21,7 @@ import { Order } from "../types";
 import {convertToVnd} from '../../../../../utils'
 import CustomerService from "../../../../../services/customer";
 import CustomAlert from "../../../../../components/Alert";
+import SelectTopping from "./SelectTopping";
 
 
 
@@ -115,24 +116,29 @@ const useStyles = makeStyles(()=>({
     }
 }))
 const IncrementButton = (props) => {
-    const {billment,setBillMent} = useContext(Context)
+    const {billment,setBillMent,setOrder,setOpenSelectTopping} = useContext(Context)
     const {menu} = useContext(MenuContext)
     const handleAddItem =() =>{       
       let orders= billment.orders
-      console.log(props)
-      const index =  orders.findIndex(o=> o.foodId === props.id)
-      if(index>-1){
-          orders.forEach(o=>{
-            if(o.foodId === props.id){
-              o.quantity+=1
-              o.amount = o.price * o.quantity
-            }
-          })
+      if(props.toppings && props.options){
+        setOpenSelectTopping(true)
+        setOrder({...props,foodId:props.id,price:props.price})
       }else{
-          orders = [...orders,{amount:1,name:props.name,foodId:props.id,index:orders.length,price:props.price,quantity:1,stt:`${orders.length}`}]
+        const index =  orders.findIndex(o=> o.foodId === props.id)
+        if(index>-1){
+            orders.forEach(o=>{
+              if(o.foodId === props.id){
+                o.quantity+=1
+                o.amount = o.price * o.quantity
+              }
+            })
+        }else{
+            orders = [...orders,{amount:props.price,index:billment.orders.length,name:props.name,foodId:props.id,price:props.price,quantity:1,stt:`${orders.length}`}]
+        }
+        setBillMent({...billment,orders,payment_info:{...billment.payment_info,total:billment.payment_info?.total + props.price,sub_total:billment.payment_info?.sub_total + props.price}})
+        increaseCount("add")
       }
-      setBillMent({...billment,orders,payment_info:{...billment.payment_info,total:billment.payment_info?.total + props.price,sub_total:billment.payment_info?.sub_total + props.price}})
-      increaseCount("add")
+      
     }
     const increaseCount = (type) => {
         let _menu = menu
@@ -195,7 +201,7 @@ const Menu = () => {
   const {  openMenu, setOpenMenu } = useContext(Context);
   const [categories,setCategories] = useState<Category[]>([])
   const [data,setData]  = useState<Data[]>([])
-  const {billment,setBillMent} = useContext(Context)
+  const {billment,setBillMent,setOpenMergeTable} = useContext(Context)
   const [selectedCategory,setSelectedCategory] = useState("")
   const [menu,setMenu] = useState<Menu[]>([])
   const [messageBox,setMessagBox] = useState({open:false,message:"",type:""})
@@ -236,8 +242,8 @@ const Menu = () => {
   }
   const sumPrice = () => {
     let sum = 0
-    billment.orders.forEach(o=>{
-      sum += o.price * o.quantity
+    billment.orders.forEach(o=>{      
+      sum += o.amount + (o.toppingPrice||0)
     })
     return convertToVnd(sum)
   }
@@ -266,26 +272,32 @@ const Menu = () => {
     setMessagBox({open:false,message:"",type:"info"})
   }
   const updateAmount = (order:Order,type) =>{ 
+    console.log(order)
     let orders = billment.orders  
     if(type === "sub"){
       orders.forEach(o=>{
-        if(o.foodId === order.foodId && o.quantity >= 1){
+        if(o.foodId === order.foodId && o.quantity >=1  && order.index === o.index){
+            if(order.toppingPrice > 0){
+              o.amount -= order.toppingPrice
+            }
             o.quantity -= 1
             o.amount -= o.price
-
+            setBillMent({...billment,orders,payment_info:{...billment.payment_info,total:billment.payment_info?.total - order.price - (order.toppingPrice || 0),sub_total:billment.payment_info?.sub_total-order.price-(order.toppingPrice || 0)}})
         }
       })
-      setBillMent({...billment,orders})
     }  
     if(type === "add"){
       orders.forEach(o=>{
-        if(o.foodId === order.foodId){
+        if(o.foodId === order.foodId && order.index === o.index){
+          if(order.toppingPrice > 0){
+            o.amount += order.toppingPrice
+          }
             o.quantity += 1
             o.amount += o.price
 
         }
       })
-      setBillMent({...billment,orders,payment_info:{...billment.payment_info,total:billment.payment_info?.total + order.price,sub_total:billment.payment_info?.sub_total+order.price}})
+      setBillMent({...billment,orders,payment_info:{...billment.payment_info,total:billment.payment_info?.total + order.price + (order.toppingPrice || 0),sub_total:billment.payment_info?.sub_total+order.price+(order.toppingPrice||0)}})
     }
     let _menu = menu
         _menu.forEach(m=>{
@@ -300,7 +312,7 @@ const Menu = () => {
               
             }
     })
-    
+    console.log(billment)
   } 
   return (
       <MenuProvider value={{
@@ -352,7 +364,12 @@ const Menu = () => {
                   </div>
                   <div style={{display:'flex',justifyContent:'space-between'}}>
                     <NoteInput  placeholder="Thêm ghi chú..."/>                    
-                    <small><b>{convertToVnd(o.amount)}</b></small>
+                    {o.toppingPrice > 0 ? (
+                        <small><b>{convertToVnd(o.amount+o.toppingPrice)}</b></small>
+                    ): (
+                      <small><b>{convertToVnd(o.amount)}</b></small>
+                    )}
+                    
                   </div>
                   <Divider/>
                   </Fragment>
@@ -389,10 +406,16 @@ const Menu = () => {
         <Button variant="contained" onClick={handleCloseMenu}>
           Quay lại
         </Button>
-        <Button variant="contained">Hủy order</Button>
-        <Button variant="contained">Hủy món</Button>
-        <Button variant="contained">Dọn bàn</Button>
-        <Button variant="contained">Đổi bàn</Button>
+        <Button variant="contained"  onClick={()=> setOpenMergeTable(true)}>Gộp bàn</Button>
+          {billment.status !== 0 && (
+            <>
+            <Button variant="contained">Hủy order</Button>
+          <Button variant="contained">Hủy món</Button>
+          <Button variant="contained">Dọn bàn</Button>
+          
+          <Button variant="contained">Đổi bàn</Button>
+            </>
+          )}
       </DialogActions>
     </Dialog>
     <CustomAlert type={messageBox.type} closeMessage={handleCloseMessageBox} message={messageBox.message} open={messageBox.open} />      

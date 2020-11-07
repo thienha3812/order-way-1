@@ -7,7 +7,6 @@
     "declarationMap": true,
     "noEmit": true,
     "jsx": "react",
-    "strict": true,
     "pretty": true,
     "sourceMap": true,
     /* Additional Checks */
@@ -21,7 +20,9 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "allowJs": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strict": false,
   },
   "exclude": [
     "test",

@@ -33,12 +33,10 @@ const TitleImg = styled.div`
     background-repeat:no-repeat;
     height:20%;
 `
-
 const CustomDrawer = () => {
     const styles = useStyles()
     const history  = useHistory() 
   const navigate  =  async (url) =>{ 
-      console.log(123)
      await history.push(url)
   }
   const active = (url) =>{ 

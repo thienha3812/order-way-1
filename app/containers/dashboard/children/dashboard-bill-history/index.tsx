@@ -53,11 +53,9 @@ const BillHistory = ( ) =>{
     const [orders,setOrders] = useState({orders:[],total_row:0})
     const filter = async () => {
       const response  = await StaffService.searchBillHistory({fromDate : moment(fromDate).format("YYYY-MM-DD"),offset:0,toDate:moment(toDate).format("YYYY-MM-DD"),limit:10,status,phoneNumber:phone,table})
-      console.log(response.data)
       setOrders(response.data)
     }
     const handleSelectPage =  async (index) =>{
-      console.log(index)
       const response  = await StaffService.searchBillHistory({fromDate : moment(fromDate).format("YYYY-MM-DD"),offset:(index-1)*10,toDate:moment(toDate).format("YYYY-MM-DD"),limit:10,status,phoneNumber:phone,table})
       setOrders(response.data)
     }

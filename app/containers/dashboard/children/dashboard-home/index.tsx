@@ -68,7 +68,7 @@ const RenderList = ()  => {
         setOrders({...orders,orders_doing:[...orders.orders_doing,order],orders_approved:[...orders.orders_approved.filter(o=> o.orderId !== order.orderId)]})
     }
     const handleCloseMessageBox =() =>{
-        setMessagBox({open:false,message:"",type:"info"})
+        setMessagBox({open:false,message:"",type:messageBox.type})
     } 
   return (
     <Fragment >
@@ -128,6 +128,7 @@ const DashboardHome = (props: any) => {
   const styles = useStyles();
   const history  = useHistory()
   const [selected, setSelected] = useState("orders_approved");
+  const socket = manageOrderSocket(staff_info.fields.store_id)
   const [orders, setOrders] = useState<Orders>({
     orders_created: [],
     orders_approved: [],
@@ -142,7 +143,7 @@ const DashboardHome = (props: any) => {
     orders_done: "Đã xong",
     orders_finish: "Hoàn thành",
     orders_canceled: "Đã hủy",
-    orders_created: "Đã tạo",
+    orders_created: "Đã nhận",
   };
   const fetch = async () => {
     const response = await OrderService.getOrderHistory();
@@ -173,13 +174,12 @@ const DashboardHome = (props: any) => {
     fetch();    
   }, []);  
   useEffect(()=>{
-    const socket = manageOrderSocket(staff_info.fields.store_id)
-    socket.onmessage = function(){    
+    socket.onmessage = function(){   
       let sound = new Audio(Sound)    
       sound.play()
-      fetch()
+      fetch()      
     }   
-  },[orders])
+  },[orders])  
   const handleSelect = (status) => {
     setSelected(status);
   };
@@ -198,7 +198,7 @@ const DashboardHome = (props: any) => {
         <Item style={{ width: "40%", display: "flex" }}>
           <Item style={{ width: "50%" }}>
           <Button color="primary" variant="contained" onClick={()=>history.push(DASHBOARD_BILL_HISTORY)}>
-              Lịch sử gọi món
+              Lịch sử Bill
             </Button>
           </Item>
           <Item style={{ width: "50%" }}>
@@ -213,7 +213,7 @@ const DashboardHome = (props: any) => {
         {Object.keys(orders).map((key,index) => (
           <Item className={toggleActive(key)} style={{ fontSize: "16px" }} key={index}>
             <Button onClick={() => handleSelect(key)}>
-              {labelOrder[key]} ({orders[key].length})
+              {labelOrder[key]} {(labelOrder[key] !== "Hoàn thành" && labelOrder[key] !== "Đã hủy")  && ("("+orders[key].length+")")}              
             </Button>
           </Item>
         ))}

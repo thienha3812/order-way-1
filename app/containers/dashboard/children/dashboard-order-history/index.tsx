@@ -68,7 +68,7 @@ const OrderHistory = ( ) =>{
       }}>
         <Wrapper>
         <Grid container justify="center">
-          <Grid item xs={3} style={{textAlign:"center"}}>
+          <Grid item xs={3} style={{textAlign:"center"}}> 
             <h2>Lịch sử Order</h2>
           </Grid>
         </Grid>

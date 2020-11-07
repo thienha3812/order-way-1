@@ -1,25 +1,18 @@
 import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  Grid,
-  IconButton,
-  Input,
   makeStyles,
-  TextField,
 } from '@material-ui/core';
 import React, { Fragment, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { MdAdd } from 'react-icons/md';
 import TableService from '../../../../services/tables';
 import { Context, Provider } from './Context';
-import { Billment, Table } from './types';
+import { Billment, Order, Table } from './types';
 import Menu from './components/Menu';
 import StaffService from '../../../../services/staff';
-
+import SelectTopping from './components/SelectTopping';
+import { useSelector } from 'react-redux';
+import { userSelector } from '../../../../features/user/userSlice';
+import {counterSocket} from '../../../../utils/socket'
+import MergeTable from './components/MergeTable';
 const Wrapper = styled.div`
   padding: 5%;
   flex-wrap: wrap;
@@ -43,7 +36,7 @@ const Box = styled.div`
     color:black;
   }  
 `;
-const useStyles = makeStyles((theme)=>({
+const useStyles = makeStyles(()=>({
   not_active : {
     backgroundColor:"#FF6347",
     color:"white"
@@ -55,7 +48,11 @@ const RenderTable = () =>{
   const openMenu = async (table) =>{
     setOpenMenu(true)
     const {payment_info,pmts} = await StaffService.getPaymentInfo(table.pk)
-    setBillMent({...billment,table_name:table.fields.name,tableId:table.pk.toString(),payment_info,pmts})
+    if(payment_info.length === 0){
+      setBillMent({...billment,table_name:table.fields.name,status:0,tableId:table.pk.toString(),payment_info:{cash:0,sub_total:0,total:0},pmts:[]})
+      return
+    }
+    setBillMent({...billment,table_name:table.fields.name,status:2,tableId:table.pk.toString(),payment_info,pmts})
   }
   const isActive = (status) => {
     return status === 0 ? styles.not_active : undefined
@@ -63,14 +60,19 @@ const RenderTable = () =>{
   return ( 
     <Fragment>
         {tables.map((table,index)=> ( 
-          <Box className={isActive(table.fields.status)}  onClick={()=>openMenu(table)} key={index}>{table.fields.name}</Box>
+          <Box className={isActive(table.fields.status)} onClick={()=>openMenu(table)} key={index}>{table.fields.name}</Box>
       ))}
     </Fragment>
   )
 }
-const StaffOrder = (props: any) => {
+const StaffOrder = () => {
+  const {user:{staff_info}} = useSelector(userSelector)
+  // const _counterSocket = counterSocket(staff_info.fields.store_id | 47)
   const [tables,setTables] = useState<Table[]>([])
   const [openMenu,setOpenMenu] = useState(false)
+  const [openMergeTable,setOpenMergeTable] =useState(false)
+  const [openSelectTopping,setOpenSelectTopping] = useState(false)
+  const [selectedOrder,setOrder] = useState<Order | null>(null)
   const [billment,setBillMent] = useState<Billment>({all_price:0,price:0,coupon:"",currency_type:"",orders:[],table_name:'',tableId:"",payment_info:{total:0,sub_total:0}})
   const fetch = async () =>{ 
     const data = await TableService.listByCounter()
@@ -78,6 +80,9 @@ const StaffOrder = (props: any) => {
   }
   useEffect(()=>{
       fetch()
+      // _counterSocket.onmessage = function(){
+      //   fetch()
+      // }
   },[])
   return (
     <Provider value={{
@@ -85,11 +90,23 @@ const StaffOrder = (props: any) => {
         openMenu,
         setOpenMenu,
         billment,
-        setBillMent
+        setBillMent,
+        selectedOrder,
+        setOrder,
+        openSelectTopping,
+        setOpenSelectTopping,
+        openMergeTable,
+        setOpenMergeTable
     }}>
-    <Wrapper>
+       <Wrapper>
       {openMenu && (
         <Menu/>
+      )}
+      {( openSelectTopping ) &&  (
+        <SelectTopping {...selectedOrder}  />
+      )}      
+      {openMergeTable && (
+        <MergeTable />
       )}
       <RenderTable/>  
     </Wrapper>

@@ -18,6 +18,7 @@ export type Billment  = {
     orders: Array<Order>
     tableId: string
     pmts?: Array<any>
+    status?: number
     payment_info?: Partial<PaymentInfo>
 }
 type PaymentInfo = {
@@ -57,15 +58,30 @@ type Food = {
     amout: number
 } 
 export type Order = {
-    amount:number
-    foodId:number
-    index:number
-    name:string
-    price:number
-    quantity:number
-    stt:string
-    topping?: Array<string>
-
+    amount?:number
+    foodId?:number
+    index?:number
+    name?:string
+    price?:number
+    quantity?:number
+    stt?:string
+    toppings?: Array<Topping>
+    topping?: Array<any>
+    toppingPrice?: number
+    options?: Array<Option>
+}
+export type Topping  = {
+    id: number
+    name: string
+    price: number
+    selected : boolean
+}
+export type Option = {
+    type: string
+    value: string
+    price: number
+    default: string
+    selected:boolean
 }
 
 
