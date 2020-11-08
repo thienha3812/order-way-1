@@ -11,9 +11,14 @@ import StaffService from '../../../../services/staff';
 import SelectTopping from './components/SelectTopping';
 import { useSelector } from 'react-redux';
 import { userSelector } from '../../../../features/user/userSlice';
-import {counterSocket} from '../../../../utils/socket'
+import {counterSocket,notificationSocket} from '../../../../utils/socket'
 import MergeTable from './components/MergeTable';
 import ChangeTable from './components/ChangeTable';
+import CancelOrder from './components/CancelOrder';
+import Sound  from '../../../../assets/mp3/onmessage.mp3'
+
+
+
 const Wrapper = styled.div`
   padding: 5%;
   flex-wrap: wrap;
@@ -78,11 +83,13 @@ const RenderTable = () =>{
 }
 const StaffOrder = () => {
   const {user:{staff_info}} = useSelector(userSelector)
-  // const _counterSocket = counterSocket(staff_info.fields.store_id)
+  const _counterSocket = counterSocket(staff_info.fields.store_id)
+  const _notificationSocket = notificationSocket(staff_info.fields.store_id)
   const [tables,setTables] = useState<Table[]>([])
   const [openMenu,setOpenMenu] = useState(false)
   const [openMergeTable,setOpenMergeTable] =useState(false)
   const [openSelectTopping,setOpenSelectTopping] = useState(false)
+  const [openCancelOrder,setOpenCancelOrder] = useState(false)
   const [selectedOrder,setOrder] = useState<Order | null>(null)
   const [openChangeTable,setOpenChangeTable] = useState(false)
   const [billment,setBillMent] = useState<Billment>({all_price:0,price:0,coupon:"",currency_type:"",orders:[],table_name:'',tableId:"",payment_info:{total:0,sub_total:0}})
@@ -92,9 +99,17 @@ const StaffOrder = () => {
   }
   useEffect(()=>{
       fetch()
-      // _counterSocket.onmessage = function(){
-      //   fetch()
-      // }
+      _counterSocket.onmessage = function(){
+        fetch()
+      }
+      _notificationSocket.onmessage = async function(){
+          const audio = new Audio(Sound)
+          await audio.play()       
+      }
+      return (()=>{
+        _notificationSocket.close()
+        _counterSocket.close()
+      })
   },[])
   useEffect(()=>{
     fetch()
@@ -113,7 +128,9 @@ const StaffOrder = () => {
         openMergeTable,
         setOpenMergeTable,
         openChangeTable,
-        setOpenChangeTable
+        setOpenChangeTable,
+        openCancelOrder,
+        setOpenCancelOrder
     }}>
        <Wrapper>
       {openMenu && (
@@ -130,6 +147,9 @@ const StaffOrder = () => {
           <ChangeTable/>
         )
       }
+      {openCancelOrder && (
+        <CancelOrder/>
+      )}
       <RenderTable/>  
     </Wrapper>
     </Provider>

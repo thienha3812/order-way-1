@@ -200,10 +200,10 @@ const MenuProvider = MenuContext.Provider
 const Menu = () => {
   const {user} = useSelector(userSelector)
   const styles=  useStyles()
-  const {  openMenu, setOpenMenu } = useContext(Context);
+  const {  openMenu, setOpenMenu} = useContext(Context);
   const [categories,setCategories] = useState<Category[]>([])
   const [data,setData]  = useState<Data[]>([])
-  const {billment,setBillMent,setOpenMergeTable,setOpenChangeTable} = useContext(Context)
+  const {billment,setBillMent,setOpenMergeTable,setOpenChangeTable,setOpenCancelOrder} = useContext(Context)
   const [selectedCategory,setSelectedCategory] = useState("")
   const [menu,setMenu] = useState<Menu[]>([])
   const [messageBox,setMessagBox] = useState({open:false,message:"",type:""})
@@ -245,7 +245,7 @@ const Menu = () => {
   const sumPrice = () => {
     let sum = 0
     billment.orders.forEach(o=>{      
-      sum += o.amount + (o.toppingPrice||0)
+      sum += o.amount 
     })
     return convertToVnd(sum)
   }
@@ -254,9 +254,12 @@ const Menu = () => {
       setMessagBox({open:true,message:"Vui lòng chọn món ăn trước khi đặt món !",type:"warning"})      
       return 
     }
-      CustomerService.sendOrder({customerId:null,customerName:null, tableId:billment.tableId,userType:"staff",staffId:user.staff_info.pk,storeId:user.staff_info.fields.store_id.toString(),request:null,staffName:user.staff_info.fields.name,orders:billment.orders}).then(()=>{
+    CustomerService.sendOrder({customerId:null,customerName:null, tableId:billment.tableId,userType:"staff",staffId:user.staff_info.pk,storeId:user.staff_info.fields.store_id.toString(),request:null,staffName:user.staff_info.fields.name,orders:billment.orders}).then(async()=>{
         setMessagBox({open:true,message:"Đặt món thành công vui lòng chờ đợi !",type:"info"})      
         resetData()
+        if(billment.status === 0){
+            setBillMent({...billment,status:1,orders:[]})
+        }
 
       }).catch(err=>{
         setMessagBox({open:true,message:err.toString(),type:"error"})      
@@ -376,7 +379,7 @@ const Menu = () => {
                   <div style={{display:'flex',justifyContent:'space-between'}}>
                     <NoteInput  placeholder="Thêm ghi chú..."/>                    
                     {o.toppingPrice > 0 ? (
-                        <small><b>{convertToVnd(o.amount+o.toppingPrice)}</b></small>
+                        <small><b>{convertToVnd(o.amount)}</b></small>
                     ): (
                       <small><b>{convertToVnd(o.amount)}</b></small>
                     )}
@@ -420,7 +423,7 @@ const Menu = () => {
         <Button variant="contained"  onClick={()=> setOpenMergeTable(true)}>Gộp bàn</Button>
           {billment.status !== 0 && (
             <>
-            <Button variant="contained">Hủy order</Button>
+            <Button variant="contained" onClick={()=>setOpenCancelOrder(true)} >Hủy order</Button>
           <Button variant="contained">Hủy món</Button>
           <Button variant="contained" onClick={cleanTable}>Dọn bàn</Button>
           

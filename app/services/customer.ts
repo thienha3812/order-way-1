@@ -33,7 +33,7 @@ class CustomerService {
         try{
             await apiConfig.post('customer/send-order',data)
         }catch(err){
-
+            return Promise.reject(err)
         }
     }
     static async addCustomerByStaff(data:AddCustomerByStaffDTO){

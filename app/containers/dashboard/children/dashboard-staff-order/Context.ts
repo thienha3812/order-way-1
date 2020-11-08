@@ -17,6 +17,8 @@ type IContext = {
     setOpenMergeTable : (boolean) => void
     openChangeTable : boolean
     setOpenChangeTable : (boolean) => void
+    openCancelOrder : boolean
+    setOpenCancelOrder : (boolean) => void
 }
 
 
@@ -42,6 +44,8 @@ export const Context = React.createContext<IContext>({
     setOpenMergeTable : (value:boolean) =>{},
     openChangeTable: false,
     setOpenChangeTable :(value:boolean) =>{},
+    setOpenCancelOrder : (value:boolean) =>{ },
+    openCancelOrder : false
 })
 
 

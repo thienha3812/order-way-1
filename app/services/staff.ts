@@ -38,6 +38,22 @@ type UpdateCustomerIntoOrderDTO = {
     orderId: number
     cusId: number
 }
+type CancelOrderDTO = {
+    customerId: number
+    customerName: string
+    foods: Array<any>
+    orderId: Array<number>
+    orders: Array<any>
+    request: null
+    staffId: number
+    staffName: string
+    table: string    
+    tableId: number
+    time: string
+    totalPrice: number
+    type: string
+    userType: string
+}
 class StaffService { 
     constructor() {
     }
@@ -115,6 +131,22 @@ class StaffService {
         }catch(err){
             return Promise.reject(err)
         }   
+    }
+    static async getOrderInfo(id){
+        try{
+            const response = await apiConfig.post('staff/get-order-info',{id})
+            return response.data
+        }catch(err){
+            return Promise.reject(err)
+        }
+    }
+    static async cancelOrder(data:CancelOrderDTO){
+        try{
+            const response = await apiConfig.post('staff/send-cancel-order',data)
+            return response.data
+        }catch(err){
+            return Promise.reject(err)
+        }
     }
 }
 

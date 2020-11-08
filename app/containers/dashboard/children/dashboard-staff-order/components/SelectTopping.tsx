@@ -36,12 +36,15 @@ const SelectTopping = (props:Order) =>{
     const addToOrders  = () => {
         let nameOptions = []
         let  toppingPrice = 0
-        let topping  = toppings.map((topping)=>{
-            if(topping.selected == true){
+        console.log(toppings)
+        let _topping  = []
+        toppings.forEach((topping)=>{
+            if(topping.selected === true){
                 toppingPrice+= topping.price
-                return topping.id+":-:"+topping.name+":-:"+topping.price
+                _topping.push(topping.id+":-:"+topping.name+":-:"+topping.price)
             }
         })
+        console.log(_topping)
         options.forEach((o)=>{
             o.options.forEach(o=>{
                 if(o.selected === true){
@@ -55,11 +58,11 @@ const SelectTopping = (props:Order) =>{
         setBillMent({...billment,payment_info:{total : billment.payment_info?.total + props.price + (toppingPrice || 0),sub_total:billment.payment_info?.sub_total + props.price + (toppingPrice||0)},orders:[...billment.orders,{
             name : props.name + "(" + nameOptions.join(" ") + ")",
             price: props.price,
-            amount:props.price,
+            amount:props.price + toppingPrice,
             foodId:props.foodId,
             quantity:1,
             stt:props.stt,
-            topping,
+            topping:_topping,
             toppingPrice,
             index: billment.orders.length,
         }]})

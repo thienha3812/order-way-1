@@ -18,7 +18,7 @@ import { userSelector } from "../../../../features/user/userSlice";
 import { useHistory } from "react-router";
 import { DASHBOARD_BILL_HISTORY, DASHBOARD_ORDER_HISTORY } from "../../../../constants/routes";
 import OrderDetail from "../../../../components/OrderDetail";
-
+import _ from 'lodash'
 const Wrapper = styled.div`
   padding: 5%;
 `;
@@ -148,7 +148,7 @@ const DashboardHome = (props: any) => {
   const styles = useStyles();
   const history  = useHistory()
   const [selected, setSelected] = useState("orders_approved");
-  const socket = manageOrderSocket(staff_info.fields.store_id)
+  
   const [orders, setOrders] = useState<Orders>({
     orders_created: [],
     orders_approved: [],
@@ -170,6 +170,7 @@ const DashboardHome = (props: any) => {
     setOrders(response.data.data);
   };
   useEffect(() => {
+    fetch()
   //   let win = BrowserWindow.getFocusedWindow() 
   //   var options = { 
   //     silent: true, 
@@ -191,18 +192,20 @@ const DashboardHome = (props: any) => {
   //   win?.webContents.print(options,(success,fail)=>{
   //     if(!success)console.log(fail)
   //   })
-    fetch();    
-  }, []);  
-  useEffect(()=>{
-    socket.onmessage = function(){   
-      let sound = new Audio(Sound)    
-      sound.play()
-      fetch()      
-    }   
-  },[orders])  
-  useEffect( () => () =>{
-    socket.close()
-  }, [] );
+      const socket = manageOrderSocket(staff_info.fields.store_id)
+      socket.onopen  = function(){
+        console.log('connect socket')
+      }
+      socket.onmessage = async function(){   
+          let sound = new Audio(Sound)
+          console.log('123')    
+          await sound.play()
+          fetch()      
+      }   
+      return (()=>{
+        socket.close()
+      })
+  }, []);    
   const handleSelect = (status) => {
     setSelected(status);
   };
