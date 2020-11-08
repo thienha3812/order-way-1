@@ -1,7 +1,6 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react'
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
-import { Order } from '../types';
 import { Context } from '../Context';
 import TableService from '../../../../../services/tables';
 import { Checkbox, DialogActions,Button } from '@material-ui/core';
@@ -10,17 +9,17 @@ import CustomAlert from '../../../../../components/Alert';
 
 const MergeTable = () =>{ 
     const {setOpenMergeTable,billment} = useContext(Context)
-    const [tables,setTables]= useState([])
+    const [tables,setTables]= useState<any[]>([])
     const [messageBox,setMessagBox] = useState({open:false,message:"",type:""})
     useEffect(()=>{ 
         fetch()
     },[])
     const fetch = async () =>{ 
-        let data = await TableService.listByCounter()
-        data.data.forEach((table)=>{
+        let {data} = await TableService.listByCounter()
+        data.forEach((table)=>{
             table.selected = false
         })
-        setTables(data.data)
+        setTables(data.filter(table=> table.pk != billment.tableId))
     }
     const handleChange = (table) =>{ 
         let _tables = tables
@@ -34,7 +33,7 @@ const MergeTable = () =>{
     }
     const handleMergeTable = async  () =>{ 
         let tablesID  : Array<number> = tables.filter(table=> table.selected === true).map(table=> table.pk)
-        StaffService.mergeTable({table_id : Number(billment.tableId),merge_with:tablesID}).then(async(result)=>{
+        StaffService.mergeTable({table_id : Number(billment.tableId),merge_with:tablesID}).then(async()=>{
             setMessagBox({open:true,message:"Gộp bàn thành công!",type:"success"})            
             setTimeout(()=>{
                 setOpenMergeTable(false)
@@ -56,7 +55,7 @@ const MergeTable = () =>{
                     </div>
                     <ul style={{listStyleType:"none"}}>
                         {tables.map((table,index)=>(
-                            <li key={index}><Checkbox disabled={billment.tableId == table.pk} onChange={()=>handleChange(table)} color="primary" checked={table.selected} />{table.fields.name}</li>
+                            <li key={index}><Checkbox onChange={()=>handleChange(table)} color="primary" checked={table.selected} />{table.fields.name}</li>
                         ))}
                     </ul>
                 </DialogContent>
@@ -70,4 +69,4 @@ const MergeTable = () =>{
     )
 }
 
-export default MergeTable
+export default React.memo(MergeTable)

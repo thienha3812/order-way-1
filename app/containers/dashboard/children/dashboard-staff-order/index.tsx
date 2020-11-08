@@ -78,7 +78,7 @@ const RenderTable = () =>{
 }
 const StaffOrder = () => {
   const {user:{staff_info}} = useSelector(userSelector)
-  // const _counterSocket = counterSocket(staff_info.fields.store_id | 47)
+  // const _counterSocket = counterSocket(staff_info.fields.store_id)
   const [tables,setTables] = useState<Table[]>([])
   const [openMenu,setOpenMenu] = useState(false)
   const [openMergeTable,setOpenMergeTable] =useState(false)
@@ -136,4 +136,4 @@ const StaffOrder = () => {
    
   );
 };
-export default StaffOrder;
+export default React.memo(StaffOrder);

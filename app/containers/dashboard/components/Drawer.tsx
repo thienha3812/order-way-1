@@ -28,7 +28,7 @@ const Title = styled.div`
 `
 const TitleImg = styled.div`
     background-image: url(${Logo});
-    background-size:50% 50%;
+    background-size:30% 40%;
     background-position: center;
     background-repeat:no-repeat;
     height:20%;

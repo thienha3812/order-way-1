@@ -70,4 +70,4 @@ const ChangeTable = () =>{
     )
 }
 
-export default ChangeTable
+export default React.memo(ChangeTable)

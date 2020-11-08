@@ -299,6 +299,7 @@
     "react-icons": "^3.11.0",
     "react-notifications": "^1.7.2",
     "react-paginate": "^6.5.0",
+    "react-qr-reader": "^2.2.1",
     "react-redux": "^7.2.1",
     "react-router-dom": "^5.2.0",
     "react-toastify": "^6.0.9",
@@ -308,7 +309,8 @@
     "regenerator-runtime": "^0.13.5",
     "socket.io-client": "^2.3.1",
     "source-map-support": "^0.5.19",
-    "styled-components": "^5.2.0"
+    "styled-components": "^5.2.0",
+    "validate.js": "^0.13.1"
   },
   "devEngines": {
     "node": ">=7.x",

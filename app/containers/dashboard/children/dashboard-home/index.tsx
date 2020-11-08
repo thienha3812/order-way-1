@@ -34,7 +34,16 @@ const Item = styled.div`
 
 const RenderList = ()  => {
     const {orders,selected,setOrders} = useContext(DashBoarHomeContext)
-  const [messageBox,setMessagBox] = useState({open:false,message:"",type:""})
+    const [messageBox,setMessagBox] = useState({open:false,message:"",type:""})
+
+    const handleCancleOrderInOrdersCreated = async(order) =>{ 
+      OrderService.cancleOrder({id:order.orderId,type:"order",status:"canceled"}).then(()=>{
+        setMessagBox({open:true,message:"Hủy Order thành công!",type:"success"})
+        setOrders({...orders,orders_created:[...orders.orders_created.filter(o=> o.orderId !== order.orderId)]})
+    }).catch(err=>{
+        setMessagBox({open:true,message:err.toString(),type:"error"})
+    })   
+    }
     const handleCancleOrder =  async (order:Order) =>{ 
         OrderService.cancleOrder({id:order.orderId,type:"order",status:"canceled"}).then(()=>{
             setMessagBox({open:true,message:"Hủy Order thành công!",type:"success"})
@@ -74,10 +83,21 @@ const RenderList = ()  => {
     <Fragment >
       {orders[selected].map((order: Order,index) => (
             <Grid style={{ paddingTop: "2%", paddingBottom: "2%",borderBottom:"1px solid #e6e6e6" }} container key={index}>
-                      <Grid item xs={6}>            
-            <OrderDetail {...order} />
+              <Grid item xs={6}>            
+              <OrderDetail {...order} />
           </Grid>
           <Grid item xs={6}>
+          {selected=="orders_created" && (
+                <Button onClick={()=>handleUpdateToDoing(order)} color="primary" variant="contained">
+                Xác nhận <GiKnifeFork fontSize={20} />
+              </Button>
+            )}
+            <br/>
+            {selected=="orders_created" && (
+              <Button style={{marginTop:"2%"}} onClick={()=>handleCancleOrderInOrdersCreated(order)} color="secondary" variant="contained">
+                Hủy <GiKnifeFork fontSize={20} />
+              </Button>
+            )}
             {selected=="orders_approved" && (
                 <Button onClick={()=>handleUpdateToDoing(order)} color="primary" variant="contained">
                 Làm <GiKnifeFork fontSize={20} />
@@ -180,6 +200,9 @@ const DashboardHome = (props: any) => {
       fetch()      
     }   
   },[orders])  
+  useEffect( () => () =>{
+    socket.close()
+  }, [] );
   const handleSelect = (status) => {
     setSelected(status);
   };

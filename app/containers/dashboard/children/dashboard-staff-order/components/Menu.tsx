@@ -23,6 +23,7 @@ import CustomerService from "../../../../../services/customer";
 import CustomAlert from "../../../../../components/Alert";
 import SelectTopping from "./SelectTopping";
 import StaffService from "../../../../../services/staff";
+import CustomerPayment from "./CustomerPayment";
 
 
 
@@ -57,7 +58,6 @@ const IncrementInput = styled.input`
 
 const Text = styled.div`
   font-size: 16px;
-  padding-left: 10px;
   line-height: 40px;
   height: 40px;
 `;
@@ -119,6 +119,7 @@ const useStyles = makeStyles(()=>({
 const IncrementButton = (props) => {
     const {billment,setBillMent,setOrder,setOpenSelectTopping} = useContext(Context)
     const {menu} = useContext(MenuContext)
+    
     const handleAddItem =() =>{       
       let orders= billment.orders
       if(props.toppings && props.options){
@@ -227,7 +228,6 @@ const Menu = () => {
     return category === selectedCategory ? styles.active : undefined
   }
   useEffect(() => {
-    console.log(billment.status)
       fetch()
   }, []);
   const handleSelect=  (category) =>{ 
@@ -399,7 +399,7 @@ const Menu = () => {
             <Text><b>Bàn:</b> {billment.payment_info?.table_name || billment.table_name}</Text>
                 <Text><b>Thành tiền:</b>{convertToVnd(billment.payment_info?.total || 0)}</Text>
             <Text>Tổng tiền món: {convertToVnd(billment.payment_info?.sub_total || 0)}</Text>
-            <Text>Khách hàng:{billment.payment_info?.customer_name || ""}</Text>
+            <CustomerPayment/>
             <Text>Khuyến mãi:</Text>
             <Text>Phí dịch vụ, phụ thu:</Text>
             <Text>Loại tiền:</Text>

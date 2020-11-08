@@ -148,4 +148,4 @@ const SelectTopping = (props:Order) =>{
     )
 }
 
-export default SelectTopping
+export default React.memo(SelectTopping)

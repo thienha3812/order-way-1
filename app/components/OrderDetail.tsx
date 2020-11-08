@@ -14,6 +14,15 @@ const OrderDetail  = (props ) =>{
       <Wrapper>
         <ul style={{ margin: "0" }}>
         <li style={{ fontSize: "25px" }}><b>Bàn:</b> {props.table}</li>
+       {props.type === "cancel_food" && (
+          <li style={{color:'red'}}><b>Loại:Hủy món</b></li>
+       ) }
+       {props.type === "cancel_order" && (
+          <li style={{color:'red'}}><b>Loại:Hủy order</b></li>
+       ) }
+       {props.type === "order" && (
+          <li><b>Loại:Order</b></li>
+       ) }
         <li><b>Nhân viên:</b> {props.staff_name}</li>
         <li><b>Khách hàng:</b> {props.customerName}</li>
         <li><b>Thời gian:</b> {props.time}</li>

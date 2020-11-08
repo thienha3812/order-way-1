@@ -31,6 +31,13 @@ type ChangeTableDTO ={
     table_id_new: number 
     table_id_old: number
 }
+type SearchPhoneDTO = {
+    phone_number: string
+}
+type UpdateCustomerIntoOrderDTO = {
+    orderId: number
+    cusId: number
+}
 class StaffService { 
     constructor() {
     }
@@ -92,6 +99,22 @@ class StaffService {
         }catch(err){
             return Promise.reject(err)
         }
+    }
+    static async searchCustomer(data:SearchPhoneDTO){
+        try{
+            const response = await apiConfig.post('staff/search-customer',data)
+            return response.data
+        }catch(err){
+            return Promise.reject(err)
+        }
+    }
+    static async updateCustomerIntoOrder(data:UpdateCustomerIntoOrderDTO){
+        try{
+            const response = await apiConfig.post('staff/update-cus-into-order',data)
+            return response.data
+        }catch(err){
+            return Promise.reject(err)
+        }   
     }
 }
 
