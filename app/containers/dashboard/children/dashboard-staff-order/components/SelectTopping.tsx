@@ -73,7 +73,7 @@ const SelectTopping = (props:Order) =>{
         _options.forEach(_option=>{
             _option.options.forEach(_o=>{
                 if(_o.value == option.value && _o.type == option.type){
-                    _o.selected = !_o.selected
+                    _o.selected = true
                 }
                 if(_o.value !== option.value && _o.type == option.type){
                     _o.selected = false

@@ -8,7 +8,7 @@ import StaffService from '../../../../../services/staff';
 import CustomAlert from '../../../../../components/Alert';
 
 const MergeTable = () =>{ 
-    const {setOpenMergeTable,billment} = useContext(Context)
+    const {setOpenMergeTable,billment,setBillMent} = useContext(Context)
     const [tables,setTables]= useState<any[]>([])
     const [messageBox,setMessagBox] = useState({open:false,message:"",type:""})
     useEffect(()=>{ 
@@ -38,6 +38,8 @@ const MergeTable = () =>{
             setTimeout(()=>{
                 setOpenMergeTable(false)
             },500)
+            const {payment_info,pmts} = await StaffService.getPaymentInfo(billment.tableId)
+            setBillMent({...billment,payment_info})
         }).catch(err=>{
             const {mess} = JSON.parse(err.request.response)
             setMessagBox({open:false,message:mess,type:"error"})
