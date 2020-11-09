@@ -54,6 +54,35 @@ type CancelOrderDTO = {
     type: string
     userType: string
 }
+type UpdateStoreOrderInfo = {
+    id: number
+    customer_id: number
+    customer_name: string
+    table_id: number
+    table_name: string
+    total: number | 0
+    foods: Array<any>
+    sub_total: number | 0
+    discount_amount: number
+    content_discount: number
+    vat_percent: number
+    vat_value: number
+    bill_sequence:number
+    bill_number: number
+    is_payment: boolean
+    cus_order_id: Array<number>
+    time_in: string
+    address: string 
+    store_name: string
+    phone_number: string
+    cash: number
+    credit: number
+    e_money: number
+    rate_discount?: number | 0
+    store_id?: string
+    service: Array<any>
+    promotionId: Array<any>
+}
 class StaffService { 
     constructor() {
     }
@@ -143,6 +172,14 @@ class StaffService {
     static async cancelOrder(data:CancelOrderDTO){
         try{
             const response = await apiConfig.post('staff/send-cancel-order',data)
+            return response.data
+        }catch(err){
+            return Promise.reject(err)
+        }
+    }
+    static async updatStoreOrderInfo(data:Partial<UpdateStoreOrderInfo>){
+        try{
+            const response = await apiConfig.post('staff/update-store-order-info',data)
             return response.data
         }catch(err){
             return Promise.reject(err)

@@ -336,7 +336,7 @@ const Menu = () => {
   }
   const caculatorTotal = useCallback(()=>{
     let rate_discount = billment.payment_info?.rate_discount
-    return convertToVnd(billment.payment_info?.total * Number.parseFloat((100-rate_discount)/100))
+    return convertToVnd(billment.payment_info?.sub_total * Number.parseFloat((100-rate_discount)/100))
   },[billment.payment_info?.rate_discount,billment.payment_info?.total])
   return (
       <MenuProvider value={{
@@ -410,7 +410,7 @@ const Menu = () => {
           {/* style={{position:"fixed",width:"40%",paddingTop:"0",marginLeft:"60%"}} */}
           <Grid item xs={3}  >
             <Text><b>Bàn:</b> {billment.payment_info?.table_name || billment.table_name}</Text>
-                <Text><b>Thành tiền:</b>{caculatorTotal()}</Text>
+                <Text><b>Thành tiền:</b>{convertToVnd(billment.payment_info.total)}</Text>
             <Text>Tổng tiền món: {convertToVnd(billment.payment_info?.sub_total || 0)}</Text>
             <CustomerPayment/>
             <Coupon/>
@@ -418,7 +418,7 @@ const Menu = () => {
             <Text>Loại tiền:</Text>
             <Text>Khuyến mãi đang áp dụng:</Text>
             <ul>
-              {billment.pmts.map((p,index)=>(
+              {billment.pmts?.filter(p=>p.quantity_apply !==0).map((p,index)=>(
                 // <BsFillTrashFill onClick={()=>removePromotionInOrder(p)}/>
                 <li key={index}>{p.quantity_apply} x {p.name} </li>
               ))}

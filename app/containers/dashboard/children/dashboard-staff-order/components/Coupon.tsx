@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect, useState } from "react";
+import React, { Fragment, useContext, useEffect, useState,useRef } from "react";
 
 import { IoMdQrScanner } from "react-icons/io";
 import { GrAdd } from "react-icons/gr";
@@ -50,6 +50,7 @@ const TabPanel = (props) => {
   );
 };
 
+
 const Coupon = () => {
   const {
     openScanCoupon,
@@ -68,13 +69,8 @@ const Coupon = () => {
     message: "",
     type: "",
   });
-
-  const fetch = async () => {
-    const { data: config } = await ConfigService.getConfig();
-    setConfig(config);
-    const { data: promotions } = await PromotionService.getPromotionByStore();
-    mapApplyQuantityFromPmtToPromotionStore(promotions);
-  };
+  
+  
   useEffect(() => {
     fetch();
   }, []);  
@@ -84,6 +80,12 @@ const Coupon = () => {
   };
   const handleChangeTab = (event, newValue) => {
     setValue(newValue);
+  };
+  const fetch = async () => {
+    const { data: config } = await ConfigService.getConfig();
+    setConfig(config);
+    const { data: promotions } = await PromotionService.getPromotionByStore();
+    mapApplyQuantityFromPmtToPromotionStore(promotions);
   };
   const mapApplyQuantityFromPmtToPromotionStore = (promotions: []) => {
     let pmts = billment.pmts;
@@ -128,7 +130,8 @@ const Coupon = () => {
         .then((result) => {
           mapApplyQuantityFromPromotionStoretToPmt(result.data,"add")
         })
-        .catch(() => {});
+        .catch(() => {
+        });
       setOpenScanCoupon(false);
     }
   };
@@ -155,8 +158,8 @@ const Coupon = () => {
       setBillMent({ ...billment, pmts: _pmts });
     }
   };
+
   const updatePromotionStore = (promotion, type) => {
-    console.log(123)
     if (type === "add") {
       let quantity_pmt = getQuantityPmt();
       if (Number(quantity_pmt) === 1) {
@@ -179,7 +182,7 @@ const Coupon = () => {
       });
       mapApplyQuantityFromPromotionStoretToPmt(promotion,"add");
       setPromotionOfStore([..._promotionStore]);
-      setBillMent({...billment,payment_info:{...billment.payment_info,rate_discount: billment.payment_info?.rate_discount + Number.parseInt(promotion.discount_percent)}})
+      setBillMent({...billment,payment_info:{...billment.payment_info}})
     }
     if (type === "sub") {
       if(promotion.quantity_apply === 0){
@@ -193,7 +196,7 @@ const Coupon = () => {
       });      
       mapApplyQuantityFromPromotionStoretToPmt(promotion,"sub");
       setPromotionOfStore([..._promotionStore]);
-      setBillMent({...billment,payment_info:{...billment.payment_info,rate_discount: billment.payment_info?.rate_discount -  Number.parseInt(promotion.discount_percent)}})
+      setBillMent({...billment,payment_info:{...billment.payment_info}})
     }
   };
   const confirmCoupon = () => {
@@ -226,20 +229,85 @@ const Coupon = () => {
         });
       });
   };
-  const applyPromotion = () =>{
+  const caculateRateDiscount = () =>{
+    let sum = 0
+    let pmts = billment.pmts?.filter(p=> p.quantity_apply !== 0)
+    if(pmts?.length > 0){
+        pmts?.forEach(p=>{
+          if(p.discount_percent > 0){
+            sum += Number.parseFloat(p.discount_percent)
+          }
+        })
+    }
+    return sum
+  }
+  const caculateValueVoucher = () =>{
+    let sum = 0
+    let pmts = billment.pmts?.filter(p=> p.quantity_apply !== 0)
+    if(pmts?.length > 0){
+        pmts?.forEach(p=>{
+          if(p.value_of_voucher > 0){
+            sum += Number.parseFloat(p.value_of_voucher)
+          }
+        })
+    }
+    return sum
+  }
+  const applyPromotion = async () =>{    
+    const discount_percent = caculateRateDiscount()
+    const valueVoucher = caculateValueVoucher()
+    const payment_info = billment.payment_info
+    console.log(valueVoucher)
+    console.log(discount_percent)
+    await  StaffService.updatStoreOrderInfo({
+      address: payment_info?.address,
+      bill_number:payment_info?.bill_number,
+      bill_sequence:payment_info?.bill_sequence,
+      cash: payment_info?.sub_total - valueVoucher - (payment_info?.sub_total * (discount_percent/100)),
+      content_discount: payment_info?.content_discount,
+      credit:payment_info?.credit,
+      cus_order_id:payment_info?.cus_order_id,
+      customer_id:payment_info?.customer_id,
+      customer_name:payment_info?.customer_name,
+      discount_amount:payment_info?.discount_amount,
+      e_money:payment_info?.e_money,
+      foods:payment_info.foods,
+      id:payment_info?.id,
+      is_payment:payment_info?.is_payment,
+      phone_number:payment_info?.phone_number,
+      promotionId:billment.pmts,
+      rate_discount:payment_info?.rate_discount,
+      service:payment_info?.service,
+      store_id:payment_info?.store_id,
+      store_name:payment_info?.store_name,
+      sub_total:payment_info?.sub_total,
+      table_id:payment_info?.table_id,
+      table_name: payment_info.table_name,
+      time_in:payment_info?.time_in,
+      total:payment_info?.sub_total - valueVoucher - (payment_info?.sub_total * (discount_percent/100)),
+      vat_percent:payment_info?.vat_percent,
+      vat_value:payment_info?.vat_value
+    })
+    const {payment_info : new_payment_info,pmts} = await StaffService.getPaymentInfo(billment.tableId)
+    setBillMent({...billment,pmts,payment_info:new_payment_info})
     setOpenTypeCoupon(false)
-
   }
   const handleCloseTypeCoupon =  async () =>{
-      // let _p = promotionOfStore
-      // _p.forEach(_p=>{
-      //   _p.quantity_apply = 0
-      // })
-      // const {pmts} = await StaffService.getPaymentInfo(billment.tableId)
-      // setBillMent({...billment,pmts})
-      setOpenTypeCoupon(false)
-      // setPromotionOfStore(_p)
+    setOpenTypeCoupon(false)  
+    const {pmts} = await StaffService.getPaymentInfo(billment.tableId)
+    setBillMent({...billment,pmts,payment_info:{...billment.payment_info,rate_discount:0}})
+    let _promotionOfStore = promotionOfStore
+    _promotionOfStore.forEach((promotion) => {
+      promotion.quantity_apply = 0;
+      pmts?.forEach((pmt) => {
+        if (pmt.id === promotion.id) {
+          promotion.quantity_apply = pmt.quantity_apply;
+        }
+      });
+    });
+    setPromotionOfStore(_promotionOfStore);
   }
+  
   return (
     <Fragment>
       <div style={{ display: "flex", alignItems: "center" }}>
@@ -374,7 +442,7 @@ const Coupon = () => {
           </TabPanel>
           <DialogActions>
             <Button onClick={handleCloseTypeCoupon}>Hủy</Button>
-            <Button onClick={()=>setOpenTypeCoupon(false)}>Xác nhận</Button>
+            <Button onClick={applyPromotion}>Xác nhận</Button>
           </DialogActions>
         </DialogContent>
       </Dialog>
@@ -388,4 +456,4 @@ const Coupon = () => {
   );
 };
 
-export default Coupon;
+export default React.memo(Coupon);

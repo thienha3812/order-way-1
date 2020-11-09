@@ -95,6 +95,7 @@ const StaffOrder = () => {
   const [ openScanCoupon,setOpenScanCoupon] = useState(false)
   const [openTypeCoupon,setOpenTypeCoupon] = useState(false)
   const [billment,setBillMent] = useState<Billment>({all_price:0,price:0,coupon:"",currency_type:"",orders:[],table_name:'',tableId:"",payment_info:{total:0,sub_total:0}})
+  
   const fetch = async () =>{ 
     const data = await TableService.listByCounter()
     setTables(data.data)
