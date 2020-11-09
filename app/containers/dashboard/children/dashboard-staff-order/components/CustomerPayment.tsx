@@ -1,4 +1,4 @@
-import React,{Fragment, useEffect, useState} from 'react'
+import React,{Fragment, useContext, useEffect, useState} from 'react'
 import QrReader from 'react-qr-reader'
 
 import {IoMdQrScanner} from 'react-icons/io'
@@ -15,22 +15,21 @@ import Paper from '@material-ui/core/Paper';
 import StaffService from '../../../../../services/staff'
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MasterService from '../../../../../services/master'
 import CustomerService, { AddCustomerByStaffDTO } from '../../../../../services/customer'
-const validate = require("validate.js");
 import CustomAlert from '../../../../../components/Alert';
 import DateFnsUtils from '@date-io/date-fns';
 import {
   MuiPickersUtilsProvider,
-  KeyboardTimePicker,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
 import styled from 'styled-components'
-import moment from 'moment'
 import { useStyles } from '../../dashboard-bill-history'
+import { Context } from '../Context'
+
+
 const Wrapper = styled.div`
     margin-top:7px;
     border:1px solid #e6e6e6;
@@ -55,7 +54,7 @@ const Wrapper = styled.div`
 `
 
 const CustomerPayment =  () => { 
-    const styles = useStyles()
+    const {billment} = useContext(Context)
     const [openScanQr,setOpen] = useState(false)
     const [customer,setCustomer] = useState('')
     const [phone_number,setPhone] = useState('')
@@ -67,6 +66,7 @@ const CustomerPayment =  () => {
     const [messageBox,setMessageBox] = useState({open:false,message:"",type:""})
     const [error,setError] = useState({error_phone_number:true,error_name:true,error_birth_day:true,error_district:true,error_city:true})
     const [form,setForm] = useState<AddCustomerByStaffDTO>({city_id:0,birthday:"",district_id:0,gender:"1",name:"",phone:"",phone_number:""})
+
     useEffect(()=>{
         navigator.mediaDevices.getUserMedia({video: true}).then(()=>{
         })
@@ -114,7 +114,11 @@ const CustomerPayment =  () => {
         const {data} = await StaffService.searchCustomer({phone_number})
         setCustomers(data)
     }
-    const handleSelectCustomer = (customer) =>{
+    const handleSelectCustomer =async (customer) =>{
+        
+        if(billment.payment_info?.id){
+            await StaffService.updateCustomerIntoOrder({cusId:customer.id,orderId:billment.payment_info?.id})
+        }
         setCustomer(customer.phone_number)
         setOpenSearchDialog(false)
     }
@@ -123,10 +127,17 @@ const CustomerPayment =  () => {
         const {data}  = await MasterService.getDistrict(event.target.value)
         setDistricts(data)
     }
+    const resetData = () =>{
+        setForm({city_id:0,birthday:"",district_id:0,phone:"",phone_number:"",name:"",gender:"1"})
+        setError({error_birth_day:true,error_city:true,error_district:true, error_name:true,error_phone_number:true})
+    }
     const handleAddCustomer = async () =>{
-        CustomerService.addCustomerByStaff(form).then(()=>{
+        CustomerService.addCustomerByStaff(form).then(async (response)=>{
             setMessageBox({message:"Thêm khách hàng thành công!",open:true,type:"success"})
+            await StaffService.updateCustomerIntoOrder({cusId:response.data.id,orderId:billment.payment_info?.id})
+            setCustomer(response.data.phone)
             setOpenAddCustomer(false)
+            resetData()
         }).catch(err=>{
             const {mess} = JSON.parse(err.request.response)
             setMessageBox({open:true,message:mess,type:"error"}) 
@@ -182,7 +193,7 @@ const CustomerPayment =  () => {
                     error={error.error_birth_day}
                     value={form.birthday}
                     helperText={error.error_birth_day && "Ngày sinh không hợp lệ"}
-                    format="MM-dd-yyyy"
+                    format="dd-MM-yyyy"
                     onChange={(time)=> setForm({...form,birthday:time}) }
                 />
                     </Wrapper>

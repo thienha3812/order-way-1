@@ -19,6 +19,10 @@ type IContext = {
     setOpenChangeTable : (boolean) => void
     openCancelOrder : boolean
     setOpenCancelOrder : (boolean) => void
+    openScanCoupon : boolean
+    setOpenScanCoupon : (boolean) => void
+    openTypeCoupon : boolean
+    setOpenTypeCoupon : (boolean) => void
 }
 
 
@@ -45,7 +49,11 @@ export const Context = React.createContext<IContext>({
     openChangeTable: false,
     setOpenChangeTable :(value:boolean) =>{},
     setOpenCancelOrder : (value:boolean) =>{ },
-    openCancelOrder : false
+    openCancelOrder : false,
+    openScanCoupon:false,
+    setOpenScanCoupon:(value:boolean) =>{},
+    openTypeCoupon:false,
+    setOpenTypeCoupon:(value:boolean) =>{}
 })
 
 

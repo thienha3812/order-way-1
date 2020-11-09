@@ -44,7 +44,6 @@ const SelectTopping = (props:Order) =>{
                 _topping.push(topping.id+":-:"+topping.name+":-:"+topping.price)
             }
         })
-        console.log(_topping)
         options.forEach((o)=>{
             o.options.forEach(o=>{
                 if(o.selected === true){

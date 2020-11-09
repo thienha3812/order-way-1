@@ -17,7 +17,7 @@ export type Billment  = {
     coupon: any,
     orders: Array<Order>
     tableId: string
-    pmts?: Array<any>
+    pmts?: Array<Promotion>
     status?: number
     payment_info?: Partial<PaymentInfo>
 }
@@ -45,8 +45,25 @@ type PaymentInfo = {
     cash: number
     credit: number
     e_money: number
+    rate_discount?: number | 0
     store_id?: string
     service: Array<any>
+}
+type Promotion = {
+    code: number | null
+    cost: number | null
+    discount_on_amount: number | null
+    discount_percent:  number 
+    id: number 
+    item_free: null
+    max_discount: null
+    method: string
+    name: string
+    quantity: number
+    quantity_apply: number
+    remaining: number
+    type: number
+    value_of_voucher: null
 }
 type Food = {
     index: number 

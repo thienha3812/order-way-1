@@ -55,11 +55,11 @@ const RenderTable = () =>{
   const openMenu = async (table) =>{
     const {payment_info,pmts} = await StaffService.getPaymentInfo(table.pk)
     if(payment_info.length === 0){
-      setBillMent({...billment,table_name:table.fields.name,status:table.fields.status,tableId:table.pk.toString(),payment_info:{cash:0,sub_total:0,total:0},pmts:[]})
+      setBillMent({...billment,table_name:table.fields.name,status:table.fields.status,tableId:table.pk.toString(),payment_info:{rate_discount:0,cash:0,sub_total:0,total:0},pmts:[]})
       setOpenMenu(true)
       return
     }
-    setBillMent({...billment,table_name:table.fields.name,status:2,tableId:table.pk.toString(),payment_info,pmts})
+    setBillMent({...billment,table_name:table.fields.name,status:2,tableId:table.pk.toString(),payment_info:{...payment_info,rate_discount:0},pmts})
     setOpenMenu(true)
   }
   const isActive = (status) => {
@@ -92,6 +92,8 @@ const StaffOrder = () => {
   const [openCancelOrder,setOpenCancelOrder] = useState(false)
   const [selectedOrder,setOrder] = useState<Order | null>(null)
   const [openChangeTable,setOpenChangeTable] = useState(false)
+  const [ openScanCoupon,setOpenScanCoupon] = useState(false)
+  const [openTypeCoupon,setOpenTypeCoupon] = useState(false)
   const [billment,setBillMent] = useState<Billment>({all_price:0,price:0,coupon:"",currency_type:"",orders:[],table_name:'',tableId:"",payment_info:{total:0,sub_total:0}})
   const fetch = async () =>{ 
     const data = await TableService.listByCounter()
@@ -130,7 +132,11 @@ const StaffOrder = () => {
         openChangeTable,
         setOpenChangeTable,
         openCancelOrder,
-        setOpenCancelOrder
+        setOpenCancelOrder,
+        openScanCoupon,
+        setOpenScanCoupon,
+        openTypeCoupon,
+        setOpenTypeCoupon
     }}>
        <Wrapper>
       {openMenu && (

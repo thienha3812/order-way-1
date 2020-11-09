@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect, useState } from "react";
+import React, { Fragment, useContext, useEffect, useState,useCallback } from "react";
 import {
   Button,
   Dialog,
@@ -10,6 +10,7 @@ import {
   IconButton,
   makeStyles,
 } from "@material-ui/core";
+import {BsFillTrashFill} from 'react-icons/bs'
 import styled from "styled-components";
 import { MdAdd } from "react-icons/md";
 import {RiSubtractLine} from 'react-icons/ri';
@@ -24,6 +25,7 @@ import CustomAlert from "../../../../../components/Alert";
 import SelectTopping from "./SelectTopping";
 import StaffService from "../../../../../services/staff";
 import CustomerPayment from "./CustomerPayment";
+import Coupon from "./Coupon";
 
 
 
@@ -203,7 +205,7 @@ const Menu = () => {
   const {  openMenu, setOpenMenu} = useContext(Context);
   const [categories,setCategories] = useState<Category[]>([])
   const [data,setData]  = useState<Data[]>([])
-  const {billment,setBillMent,setOpenMergeTable,setOpenChangeTable,setOpenCancelOrder} = useContext(Context)
+  const {billment,setBillMent,setOpenMergeTable,setOpenChangeTable,setOpenCancelOrder,setOpenScanCoupon,setOpenTypeCoupon} = useContext(Context)
   const [selectedCategory,setSelectedCategory] = useState("")
   const [menu,setMenu] = useState<Menu[]>([])
   const [messageBox,setMessagBox] = useState({open:false,message:"",type:""})
@@ -239,7 +241,9 @@ const Menu = () => {
       setMenu(menus)
   }
   const handleCloseMenu = () => {
-    setBillMent({all_price:0,price:0,coupon:"",currency_type:"",orders:[],table_name:'',tableId:""})
+    setOpenScanCoupon(false)
+    setOpenTypeCoupon(false)
+    setBillMent({all_price:0,price:0,coupon:"",currency_type:"",orders:[],table_name:'',tableId:"",pmts:[],payment_info:{}})
     setOpenMenu(false)
   }
   const sumPrice = () => {
@@ -317,7 +321,6 @@ const Menu = () => {
               
             }
     })
-    console.log(billment)
   } 
   const cleanTable = async() =>{
       StaffService.cleanTable({tableId:Number(billment.tableId)}).then(()=>{
@@ -328,6 +331,13 @@ const Menu = () => {
       })
       
   }
+  const removePromotionInOrder =(promotion) =>{
+    console.log(promotion)
+  }
+  const caculatorTotal = useCallback(()=>{
+    let rate_discount = billment.payment_info?.rate_discount
+    return convertToVnd(billment.payment_info?.total * Number.parseFloat((100-rate_discount)/100))
+  },[billment.payment_info?.rate_discount,billment.payment_info?.total])
   return (
       <MenuProvider value={{
           menu,
@@ -400,13 +410,19 @@ const Menu = () => {
           {/* style={{position:"fixed",width:"40%",paddingTop:"0",marginLeft:"60%"}} */}
           <Grid item xs={3}  >
             <Text><b>Bàn:</b> {billment.payment_info?.table_name || billment.table_name}</Text>
-                <Text><b>Thành tiền:</b>{convertToVnd(billment.payment_info?.total || 0)}</Text>
+                <Text><b>Thành tiền:</b>{caculatorTotal()}</Text>
             <Text>Tổng tiền món: {convertToVnd(billment.payment_info?.sub_total || 0)}</Text>
             <CustomerPayment/>
-            <Text>Khuyến mãi:</Text>
-            <Text>Phí dịch vụ, phụ thu:</Text>
+            <Coupon/>
+                    <Text>Phí dịch vụ, phụ thu:</Text>
             <Text>Loại tiền:</Text>
-            <Text>Khuyến mãi:</Text>
+            <Text>Khuyến mãi đang áp dụng:</Text>
+            <ul>
+              {billment.pmts.map((p,index)=>(
+                // <BsFillTrashFill onClick={()=>removePromotionInOrder(p)}/>
+                <li key={index}>{p.quantity_apply} x {p.name} </li>
+              ))}
+            </ul>
             <Text>Chi tiết:</Text>
             <Grid container style={{width:'100%'}} alignItems="center" justify="center">
                 <Grid item xs={6}>

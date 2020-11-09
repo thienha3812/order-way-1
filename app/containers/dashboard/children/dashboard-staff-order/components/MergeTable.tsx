@@ -38,7 +38,7 @@ const MergeTable = () =>{
             setTimeout(()=>{
                 setOpenMergeTable(false)
             },500)
-            const {payment_info,pmts} = await StaffService.getPaymentInfo(billment.tableId)
+            const {payment_info} = await StaffService.getPaymentInfo(billment.tableId)
             setBillMent({...billment,payment_info})
         }).catch(err=>{
             const {mess} = JSON.parse(err.request.response)
