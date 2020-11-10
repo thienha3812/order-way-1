@@ -110,10 +110,9 @@ const CustomerPayment =  () => {
         }
       }
     const handleCloseMessageBox =() =>{
-        setMessageBox({open:false,message:"",type:"info"})
+        setMessageBox({...messageBox,open:false})
     }
     const  handleError = err => {
-        console.error(err)
       }
     const handleSearchInput =(event) =>{
         setPhone(event.target.value)

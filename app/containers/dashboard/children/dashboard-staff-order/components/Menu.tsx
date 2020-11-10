@@ -19,13 +19,15 @@ import MenuService from "../../../../../services/menu";
 import { useSelector } from "react-redux";
 import { userSelector } from "../../../../../features/user/userSlice";
 import { Order } from "../types";
-import {convertToVnd} from '../../../../../utils'
+import {caculateValueFreeItem, convertToVnd} from '../../../../../utils'
 import CustomerService from "../../../../../services/customer";
 import CustomAlert from "../../../../../components/Alert";
 import SelectTopping from "./SelectTopping";
 import StaffService from "../../../../../services/staff";
 import CustomerPayment from "./CustomerPayment";
 import Coupon from "./Coupon";
+import Service from "./Service";
+import Currency from "./Currency";
 
 
 
@@ -203,6 +205,7 @@ const Menu = () => {
   const {user} = useSelector(userSelector)
   const styles=  useStyles()
   const {  openMenu, setOpenMenu} = useContext(Context);
+  const [isLoading,setLoading] = useState(false)
   const [categories,setCategories] = useState<Category[]>([])
   const [data,setData]  = useState<Data[]>([])
   const {billment,setBillMent,setOpenMergeTable,setOpenChangeTable,setOpenCancelOrder,setOpenScanCoupon,setOpenTypeCoupon} = useContext(Context)
@@ -254,6 +257,7 @@ const Menu = () => {
     return convertToVnd(sum)
   }
   const handleSendOrder = async () => {
+    setLoading(true)
     if(billment.orders.length === 0 ){
       setMessagBox({open:true,message:"Vui lòng chọn món ăn trước khi đặt món !",type:"warning"})      
       return 
@@ -266,14 +270,16 @@ const Menu = () => {
     CustomerService.sendOrder({customerId:null,customerName:null, tableId:billment.tableId,userType:"staff",staffId:user.staff_info.pk,storeId:user.staff_info.fields.store_id.toString(),request:null,staffName:user.staff_info.fields.name,orders}).then(async()=>{
         setMessagBox({open:true,message:"Đặt món thành công vui lòng chờ đợi !",type:"info"})      
         resetData()
+        const {payment_info,pmts} = await StaffService.getPaymentInfo(billment.tableId)
         if(billment.status === 0){
-            const {payment_info,pmts} = await StaffService.getPaymentInfo(billment.tableId)
             setBillMent({...billment,status:1,payment_info,pmts,orders:[]})
+        }else{
+            setBillMent({...billment,payment_info,pmts,orders:[]})
         }
-
       }).catch(err=>{
         setMessagBox({open:true,message:err.toString(),type:"error"})      
       })
+    setLoading(false)
   }
   const resetData = () => {
       let _menu = menu 
@@ -284,7 +290,7 @@ const Menu = () => {
       setMenu(menu)
   }
   const handleCloseMessageBox =() =>{
-    setMessagBox({open:false,message:"",type:"info"})
+    setMessagBox({...messageBox,open:false})
   }
   const updateAmount = (order:Order,type) =>{ 
     let orders = billment.orders  
@@ -330,13 +336,85 @@ const Menu = () => {
       })
       
   }
-  const removePromotionInOrder =(promotion) =>{
-    console.log(promotion)
+  const caculateValueForPromotion = promotion =>{ 
+    let sub_total = billment.payment_info?.sub_total
+    if(promotion.type === "discount"){
+        return sub_total * (Number.parseInt(promotion.discount_percent*promotion.quantity_apply)/100)
+    }
+    if(promotion.type === "voucher"){
+        return Number.parseFloat(promotion.value_of_voucher * promotion.quantity_apply)
+    }
+    if(promotion.type === "discount_with_max_value"){
+      let value = 0
+        if(sub_total>= promotion.discount_on_amount){
+          let discountOnPercent = (promotion.discount_percent/100) * sub_total
+          value +=  Math.min(discountOnPercent,promotion.max_discount) * promotion.quantity_apply
+        }
+      return value
+    }
+    if(promotion.type === "free_item"){
+        let value = 0
+        let foods = billment.payment_info?.foods
+        const current_apply = promotion.quantity_apply
+        const sortFollowAmount = foods?.filter(f=> f.foodId == promotion.item_free).sort((a,b)=> a.price < b.price)
+        let applied = 0
+        if(sortFollowAmount?.length > 0){
+          sortFollowAmount.forEach((food)=>{
+            value += Math.min(current_apply - applied,food.quantity) * food.price
+            applied += Math.min(current_apply - applied,food.quantity)
+          })
+        }
+        return value
+    }
+    return 0
   }
-  const caculatorTotal = useCallback(()=>{
-    let rate_discount = billment.payment_info?.rate_discount
-    return convertToVnd(billment.payment_info?.sub_total * Number.parseFloat((100-rate_discount)/100))
-  },[billment.payment_info?.rate_discount,billment.payment_info?.total])
+  const removePromotionInOrder =(promotion) =>{
+    const valueDecrease = caculateValueForPromotion(promotion)
+      let pmts = billment.pmts.filter(p=> p.id !== promotion.id)
+      let payment_info = billment.payment_info
+      StaffService.updatStoreOrderInfo({
+        address: payment_info?.address,
+            bill_number:payment_info?.bill_number,
+            bill_sequence:payment_info?.bill_sequence,
+            cash: Math.min(payment_info.cash + valueDecrease,payment_info?.sub_total),
+            content_discount: payment_info?.content_discount,
+            credit:payment_info.credit,
+            cus_order_id:payment_info?.cus_order_id,
+            customer_id:payment_info?.customer_id,
+            customer_name:payment_info?.customer_name,
+            discount_amount:payment_info?.discount_amount,
+            e_money:payment_info.e_money,
+            foods:payment_info.foods,
+            id:payment_info?.id,
+            is_payment:payment_info?.is_payment,
+            phone_number:payment_info?.phone_number,
+            promotionId: pmts,
+            service:payment_info?.service,
+            store_id:payment_info?.store_id,
+            store_name:payment_info?.store_name,
+            sub_total:payment_info?.sub_total,
+            table_id:payment_info?.table_id,
+            table_name: payment_info.table_name,
+            time_in:payment_info?.time_in,
+            total: Math.min(payment_info.total + valueDecrease,payment_info?.sub_total),
+            vat_percent:payment_info?.vat_percent,
+            vat_value:payment_info?.vat_value
+      }).then(async()=>{
+          const {payment_info,pmts} = await StaffService.getPaymentInfo(billment.tableId)
+          setBillMent({...billment,pmts,payment_info})
+      }).catch(err=>{
+      })
+  }
+  const confirmPayment = async () =>{ 
+      const {payment_info,pmts} = await StaffService.getPaymentInfo(billment.tableId)
+      StaffService.confirmPayMent({...payment_info,promotionId:pmts}).then(()=>{
+        setMessagBox({open:true,message:"Thanh toán thành công!",type:"success"})
+        setOpenMenu(false)
+      }).catch(err=>{
+        const {mess} = JSON.parse(err.request.response)
+        setMessagBox({open:true,message:mess,type:"error"}) 
+      })
+  }
   return (
       <MenuProvider value={{
           menu,
@@ -397,7 +475,7 @@ const Menu = () => {
                 </Text>
                 <Grid container style={{width:'100%'}} alignItems="center" justify="center">
                 <Grid item xs={6}>
-                    <Button onClick={handleSendOrder}  variant="outlined">Gọi món</Button>
+                    <Button onClick={handleSendOrder} disabled={isLoading}  variant="outlined">Gọi món</Button>
                 </Grid>
             </Grid>
           </Grid>
@@ -405,23 +483,38 @@ const Menu = () => {
           <Grid item xs={3}  >
             <Text><b>Bàn: </b> {billment.payment_info?.table_name || billment.table_name}</Text>
             <Text><b>Thành tiền:</b>{convertToVnd(billment.payment_info.total)}</Text>
-            <Text><b>Tổng giảm giá: </b> {convertToVnd(billment.payment_info?.sub_total - billment.payment_info?.total)}</Text>
+            <Text><b>Tổng giảm giá: </b> {convertToVnd(Math.max(0,billment.payment_info?.sub_total - billment.payment_info?.total))}</Text>
             <Text><b>Tổng tiền món: </b> {convertToVnd(billment.payment_info?.sub_total || 0)}</Text>
             <CustomerPayment/>
             <Coupon/> 
-            <Text>Phí dịch vụ, phụ thu:</Text>
-            <Text>Loại tiền:</Text>
-            <Text>Khuyến mãi đang áp dụng:</Text>
-            <ul>
-              {billment.pmts?.filter(p=>p.quantity_apply !==0).map((p,index)=>(
-                // <BsFillTrashFill onClick={()=>removePromotionInOrder(p)}/>
-                <li key={index}>{p.quantity_apply} x {p.name} </li>
-              ))}
-            </ul>
-            <Text>Chi tiết:</Text>
+            <Service/>
+            <Currency/>
+            <Text><b>Khuyến mãi đang áp dụng:</b></Text>
+            <div>
+              <ul>
+                {billment.pmts?.filter(p=>p.quantity_apply !==0).map((p,index)=>(
+
+                  <li key={index}>{p.quantity_apply} x {p.name} 
+                    <BsFillTrashFill onClick={()=>removePromotionInOrder(p)}/>
+                   </li>
+                ))}
+              </ul>
+            </div>
+            <Text><b>Chi tiết:</b></Text>
+            <div>
+                <ul>
+                  {billment.payment_info?.foods.map((f,index)=>(
+                    <li key={index}>
+                        {f.quantity + " x "}
+                        {f.name}
+                        {": " + convertToVnd(f.amount)}
+                    </li>
+                  ))}
+                </ul>
+            </div>
             <Grid container style={{width:'100%'}} alignItems="center" justify="center">
                 <Grid item xs={6}>
-                    <Button  variant="outlined">Thanh toán</Button>
+                    <Button  onClick={confirmPayment} variant="outlined">Thanh toán</Button>
                 </Grid>
             </Grid>
           </Grid>

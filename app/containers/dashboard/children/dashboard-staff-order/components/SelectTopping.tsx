@@ -53,7 +53,7 @@ const SelectTopping = (props:Order) =>{
                 }
             })
         })
-        setBillMent({...billment,payment_info:{total : billment.payment_info?.total + props.price + (toppingPrice || 0),sub_total:billment.payment_info?.sub_total + props.price + (toppingPrice||0)},orders:[...billment.orders,{
+        setBillMent({...billment,payment_info:{...billment.payment_info,foods:billment.payment_info?.foods,service:billment.payment_info?.service,total : billment.payment_info?.total + props.price + (toppingPrice || 0),sub_total:billment.payment_info?.sub_total + props.price + (toppingPrice||0)},orders:[...billment.orders,{
             name : props.name + "(" + nameOptions.join(" ") + ")",
             price: props.price + toppingPrice,
             amount:props.price + toppingPrice,

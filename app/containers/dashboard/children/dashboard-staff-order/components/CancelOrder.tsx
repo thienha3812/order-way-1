@@ -20,8 +20,6 @@ const CancelOrder = () =>{
         fetch()
     },[])
     const handleCancelOrder = async () =>{ 
-        console.log(staff_info)
-        console.log(order)
         StaffService.cancelOrder({
             customerId:payment_info.customerId,
             customerName:payment_info.customerName,

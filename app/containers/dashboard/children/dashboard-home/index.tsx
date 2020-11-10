@@ -77,7 +77,7 @@ const RenderList = ()  => {
         setOrders({...orders,orders_doing:[...orders.orders_doing,order],orders_approved:[...orders.orders_approved.filter(o=> o.orderId !== order.orderId)]})
     }
     const handleCloseMessageBox =() =>{
-        setMessagBox({open:false,message:"",type:messageBox.type})
+        setMessagBox({...messageBox,open:false})
     } 
   return (
     <Fragment >

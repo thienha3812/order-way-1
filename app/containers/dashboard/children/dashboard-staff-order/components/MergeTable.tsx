@@ -46,7 +46,7 @@ const MergeTable = () =>{
         })
     }
     const handleCloseMessageBox =() =>{
-        setMessagBox({open:false,message:"",type:messageBox.type})
+        setMessagBox({...messageBox,open:false})
       }
     return ( 
         <Fragment>

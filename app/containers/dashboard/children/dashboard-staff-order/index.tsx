@@ -16,6 +16,7 @@ import MergeTable from './components/MergeTable';
 import ChangeTable from './components/ChangeTable';
 import CancelOrder from './components/CancelOrder';
 import Sound  from '../../../../assets/mp3/onmessage.mp3'
+import { caculateMaxValueVoucher, caculateValueDiscount, caculateValueVoucher,caculateValueFreeItem } from '../../../../utils';
 
 
 
@@ -55,10 +56,11 @@ const RenderTable = () =>{
   const openMenu = async (table) =>{
     const {payment_info,pmts} = await StaffService.getPaymentInfo(table.pk)
     if(payment_info.length === 0){
-      setBillMent({...billment,table_name:table.fields.name,status:table.fields.status,tableId:table.pk.toString(),payment_info:{rate_discount:0,cash:0,sub_total:0,total:0},pmts:[]})
+      setBillMent({...billment,table_name:table.fields.name,status:table.fields.status,tableId:table.pk.toString(),payment_info:{rate_discount:0,cash:0,sub_total:0,total:0,service:[],foods:[]},pmts:[]})
       setOpenMenu(true)
       return
     }
+    const valueFreeItem = caculateValueFreeItem({payment_info,pmts})
     setBillMent({...billment,table_name:table.fields.name,status:2,tableId:table.pk.toString(),payment_info:{...payment_info,rate_discount:0},pmts})
     setOpenMenu(true)
   }
@@ -91,7 +93,7 @@ const StaffOrder = () => {
   const [openChangeTable,setOpenChangeTable] = useState(false)
   const [ openScanCoupon,setOpenScanCoupon] = useState(false)
   const [openTypeCoupon,setOpenTypeCoupon] = useState(false)
-  const [billment,setBillMent] = useState<Billment>({all_price:0,price:0,coupon:"",currency_type:"",orders:[],table_name:'',tableId:"",payment_info:{total:0,sub_total:0}})
+  const [billment,setBillMent] = useState<Billment>({all_price:0,price:0,coupon:"",currency_type:"",orders:[],table_name:'',tableId:"",payment_info:{foods:[],service:[],total:0,sub_total:0}})
   
   const fetch = async () =>{ 
     const data = await TableService.listByCounter()

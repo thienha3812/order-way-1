@@ -35,7 +35,7 @@ const ChangeTable = () =>{
         setTables([...tables])
     }
     const handleCloseMessageBox =() =>{
-        setMessagBox({open:false,message:"",type:messageBox.type})
+        setMessagBox({...messageBox,open:false})
     }
     const handleChangeTable = async () => {
         const {pk:table_id_new} = tables.filter(table => table.selected)[0]

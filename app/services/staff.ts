@@ -185,6 +185,14 @@ class StaffService {
             return Promise.reject(err)
         }
     }
+    static async confirmPayMent(data:Partial<UpdateStoreOrderInfo>){
+        try{
+            const response = await apiConfig.post('staff/confirm-payment',data)
+            return response.data
+        }catch(err){
+            return Promise.reject(err)
+        }
+    }
 }
 
 export default StaffService

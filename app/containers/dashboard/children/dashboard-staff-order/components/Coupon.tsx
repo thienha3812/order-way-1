@@ -72,9 +72,14 @@ const Coupon = () => {
   });
   
   
+  useEffect(()=>{
+    if(openTypeCoupon === true){
+      fetch()
+    }
+  },[openTypeCoupon])
   useEffect(() => {
     fetch();
-  }, []);  
+  }, []);   
   const getQuantityPmt = () => {
     return config.filter((c) => c.fields.code === "quantity_pmt")[0].fields
       .value;
@@ -195,21 +200,6 @@ const Coupon = () => {
     });
   };
   const handleError = () => {};
-  const increaseOrAddPmt = (pmt) => {
-    let _pmts = billment.pmts;
-    const index = _pmts?.findIndex((p) => p.id === pmt.id);
-    if (index > -1) {
-      _pmts?.forEach((_pmt) => {
-        if (_pmt.id === pmt.id) {
-          _pmt.quantity_apply += 1;
-        }
-      });
-      setBillMent({ ...billment, pmts: _pmts });
-    } else {
-      _pmts.push({ ...pmt, quantity_apply: 1 });
-      setBillMent({ ...billment, pmts: _pmts });
-    }
-  };
 
   const updatePromotionStore = (promotion, type) => {
     if (type === "add") {
@@ -265,11 +255,11 @@ const Coupon = () => {
     PromotionService.checkPmt({ pmt_id: couponInput, totalPrice: 11200 })
       .then((result) => {
         if (Number(quantity_pmt) === 2) {
-          updatePromotionStore(result.data,"add");
+          updatePromotionStore({...result.data,code:couponInput},"add");
         } 
         else {
           if (billment.pmts?.filter(p=> p.quantity_apply !==0).length == 0) {
-            updatePromotionStore(result.data,"add");
+            updatePromotionStore({...result.data,code:couponInput},"add");
           } else {
             setMessageBox({
               open: true,
@@ -337,7 +327,6 @@ const Coupon = () => {
           }
         })
     }
-    console.log(sum)
     return sum
   }
   const applyPromotion = async () =>{    
@@ -388,19 +377,10 @@ const Coupon = () => {
       setOpenTypeCoupon(false)  
       const {pmts} = await StaffService.getPaymentInfo(billment.tableId)
       if(!pmts || pmts.length === 0){
-        return
+        setBillMent({...billment,pmts:[]})
+      }else{
+        setBillMent({...billment,pmts,payment_info:{...billment.payment_info}})
       }
-      setBillMent({...billment,pmts,payment_info:{...billment.payment_info}})
-      let _promotionOfStore = promotionOfStore
-      _promotionOfStore.forEach((promotion) => {
-        promotion.quantity_apply = 0;
-        pmts?.forEach((pmt) => {
-          if (pmt.id === promotion.id) {
-            promotion.quantity_apply = pmt.quantity_apply;
-          }
-        });
-      });
-      setPromotionOfStore(_promotionOfStore);
     }catch(err){
       setOpenTypeCoupon(false)  
     }

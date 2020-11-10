@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const apiConfig = axios.create({
   baseURL: 'https://api.orderway.vn/api/',
-  timeout: 1000,
+  timeout: 5000,
 });
 apiConfig.interceptors.request.use((config)=>{
   const token = localStorage.getItem('token')
