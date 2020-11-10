@@ -73,9 +73,6 @@ const RenderTable = () =>{
             {table.fields.parent_name  !== null  && (
               "(Gộp " + table.fields.parent_name + ")"
             )}
-            {/* {table.fields.parent_name !== "" & ( 
-                "Gộp bàn" + table.fields.parent_name
-            )} */}
           </Box>
       ))}
     </Fragment>

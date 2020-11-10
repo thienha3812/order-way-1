@@ -258,11 +258,17 @@ const Menu = () => {
       setMessagBox({open:true,message:"Vui lòng chọn món ăn trước khi đặt món !",type:"warning"})      
       return 
     }
-    CustomerService.sendOrder({customerId:null,customerName:null, tableId:billment.tableId,userType:"staff",staffId:user.staff_info.pk,storeId:user.staff_info.fields.store_id.toString(),request:null,staffName:user.staff_info.fields.name,orders:billment.orders}).then(async()=>{
+    if(billment.orders.every(o=>o.quantity == 0)){
+      setMessagBox({open:true,message:"Vui lòng chọn món ăn trước khi đặt món !",type:"warning"})      
+      return 
+    }
+    let orders = billment.orders.filter(o=>o.quantity !== 0)
+    CustomerService.sendOrder({customerId:null,customerName:null, tableId:billment.tableId,userType:"staff",staffId:user.staff_info.pk,storeId:user.staff_info.fields.store_id.toString(),request:null,staffName:user.staff_info.fields.name,orders}).then(async()=>{
         setMessagBox({open:true,message:"Đặt món thành công vui lòng chờ đợi !",type:"info"})      
         resetData()
         if(billment.status === 0){
-            setBillMent({...billment,status:1,orders:[]})
+            const {payment_info,pmts} = await StaffService.getPaymentInfo(billment.tableId)
+            setBillMent({...billment,status:1,payment_info,pmts,orders:[]})
         }
 
       }).catch(err=>{
@@ -281,32 +287,25 @@ const Menu = () => {
     setMessagBox({open:false,message:"",type:"info"})
   }
   const updateAmount = (order:Order,type) =>{ 
-    console.log(order)
     let orders = billment.orders  
     if(type === "sub"){
       orders.forEach(o=>{
         if(o.foodId === order.foodId && o.quantity >=1  && order.index === o.index){
-            if(order.toppingPrice > 0){
-              o.amount -= order.toppingPrice
-            }
             o.quantity -= 1
             o.amount -= o.price
-            setBillMent({...billment,orders,payment_info:{...billment.payment_info,total:billment.payment_info?.total - order.price - (order.toppingPrice || 0),sub_total:billment.payment_info?.sub_total-order.price-(order.toppingPrice || 0)}})
+            setBillMent({...billment,orders,payment_info:{...billment.payment_info,total:billment.payment_info?.total - order.price ,sub_total:billment.payment_info?.sub_total-order.price}})
         }
       })
     }  
     if(type === "add"){
       orders.forEach(o=>{
         if(o.foodId === order.foodId && order.index === o.index){
-          if(order.toppingPrice > 0){
-            o.amount += order.toppingPrice
-          }
             o.quantity += 1
             o.amount += o.price
 
         }
       })
-      setBillMent({...billment,orders,payment_info:{...billment.payment_info,total:billment.payment_info?.total + order.price + (order.toppingPrice || 0),sub_total:billment.payment_info?.sub_total+order.price+(order.toppingPrice||0)}})
+      setBillMent({...billment,orders,payment_info:{...billment.payment_info,total:billment.payment_info?.total + order.price,sub_total:billment.payment_info?.sub_total+order.price}})
     }
     let _menu = menu
         _menu.forEach(m=>{
@@ -388,12 +387,7 @@ const Menu = () => {
                   </div>
                   <div style={{display:'flex',justifyContent:'space-between'}}>
                     <NoteInput  placeholder="Thêm ghi chú..."/>                    
-                    {o.toppingPrice > 0 ? (
-                        <small><b>{convertToVnd(o.amount)}</b></small>
-                    ): (
-                      <small><b>{convertToVnd(o.amount)}</b></small>
-                    )}
-                    
+                    <small><b>{convertToVnd(o.amount)}</b></small>
                   </div>
                   <Divider/>
                   </Fragment>
@@ -409,12 +403,13 @@ const Menu = () => {
           </Grid>
           {/* style={{position:"fixed",width:"40%",paddingTop:"0",marginLeft:"60%"}} */}
           <Grid item xs={3}  >
-            <Text><b>Bàn:</b> {billment.payment_info?.table_name || billment.table_name}</Text>
-                <Text><b>Thành tiền:</b>{convertToVnd(billment.payment_info.total)}</Text>
-            <Text>Tổng tiền món: {convertToVnd(billment.payment_info?.sub_total || 0)}</Text>
+            <Text><b>Bàn: </b> {billment.payment_info?.table_name || billment.table_name}</Text>
+            <Text><b>Thành tiền:</b>{convertToVnd(billment.payment_info.total)}</Text>
+            <Text><b>Tổng giảm giá: </b> {convertToVnd(billment.payment_info?.sub_total - billment.payment_info?.total)}</Text>
+            <Text><b>Tổng tiền món: </b> {convertToVnd(billment.payment_info?.sub_total || 0)}</Text>
             <CustomerPayment/>
-            <Coupon/>
-                    <Text>Phí dịch vụ, phụ thu:</Text>
+            <Coupon/> 
+            <Text>Phí dịch vụ, phụ thu:</Text>
             <Text>Loại tiền:</Text>
             <Text>Khuyến mãi đang áp dụng:</Text>
             <ul>

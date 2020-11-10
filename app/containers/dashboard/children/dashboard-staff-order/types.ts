@@ -72,7 +72,7 @@ type Food = {
     name: string
     price: number
     quantity: number
-    amout: number
+    amount: number
 } 
 export type Order = {
     amount?:number

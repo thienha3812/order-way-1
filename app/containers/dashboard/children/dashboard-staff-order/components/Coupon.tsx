@@ -29,6 +29,7 @@ import ConfigService from "../../../../../services/config";
 import { MdAdd } from "react-icons/md";
 import { RiSubtractLine } from "react-icons/ri";
 import StaffService from "../../../../../services/staff";
+import { current } from "@reduxjs/toolkit";
 
 const TabPanel = (props) => {
   const { children, value, index, ...other } = props;
@@ -78,6 +79,52 @@ const Coupon = () => {
     return config.filter((c) => c.fields.code === "quantity_pmt")[0].fields
       .value;
   };
+  const allowAddMore = (promotion) : boolean => { 
+    let allow =  false 
+    switch(promotion.type){
+      case "discount_with_max_value":
+        const allowQuantityDiscountWithMaxValue = config.filter(c=> c.fields.code === "quantity_discount")[0].fields.value
+        let quantityDiscountWithMaxValue = billment.pmts?.filter((p)=> p.type == "discount").reduce((a,b)=> a + b.quantity_apply,0)
+        if(allowQuantityDiscountWithMaxValue == 2){
+          allow = true
+        }
+        if(allowQuantityDiscountWithMaxValue == 1 && quantityDiscountWithMaxValue < 1){
+            allow = true
+        }
+        break
+      case "discount":
+        const allowQuantityDiscount = config.filter(c=> c.fields.code === "quantity_discount")[0].fields.value
+        let quantityDiscount = billment.pmts?.filter((p)=> p.type == "discount").reduce((a,b)=> a + b.quantity_apply,0)
+        if(allowQuantityDiscount == 2){
+          allow = true
+        }
+        if(allowQuantityDiscount == 1 && quantityDiscount < 1){
+            allow = true
+        }
+        break
+      case "free_item":
+        const allowQuantityFreeItem = config.filter(c=> c.fields.code === "quantity_free_item")[0].fields.value
+        let quantityFreeItem = billment.pmts?.filter((p)=> p.type == "free_item").reduce((a,b)=> a + b.quantity_apply,0)
+        if(allowQuantityFreeItem == 2){
+            allow = true
+        }
+        if(allowQuantityFreeItem == 1 && quantityFreeItem < 1){
+            allow = true
+        }
+        break  
+      case "voucher":
+        const allowQuantityVoucher = config.filter(c=> c.fields.code === "quantity_voucher")[0].fields.value
+        let quantityVoucher = billment.pmts?.filter((p)=> p.type == "free_item").reduce((a,b)=> a + b.quantity_apply,0)
+        if(allowQuantityVoucher == 2){
+          allow = true
+        }
+        if(allowQuantityVoucher == 1 && quantityVoucher < 1){
+            allow = true
+        }
+        break         
+    }
+    return allow
+  }
   const handleChangeTab = (event, newValue) => {
     setValue(newValue);
   };
@@ -124,9 +171,14 @@ const Coupon = () => {
       setBillMent({ ...billment, pmts: _pmts.filter(_p => _p.quantity_apply !== 0) });
     }
   };
-  const handleScan = (data) => {
+  const formatID = (id:string) =>{
+    let len = 6 - id.length            
+    return new Array(len).fill("0").join("").concat(id)
+  }
+  const handleScan = (data:string) => {
     if (data) {
-      PromotionService.checkPmt({ pmt_id: "00000046", totalPrice: 11200 })
+      let texts = data.split("-")
+      PromotionService.checkPmt({ pmt_id: formatID(texts[0]), totalPrice: 11200 })
         .then((result) => {
           mapApplyQuantityFromPromotionStoretToPmt(result.data,"add")
         })
@@ -174,6 +226,15 @@ const Coupon = () => {
           }
         }
       }
+      const allow = allowAddMore(promotion)
+      if(!allow){
+        setMessageBox({
+          open: true,
+          message:"Bạn chỉ áp dụng được duy nhất một mã khuyến mãi trên đơn hàng này",
+          type: "warning",
+        });
+        return
+      }
       let _promotionStore = promotionOfStore;
       _promotionStore.forEach((p) => {
         if (p.id === promotion.id) {
@@ -204,11 +265,11 @@ const Coupon = () => {
     PromotionService.checkPmt({ pmt_id: couponInput, totalPrice: 11200 })
       .then((result) => {
         if (Number(quantity_pmt) === 2) {
-          increaseOrAddPmt(result.data);
-        } else {
-          if (billment.pmts?.length == 0) {
-            console.log(result.data);
-            increaseOrAddPmt(result.data);
+          updatePromotionStore(result.data,"add");
+        } 
+        else {
+          if (billment.pmts?.filter(p=> p.quantity_apply !==0).length == 0) {
+            updatePromotionStore(result.data,"add");
           } else {
             setMessageBox({
               open: true,
@@ -218,8 +279,6 @@ const Coupon = () => {
             });
           }
         }
-
-        setOpenTypeCoupon(false);
       })
       .catch(() => {
         setMessageBox({
@@ -229,41 +288,69 @@ const Coupon = () => {
         });
       });
   };
-  const caculateRateDiscount = () =>{
-    let sum = 0
+  const caculateValueDiscount = () =>{
+    let value = 0
     let pmts = billment.pmts?.filter(p=> p.quantity_apply !== 0)
     if(pmts?.length > 0){
         pmts?.forEach(p=>{
-          if(p.discount_percent > 0){
-            sum += Number.parseFloat(p.discount_percent)
+          if(p.discount_percent > 0 && p.type === "discount"){
+            value += Number.parseFloat(p.discount_percent*p.quantity_apply)
           }
         })
     }
-    return sum
+    return value
+  }
+  const caculateValueFreeItem = () =>{
+    let value = 0 
+    let pmts = billment.pmts?.filter(p=> p.quantity_apply !== 0 && p.type === "free_item")
+    pmts?.forEach((p)=>{
+      const current_apply = p.quantity_apply
+      const sortFollowAmount = billment.payment_info.foods?.filter(f=> f.foodId == p.item_free).sort((a,b)=> a.price < b.price)
+      let applied = 0
+      if(sortFollowAmount?.length > 0){
+        sortFollowAmount.forEach((food)=>{
+          value += Math.min(current_apply - applied,food.quantity) * food.price
+          applied += Math.min(current_apply - applied,food.quantity)
+        })
+      }
+    })
+    return value
+  }
+  const caculateMaxValueVoucher = () => {
+    let value = 0
+    let pmts = billment.pmts?.filter(p=> p.quantity_apply !== 0 && p.type === "discount_with_max_value")
+    pmts?.forEach(p=>{
+      if(billment.payment_info?.sub_total >= p.discount_on_amount){
+          let discountOnPercent = (p.discount_percent/100) * billment.payment_info?.sub_total 
+          value += Math.min(discountOnPercent,p.max_discount) * p.quantity_apply
+      }
+    })
+    return value 
   }
   const caculateValueVoucher = () =>{
     let sum = 0
     let pmts = billment.pmts?.filter(p=> p.quantity_apply !== 0)
     if(pmts?.length > 0){
         pmts?.forEach(p=>{
-          if(p.value_of_voucher > 0){
-            sum += Number.parseFloat(p.value_of_voucher)
+          if(p.value_of_voucher > 0 &&  p.type=== "voucher"){
+            sum += Number.parseFloat(p.value_of_voucher * p.quantity_apply)
           }
         })
     }
+    console.log(sum)
     return sum
   }
   const applyPromotion = async () =>{    
-    const discount_percent = caculateRateDiscount()
+    const discount_percent = caculateValueDiscount()
     const valueVoucher = caculateValueVoucher()
+    const valueFreeItem = caculateValueFreeItem()
+    const valueWithMaxValue = caculateMaxValueVoucher()
     const payment_info = billment.payment_info
-    console.log(valueVoucher)
-    console.log(discount_percent)
-    await  StaffService.updatStoreOrderInfo({
+    StaffService.updatStoreOrderInfo({
       address: payment_info?.address,
       bill_number:payment_info?.bill_number,
       bill_sequence:payment_info?.bill_sequence,
-      cash: payment_info?.sub_total - valueVoucher - (payment_info?.sub_total * (discount_percent/100)),
+      cash: Math.max(0,payment_info?.sub_total - valueVoucher - (payment_info?.sub_total * (discount_percent/100)) -valueFreeItem - valueWithMaxValue),
       content_discount: payment_info?.content_discount,
       credit:payment_info?.credit,
       cus_order_id:payment_info?.cus_order_id,
@@ -275,8 +362,7 @@ const Coupon = () => {
       id:payment_info?.id,
       is_payment:payment_info?.is_payment,
       phone_number:payment_info?.phone_number,
-      promotionId:billment.pmts,
-      rate_discount:payment_info?.rate_discount,
+      promotionId:billment.pmts?.filter(p=> p.quantity_apply !== 0),
       service:payment_info?.service,
       store_id:payment_info?.store_id,
       store_name:payment_info?.store_name,
@@ -284,34 +370,46 @@ const Coupon = () => {
       table_id:payment_info?.table_id,
       table_name: payment_info.table_name,
       time_in:payment_info?.time_in,
-      total:payment_info?.sub_total - valueVoucher - (payment_info?.sub_total * (discount_percent/100)),
+      total:Math.max(0,payment_info?.sub_total - valueVoucher - (payment_info?.sub_total * (discount_percent/100)) - valueFreeItem - valueWithMaxValue),
       vat_percent:payment_info?.vat_percent,
       vat_value:payment_info?.vat_value
+    }).then(async()=>{
+      const {payment_info : new_payment_info,pmts} = await StaffService.getPaymentInfo(billment.tableId)
+      setBillMent({...billment,pmts,payment_info:new_payment_info})
+      setOpenTypeCoupon(false)
+      setMessageBox({message:"Sử dụng mã khuyến mãi thành công",open:true,type:"success"})
+    }).catch(err=>{
+      setMessageBox({message:"Đã xảy ra lỗi!",open:true,type:"warning"})
     })
-    const {payment_info : new_payment_info,pmts} = await StaffService.getPaymentInfo(billment.tableId)
-    setBillMent({...billment,pmts,payment_info:new_payment_info})
-    setOpenTypeCoupon(false)
+    
   }
   const handleCloseTypeCoupon =  async () =>{
-    setOpenTypeCoupon(false)  
-    const {pmts} = await StaffService.getPaymentInfo(billment.tableId)
-    setBillMent({...billment,pmts,payment_info:{...billment.payment_info,rate_discount:0}})
-    let _promotionOfStore = promotionOfStore
-    _promotionOfStore.forEach((promotion) => {
-      promotion.quantity_apply = 0;
-      pmts?.forEach((pmt) => {
-        if (pmt.id === promotion.id) {
-          promotion.quantity_apply = pmt.quantity_apply;
-        }
+    try{
+      setOpenTypeCoupon(false)  
+      const {pmts} = await StaffService.getPaymentInfo(billment.tableId)
+      if(!pmts || pmts.length === 0){
+        return
+      }
+      setBillMent({...billment,pmts,payment_info:{...billment.payment_info}})
+      let _promotionOfStore = promotionOfStore
+      _promotionOfStore.forEach((promotion) => {
+        promotion.quantity_apply = 0;
+        pmts?.forEach((pmt) => {
+          if (pmt.id === promotion.id) {
+            promotion.quantity_apply = pmt.quantity_apply;
+          }
+        });
       });
-    });
-    setPromotionOfStore(_promotionOfStore);
+      setPromotionOfStore(_promotionOfStore);
+    }catch(err){
+      setOpenTypeCoupon(false)  
+    }
   }
-  
+
   return (
     <Fragment>
       <div style={{ display: "flex", alignItems: "center" }}>
-        <div>Khuyến mãi:</div>
+        <div><b>Khuyến mãi: </b></div>
         <IconButton
           onClick={() => setOpenScanCoupon(!openScanCoupon)}
           style={{ color: "black", borderRadius: 0 }}
@@ -325,8 +423,6 @@ const Coupon = () => {
           <GrAdd />
         </IconButton>
       </div>
-      {/* <CustomAlert type={messageBox.type} closeMessage={handleCloseMessageBox} message={messageBox.message} open={messageBox.open} />       */}
-
       {openScanCoupon && (
         <div>
           <QrReader
@@ -348,6 +444,11 @@ const Coupon = () => {
         open={openTypeCoupon}
         onClose={() => setOpenTypeCoupon(false)}
         fullWidth
+        BackdropProps={{
+          style:{
+            backgroundColor:"transparent"
+          }
+        }}
         maxWidth="sm"
       >
         <DialogTitle>Áp dụng khuyến mãi</DialogTitle>
@@ -381,6 +482,14 @@ const Coupon = () => {
             </Grid>
             <div style={{ marginTop: "20px" }}> </div>
             <Divider />
+            <h5>Đang áp dụng </h5>
+            <Grid container>
+                <ul>
+                    {billment.pmts.filter(p=>p.quantity_apply !==0).map((p=>(
+                      <li>{p.quantity_apply} x {p.name}</li>
+                    )))}
+                </ul>
+            </Grid>
           </TabPanel>
           <TabPanel value={value} index={1}>
             <Grid container>
@@ -434,7 +543,7 @@ const Coupon = () => {
             <h5>Đang áp dụng </h5>
             <Grid container>
                 <ul>
-                    {promotionOfStore.filter(p=>p.quantity_apply !==0).map((p=>(
+                  {billment.pmts.filter(p=>p.quantity_apply !==0).map((p=>(
                       <li>{p.quantity_apply} x {p.name}</li>
                     )))}
                 </ul>

@@ -95,10 +95,18 @@ const CustomerPayment =  () => {
         const {data} = await MasterService.getCity()
         setCitis(data)
     }
-    const handleScan = data => {
+    const handleScan = async data => {
         if (data) {
+            const info = data.split("-") 
+            if(info[0]){
+                StaffService.updateCustomerIntoOrder({cusId:info[0],orderId:billment.payment_info?.id}).then(()=>{
+                setCustomer(info[2])
+                    
+                }).catch(err=>{
+                    setMessageBox({open:true,message:"Qr không hợp lệ",type:"warning"})
+                })
+            }
             setOpen(false)
-            setCustomer(data.split("-")[2])
         }
       }
     const handleCloseMessageBox =() =>{
@@ -114,8 +122,7 @@ const CustomerPayment =  () => {
         const {data} = await StaffService.searchCustomer({phone_number})
         setCustomers(data)
     }
-    const handleSelectCustomer =async (customer) =>{
-        
+    const handleSelectCustomer =async (customer) =>{        
         if(billment.payment_info?.id){
             await StaffService.updateCustomerIntoOrder({cusId:customer.id,orderId:billment.payment_info?.id})
         }
@@ -156,8 +163,8 @@ const CustomerPayment =  () => {
         <Fragment>
           <div style={{display:"flex",alignItems:'center'}}>
               <div>
-                  Khách hàng: {customer}
-            </div>
+                  <b>Khách hàng:</b> {customer}
+                </div>
               <IconButton onClick={()=>setOpen(!openScanQr)} style={{color:"black",borderRadius:0}}>
                   <IoMdQrScanner/>
               </IconButton>
@@ -168,7 +175,17 @@ const CustomerPayment =  () => {
                   <GrAdd/>
               </IconButton>
           </div>
-          <Dialog open={openAddCustomer} fullWidth maxWidth="md">
+          <Dialog  
+          
+          open={openAddCustomer} 
+          fullWidth 
+          maxWidth="md"
+          BackdropProps={{
+              style:{
+                  backgroundColor:"transparent"
+              }
+          }}
+          >
                 <DialogTitle> 
                     Thêm khách hàng
                 </DialogTitle>
@@ -228,7 +245,16 @@ const CustomerPayment =  () => {
                     <Button disabled={error.error_birth_day || error.error_city || error.error_district || error.error_name || error.error_phone_number}  onClick={handleAddCustomer}>Đăng ký</Button>
                 </DialogActions>
           </Dialog>
-          <Dialog open={openSearchDialog} onClose={()=>setOpenSearchDialog(false)} fullWidth >
+          <Dialog 
+          open={openSearchDialog} 
+          onClose={()=>setOpenSearchDialog(false)} 
+          fullWidth
+          BackdropProps={{
+            style:{
+                backgroundColor:"transparent"
+            }
+            }}
+            >
                 <DialogTitle>
                     Tìm kiếm khách hàng
                 </DialogTitle>
@@ -246,11 +272,6 @@ const CustomerPayment =  () => {
                                 <IconButton onClick={handleSearchCustomer} style={{color:"black",borderRadius:0}}>
                                     <BsSearch/>
                                 </IconButton>                            
-                                </Grid>
-                                <Grid item xs={6}>
-                                    <IconButton onClick={()=>setOpen(true)} style={{color:"black",borderRadius:0}}>
-                                        <GrAdd/>
-                                    </IconButton>
                                 </Grid>
                             </Grid>
                         </Grid>

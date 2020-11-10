@@ -36,7 +36,6 @@ const SelectTopping = (props:Order) =>{
     const addToOrders  = () => {
         let nameOptions = []
         let  toppingPrice = 0
-        console.log(toppings)
         let _topping  = []
         toppings.forEach((topping)=>{
             if(topping.selected === true){
@@ -56,7 +55,7 @@ const SelectTopping = (props:Order) =>{
         })
         setBillMent({...billment,payment_info:{total : billment.payment_info?.total + props.price + (toppingPrice || 0),sub_total:billment.payment_info?.sub_total + props.price + (toppingPrice||0)},orders:[...billment.orders,{
             name : props.name + "(" + nameOptions.join(" ") + ")",
-            price: props.price,
+            price: props.price + toppingPrice,
             amount:props.price + toppingPrice,
             foodId:props.foodId,
             quantity:1,
