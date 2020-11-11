@@ -19,7 +19,7 @@ import MenuService from "../../../../../services/menu";
 import { useSelector } from "react-redux";
 import { userSelector } from "../../../../../features/user/userSlice";
 import { Order } from "../types";
-import {caculateValueFreeItem, convertToVnd} from '../../../../../utils'
+import {caculateAllValue, caculateValueFreeItem, convertToVnd} from '../../../../../utils'
 import CustomerService from "../../../../../services/customer";
 import CustomAlert from "../../../../../components/Alert";
 import SelectTopping from "./SelectTopping";
@@ -208,7 +208,7 @@ const Menu = () => {
   const [isLoading,setLoading] = useState(false)
   const [categories,setCategories] = useState<Category[]>([])
   const [data,setData]  = useState<Data[]>([])
-  const {billment,setBillMent,setOpenMergeTable,setOpenChangeTable,setOpenCancelOrder,setOpenScanCoupon,setOpenTypeCoupon} = useContext(Context)
+  const {billment,setBillMent,setOpenCancelFood,setOpenMergeTable,setOpenChangeTable,setOpenCancelOrder,setOpenScanCoupon,setOpenTypeCoupon} = useContext(Context)
   const [selectedCategory,setSelectedCategory] = useState("")
   const [menu,setMenu] = useState<Menu[]>([])
   const [messageBox,setMessagBox] = useState({open:false,message:"",type:""})
@@ -270,11 +270,15 @@ const Menu = () => {
     CustomerService.sendOrder({customerId:null,customerName:null, tableId:billment.tableId,userType:"staff",staffId:user.staff_info.pk,storeId:user.staff_info.fields.store_id.toString(),request:null,staffName:user.staff_info.fields.name,orders}).then(async()=>{
         setMessagBox({open:true,message:"Đặt món thành công vui lòng chờ đợi !",type:"info"})      
         resetData()
-        const {payment_info,pmts} = await StaffService.getPaymentInfo(billment.tableId)
+        let {payment_info,pmts} = await StaffService.getPaymentInfo(billment.tableId)
         if(billment.status === 0){
             setBillMent({...billment,status:1,payment_info,pmts,orders:[]})
         }else{
-            setBillMent({...billment,payment_info,pmts,orders:[]})
+          let allValue = caculateAllValue({payment_info,pmts})
+          allValue = Math.max(0,payment_info.sub_total - allValue)
+          setBillMent({...billment,payment_info:{...payment_info,total:allValue},pmts,orders:[]})
+          payment_info.total = allValue
+          await StaffService.updatStoreOrderInfo({...payment_info,promotionId:pmts})
         }
       }).catch(err=>{
         setMessagBox({open:true,message:err.toString(),type:"error"})      
@@ -528,7 +532,7 @@ const Menu = () => {
           {billment.status !== 0 && (
             <>
             <Button variant="contained" onClick={()=>setOpenCancelOrder(true)} >Hủy order</Button>
-          <Button variant="contained">Hủy món</Button>
+          <Button variant="contained" onClick={()=>setOpenCancelFood(true)}>Hủy món</Button>
           <Button variant="contained" onClick={cleanTable}>Dọn bàn</Button>
           
           <Button variant="contained" onClick={()=>setOpenChangeTable(true)}>Đổi bàn</Button>

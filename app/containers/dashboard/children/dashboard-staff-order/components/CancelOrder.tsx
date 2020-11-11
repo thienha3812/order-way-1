@@ -15,6 +15,7 @@ const CancelOrder = () =>{
     const fetch = async () =>{ 
         const {data} = await StaffService.getOrderInfo(billment.tableId)
         setOrder(data)
+        console.log(data)
     }
     useEffect(()=>{
         fetch()
@@ -53,7 +54,7 @@ const CancelOrder = () =>{
                             <h4 style={{color:"red"}}>Bạn có yêu cầu hủy trước đó chưa được xác nhận. Hãy xác nhận lần hủy trước để thực hiện yêu cầu hủy tiếp theo</h4>
                         )}
                     </div>
-                    {order.have_cancel == false && ( 
+                    {(order.payment_info !== null && order.have_cancel == false ) && ( 
                        <>
                         <h3>Bàn: {order.payment_info.table}</h3>
                         <h3>Danh sách món đã Order</h3>
@@ -69,7 +70,7 @@ const CancelOrder = () =>{
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={()=>setOpenCancelOrder(false)}>Quay lại</Button>
-                    <Button onClick={handleCancelOrder}>Hủy Order</Button>
+                    <Button disabled={order.payment_info==null} onClick={handleCancelOrder}>Hủy Order</Button>
                 </DialogActions>
             </Dialog>
         </>

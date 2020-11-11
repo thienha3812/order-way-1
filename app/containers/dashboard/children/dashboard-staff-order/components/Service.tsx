@@ -23,7 +23,7 @@ import React, {
   import Box from "@material-ui/core/Box";
   import Paper from "@material-ui/core/Paper";
   import { Context } from "../Context";
-  import { convertToVnd } from "../../../../../utils";
+  import { caculateAllValue, convertToVnd } from "../../../../../utils";
   import CustomAlert from "../../../../../components/Alert";
 import StaffService from "../../../../../services/staff";
   
@@ -85,7 +85,7 @@ import StaffService from "../../../../../services/staff";
         return;
       }
       let service = billment.payment_info.service;
-      service.push({...serviceForm,index:billment.payment_info?.service?.length});
+      service.push({...serviceForm,new:true,index:billment.payment_info?.service?.length});
       setBillMent({
         ...billment,
         payment_info: { ...billment.payment_info, service },
@@ -93,6 +93,8 @@ import StaffService from "../../../../../services/staff";
     };
     const confirmUpdateOrder =() =>{ 
         let payment_info = billment.payment_info
+        let sub_total = Number(payment_info?.sub_total) + payment_info?.service?.filter(s => s.new === true).reduce((a,b)=> a + Number(b.price),0)
+        let total = sub_total - caculateAllValue({payment_info : {...payment_info,sub_total : sub_total},pmts : billment.pmts})
         StaffService.updatStoreOrderInfo({
             address: payment_info?.address,
             bill_number:payment_info?.bill_number,
@@ -110,17 +112,20 @@ import StaffService from "../../../../../services/staff";
             is_payment:payment_info?.is_payment,
             phone_number:payment_info?.phone_number,
             promotionId: billment.pmts,
-            service:payment_info?.service,
+            service:payment_info?.service?.map(s => ({type : s.type,name:s.name,price:s.price})),
             store_id:payment_info?.store_id,
             store_name:payment_info?.store_name,
-            sub_total:payment_info?.sub_total,
+            sub_total: sub_total,
             table_id:payment_info?.table_id,
             table_name: payment_info.table_name,
             time_in:payment_info?.time_in,
-            total: payment_info.total,
+            total:total,
             vat_percent:payment_info?.vat_percent,
             vat_value:payment_info?.vat_value
-          }).then(result=>{
+          }).then(async(result)=>{
+              setOpenModal(false)
+              const {payment_info,pmts} = await StaffService.getPaymentInfo(billment.tableId)
+              setBillMent({...billment,payment_info,pmts})
               setMessagBox({type:"success",open:true,message:"Cập nhật thành công"})
           }).catch(err=>{
             setMessagBox({type:"warning",open:true,message:"Lỗi"})
@@ -148,15 +153,54 @@ import StaffService from "../../../../../services/staff";
         return;
       }
       let service = billment.payment_info.service;
-      service.push(surchargeForm);
+      service.push({...surchargeForm,new : true});
       setBillMent({
         ...billment,
         payment_info: { ...billment.payment_info, service },
       });
     };
     const removeService = (service,index) => {
+        let payment_info = billment.payment_info  
         let _service = billment.payment_info?.service
+        let sub_total = billment.payment_info?.sub_total - service.price
+        let total =  sub_total -  caculateAllValue({payment_info : {...payment_info,sub_total : sub_total},pmts : billment.pmts})
         delete _service[index]
+        if(service.new !== true){
+          StaffService.updatStoreOrderInfo({
+            address: payment_info?.address,
+            bill_number:payment_info?.bill_number,
+            bill_sequence:payment_info?.bill_sequence,
+            cash: payment_info.cash,
+            content_discount: payment_info?.content_discount,
+            credit:payment_info?.credit,
+            cus_order_id:payment_info?.cus_order_id,
+            customer_id:payment_info?.customer_id,
+            customer_name:payment_info?.customer_name,
+            discount_amount:payment_info?.discount_amount,
+            e_money:payment_info?.e_money,
+            foods:payment_info.foods,
+            id:payment_info?.id,
+            is_payment:payment_info?.is_payment,
+            phone_number:payment_info?.phone_number,
+            promotionId: billment.pmts,
+            service:_service.filter(Boolean),
+            store_id:payment_info?.store_id,
+            store_name:payment_info?.store_name,
+            sub_total: sub_total,
+            table_id:payment_info?.table_id,
+            table_name: payment_info.table_name,
+            time_in:payment_info?.time_in,
+            total:total,
+            vat_percent:payment_info?.vat_percent,
+            vat_value:payment_info?.vat_value
+          }).then(async(result)=>{
+              const {payment_info,pmts} = await StaffService.getPaymentInfo(billment.tableId)
+              setBillMent({...billment,payment_info,pmts})
+              setMessagBox({type:"success",open:true,message:"Cập nhật thành công"})
+          }).catch(err=>{
+            setMessagBox({type:"warning",open:true,message:"Lỗi"})
+          })
+        }
         setBillMent({...billment,payment_info:{...billment.payment_info,service:_service}})
     }
     return (

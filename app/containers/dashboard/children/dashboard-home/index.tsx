@@ -19,6 +19,7 @@ import { useHistory } from "react-router";
 import { DASHBOARD_BILL_HISTORY, DASHBOARD_ORDER_HISTORY } from "../../../../constants/routes";
 import OrderDetail from "../../../../components/OrderDetail";
 import _ from 'lodash'
+import StaffService from "../../../../services/staff";
 const Wrapper = styled.div`
   padding: 5%;
 `;
@@ -54,7 +55,7 @@ const RenderList = ()  => {
     }
     const handleUpdateToFinish  = async (order:Order) => {
         OrderService.updateStatusOrderToFinish({id:order.orderId}).then(()=>{
-            setMessagBox({open:true,message:"Cập nhật Order thành công!",type:"success"})    
+            setMessagBox({open:true,message:"Hủy Order thành công!",type:"success"})    
             setOrders({...orders,orders_finish:[...orders.orders_finish,order],orders_done:[...orders.orders_done.filter(o => o.orderId !== order.orderId)]})
         }).catch(err=>{ 
             setMessagBox({open:true,message:err.toString(),type:"error"})
@@ -70,15 +71,38 @@ const RenderList = ()  => {
     }
     const handleUpdateToDoing = async (order:Order) =>{ 
         OrderService.updateStatusOrderToDoing({id:order.orderId}).then(()=>{
+            setOrders({...orders,orders_doing:[...orders.orders_doing,order],orders_approved:[...orders.orders_approved.filter(o=> o.orderId !== order.orderId)]})
             setMessagBox({open:true,message:"Cập nhật Order thành công!",type:"success"})
         }).catch((err)=>{
             setMessagBox({open:true,message:err.toString(),type:"error"})
         })
-        setOrders({...orders,orders_doing:[...orders.orders_doing,order],orders_approved:[...orders.orders_approved.filter(o=> o.orderId !== order.orderId)]})
     }
     const handleCloseMessageBox =() =>{
         setMessagBox({...messageBox,open:false})
     } 
+    const handleUpdateCreatedOrder = order =>{
+      console.log(order)
+      if(order.type === "cancel_order"){
+        OrderService.confirmCancelOrder({tableId:order.table_id,order_id:order.orderId}).then(()=>{
+          setMessagBox({open:true,message:"Hủy Order thành công!",type:"success"})
+          setOrders({...orders,orders_created:[...orders.orders_created.filter(o=> o.orderId !== order.orderId)]})
+        })
+        return
+      }
+      if(order.type === "cancel_food"){
+        OrderService.confirmCancelFood({tableId:order.table_id,order_id:order.orderId}).then(()=>{
+          setMessagBox({open:true,message:"Hủy món thành công!",type:"success"})
+          setOrders({...orders,orders_created:[...orders.orders_created.filter(o=> o.orderId !== order.orderId)]})
+        })
+        return 
+      }
+      if(order.type === "order"){
+        StaffService.updateOrderStatusToApproved({id:order.orderId,phoneNumber:null}).then(()=>{
+          setMessagBox({open:true,message:"Cập nhật Order thành công!",type:"success"})
+          setOrders({...orders,orders_approved:[...orders.orders_approved,order],orders_created:[...orders.orders_created.filter(o=> o.orderId !== order.orderId)]})
+        })
+      }
+    }
   return (
     <Fragment >
       {orders[selected].map((order: Order,index) => (
@@ -88,7 +112,7 @@ const RenderList = ()  => {
           </Grid>
           <Grid item xs={6}>
           {selected=="orders_created" && (
-                <Button onClick={()=>handleUpdateToDoing(order)} color="primary" variant="contained">
+                <Button onClick={()=>handleUpdateCreatedOrder(order)} color="primary" variant="contained">
                 Xác nhận <GiKnifeFork fontSize={20} />
               </Button>
             )}
@@ -196,11 +220,12 @@ const DashboardHome = (props: any) => {
       socket.onopen  = function(){
         console.log('connect socket')
       }
-      socket.onmessage = async function(){   
-          let sound = new Audio(Sound)
-          console.log('123')    
-          await sound.play()
-          fetch()      
+      socket.onmessage = async function(message){   
+          setTimeout(async()=>{
+            fetch()      
+            let sound = new Audio(Sound)
+            await sound.play()
+          },1000)
       }   
       return (()=>{
         socket.close()

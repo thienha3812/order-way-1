@@ -83,6 +83,21 @@ type UpdateStoreOrderInfo = {
     service: Array<any>
     promotionId: Array<any>
 }
+type SendCancelFoodDTO = {
+    customerId:  number | null
+    customerName: string
+    orderId: Array<any>
+    orders: Array<any>
+    staffId: number
+    staffName: string
+    table: string
+    tableId: number
+    userType: string
+}
+type UpdateOrderToApprovedDTO = {
+    id: number
+    phoneNumber: string   | null 
+}
 class StaffService { 
     constructor() {
     }
@@ -188,6 +203,22 @@ class StaffService {
     static async confirmPayMent(data:Partial<UpdateStoreOrderInfo>){
         try{
             const response = await apiConfig.post('staff/confirm-payment',data)
+            return response.data
+        }catch(err){
+            return Promise.reject(err)
+        }
+    }
+    static async sendCancelFood(data:SendCancelFoodDTO){
+        try{
+            const response = await apiConfig.post('staff/send-cancel-food',data)
+            return response.data
+        }catch(err){
+            return Promise.reject(err)
+        }
+    }
+    static async updateOrderStatusToApproved(data:UpdateOrderToApprovedDTO){
+        try{
+            const response = await apiConfig.post('staff/update-order-status-to-approved',{...data,status: "approved",type: "order"})
             return response.data
         }catch(err){
             return Promise.reject(err)

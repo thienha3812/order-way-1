@@ -15,7 +15,7 @@ export const caculateValueDiscount = (billment) =>{
           }
         })
     }
-    return value
+    return billment.payment_info.sub_total * (value/100)
   }
   export const caculateValueFreeItem = (billment) =>{
     let value = 0 
@@ -55,4 +55,11 @@ export const caculateValueDiscount = (billment) =>{
         })
     }
     return sum
+  }
+  export const caculateAllValue = (billment) => {
+      let valueVoucher = caculateValueVoucher(billment)
+      let valueMaxVoucher = caculateMaxValueVoucher(billment)
+      let valueDiscount = caculateValueDiscount(billment)
+      let valueFreeItem = caculateValueFreeItem(billment)
+      return valueDiscount + valueFreeItem + valueVoucher + valueMaxVoucher
   }

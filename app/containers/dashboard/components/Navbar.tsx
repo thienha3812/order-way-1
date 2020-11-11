@@ -53,7 +53,7 @@ const CustomNavbar = (props) => {
         </IconButton>
       </Item>
       <Item style={{ marginLeft: "auto", textAlign: "end", color: "#fff" }}>
-        {/* {staff_info.fields.name} */}
+        {staff_info.fields.name}
       </Item>
       <Item>
         <IconButton aria-describedby={id} onClick={handleClick}>

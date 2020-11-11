@@ -54,7 +54,7 @@ const Wrapper = styled.div`
 `
 
 const CustomerPayment =  () => { 
-    const {billment} = useContext(Context)
+    const {billment,setBillMent} = useContext(Context)
     const [openScanQr,setOpen] = useState(false)
     const [customer,setCustomer] = useState('')
     const [phone_number,setPhone] = useState('')
@@ -125,7 +125,7 @@ const CustomerPayment =  () => {
         if(billment.payment_info?.id){
             await StaffService.updateCustomerIntoOrder({cusId:customer.id,orderId:billment.payment_info?.id})
         }
-        setCustomer(customer.phone_number)
+        setBillMent({...billment,payment_info:{...billment.payment_info,customer_name:customer.nameký}})
         setOpenSearchDialog(false)
     }
     const handleSelectCity = async (event) =>{
@@ -141,7 +141,7 @@ const CustomerPayment =  () => {
         CustomerService.addCustomerByStaff(form).then(async (response)=>{
             setMessageBox({message:"Thêm khách hàng thành công!",open:true,type:"success"})
             await StaffService.updateCustomerIntoOrder({cusId:response.data.id,orderId:billment.payment_info?.id})
-            setCustomer(response.data.phone)
+            setBillMent({...billment,payment_info:{...billment.payment_info,customer_name:response.data.name}})
             setOpenAddCustomer(false)
             resetData()
         }).catch(err=>{
@@ -162,7 +162,7 @@ const CustomerPayment =  () => {
         <Fragment>
           <div style={{display:"flex",alignItems:'center'}}>
               <div>
-                  <b>Khách hàng:</b> {customer}
+                  <b>Khách hàng:</b> {billment.payment_info?.customer_name}
                 </div>
               <IconButton onClick={()=>setOpen(!openScanQr)} style={{color:"black",borderRadius:0}}>
                   <IoMdQrScanner/>

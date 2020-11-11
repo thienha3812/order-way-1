@@ -23,6 +23,8 @@ type IContext = {
     setOpenScanCoupon : (boolean) => void
     openTypeCoupon : boolean
     setOpenTypeCoupon : (boolean) => void
+    openCancelFood : boolean
+    setOpenCancelFood : (boolean) => void
 }
 
 
@@ -53,7 +55,9 @@ export const Context = React.createContext<IContext>({
     openScanCoupon:false,
     setOpenScanCoupon:(value:boolean) =>{},
     openTypeCoupon:false,
-    setOpenTypeCoupon:(value:boolean) =>{}
+    setOpenTypeCoupon:(value:boolean) =>{},
+    openCancelFood : false,
+    setOpenCancelFood : (value:boolean) =>{}
 })
 
 

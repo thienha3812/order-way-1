@@ -16,7 +16,8 @@ import MergeTable from './components/MergeTable';
 import ChangeTable from './components/ChangeTable';
 import CancelOrder from './components/CancelOrder';
 import Sound  from '../../../../assets/mp3/onmessage.mp3'
-import { caculateMaxValueVoucher, caculateValueDiscount, caculateValueVoucher,caculateValueFreeItem } from '../../../../utils';
+import { caculateMaxValueVoucher, caculateValueDiscount, caculateValueVoucher,caculateValueFreeItem, caculateAllValue } from '../../../../utils';
+import CancelFood from './components/CancelFood';
 
 
 
@@ -60,8 +61,9 @@ const RenderTable = () =>{
       setOpenMenu(true)
       return
     }
-    const valueFreeItem = caculateValueFreeItem({payment_info,pmts})
-    setBillMent({...billment,table_name:table.fields.name,status:2,tableId:table.pk.toString(),payment_info:{...payment_info,rate_discount:0},pmts})
+    let allValue = caculateAllValue({payment_info,pmts})
+    allValue = Math.max(0,payment_info.sub_total - allValue)
+    setBillMent({...billment,table_name:table.fields.name,status:2,tableId:table.pk.toString(),payment_info:{...payment_info,total:allValue},pmts})
     setOpenMenu(true)
   }
   const isActive = (status) => {
@@ -93,6 +95,7 @@ const StaffOrder = () => {
   const [openChangeTable,setOpenChangeTable] = useState(false)
   const [ openScanCoupon,setOpenScanCoupon] = useState(false)
   const [openTypeCoupon,setOpenTypeCoupon] = useState(false)
+  const [openCancelFood ,setOpenCancelFood] = useState(false)
   const [billment,setBillMent] = useState<Billment>({all_price:0,price:0,coupon:"",currency_type:"",orders:[],table_name:'',tableId:"",payment_info:{foods:[],service:[],total:0,sub_total:0}})
   
   const fetch = async () =>{ 
@@ -136,7 +139,9 @@ const StaffOrder = () => {
         openScanCoupon,
         setOpenScanCoupon,
         openTypeCoupon,
-        setOpenTypeCoupon
+        setOpenTypeCoupon,
+        setOpenCancelFood,
+        openCancelFood
     }}>
        <Wrapper>
       {openMenu && (
@@ -155,6 +160,9 @@ const StaffOrder = () => {
       }
       {openCancelOrder && (
         <CancelOrder/>
+      )}
+      {openCancelFood && (
+          <CancelFood/>
       )}
       <RenderTable/>  
     </Wrapper>

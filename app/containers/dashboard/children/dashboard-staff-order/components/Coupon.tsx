@@ -30,6 +30,7 @@ import { MdAdd } from "react-icons/md";
 import { RiSubtractLine } from "react-icons/ri";
 import StaffService from "../../../../../services/staff";
 import { current } from "@reduxjs/toolkit";
+import { caculateAllValue } from "../../../../../utils";
 
 const TabPanel = (props) => {
   const { children, value, index, ...other } = props;
@@ -288,7 +289,7 @@ const Coupon = () => {
           }
         })
     }
-    return value
+    return billment.payment_info?.sub_total * (value/100)
   }
   const caculateValueFreeItem = () =>{
     let value = 0 
@@ -330,7 +331,7 @@ const Coupon = () => {
     return sum
   }
   const applyPromotion = async () =>{    
-    const discount_percent = caculateValueDiscount()
+    const valuePercent = caculateValueDiscount()
     const valueVoucher = caculateValueVoucher()
     const valueFreeItem = caculateValueFreeItem()
     const valueWithMaxValue = caculateMaxValueVoucher()
@@ -339,7 +340,7 @@ const Coupon = () => {
       address: payment_info?.address,
       bill_number:payment_info?.bill_number,
       bill_sequence:payment_info?.bill_sequence,
-      cash: Math.max(0,payment_info?.sub_total - valueVoucher - (payment_info?.sub_total * (discount_percent/100)) -valueFreeItem - valueWithMaxValue),
+      cash: Math.max(0,payment_info?.sub_total - valueVoucher - valuePercent - valueFreeItem - valueWithMaxValue),
       content_discount: payment_info?.content_discount,
       credit:payment_info?.credit,
       cus_order_id:payment_info?.cus_order_id,
@@ -359,7 +360,7 @@ const Coupon = () => {
       table_id:payment_info?.table_id,
       table_name: payment_info.table_name,
       time_in:payment_info?.time_in,
-      total:Math.max(0,payment_info?.sub_total - valueVoucher - (payment_info?.sub_total * (discount_percent/100)) - valueFreeItem - valueWithMaxValue),
+      total:Math.max(0,payment_info?.sub_total - valueVoucher - valuePercent - valueFreeItem - valueWithMaxValue),
       vat_percent:payment_info?.vat_percent,
       vat_value:payment_info?.vat_value
     }).then(async()=>{

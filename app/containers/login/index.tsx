@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { Redirect } from 'react-router';
 import Background from '../../assets/images/login-bg.jpg';
 import { login, userSelector } from '../../features/user/userSlice';
 import { DASHBOARD } from '../../constants/routes';
+import CustomAlert from '../../components/Alert';
 
 const Wrapper = styled.div`
   display: flex;
@@ -52,14 +53,22 @@ const Button = styled.button`
     cursor: pointer;
   }
 `;
+
 const LoginPage: React.FC = () => {
   const dispatch = useDispatch();
   const [form, setForm] = useState({
-    phone_number: '0942137889',
-    password: '123456',
+    phone_number: '',
+    password: '',
+  });
+  const [messageBox, setMessagBox] = useState({
+    open: false,
+    message: "",
+    type: "",
   });
   const {
     user: { token },
+    loading,
+    error
   } = useSelector(userSelector);
   const handleInputPhone = (event: any) => {
     setForm({
@@ -67,12 +76,20 @@ const LoginPage: React.FC = () => {
       password: form.password,
     });
   };
+  useEffect(()=>{
+    if(error!==null){
+        setMessagBox({type:"warning",open:true,message:"Tài khoản hoặc mật khẩu không đúng"})
+    }
+  },[error])
   const handleInputPassword = (event: any) => {
     setForm({
       phone_number: form.phone_number,
       password: event.currentTarget.value,
     });
   };
+  const handleCloseMessageBox =() =>{
+    setMessagBox({...messageBox,open:false})
+  }
   const submit = async () => {
     if (form.phone_number === '' || form.password === '') {
       return;
@@ -97,8 +114,9 @@ const LoginPage: React.FC = () => {
           style={{ marginTop: '5%' }}
           placeholder="Mật khẩu"
         />
-        <Button onClick={submit}>Đăng nhập</Button>
+        <Button disabled={loading} onClick={submit}>Đăng nhập</Button>
       </Form>
+      <CustomAlert type={messageBox.type} closeMessage={handleCloseMessageBox} message={messageBox.message} open={messageBox.open} />      
     </Wrapper>
   );
 };

@@ -22,6 +22,10 @@ type UpdateToFinishDTO = {
     id:number,
     phoneNumber? : string,
 }
+type ConfirmCancelDTO = {
+    order_id: number
+    tableId: number
+}
 class OrderService { 
     constructor() {
 
@@ -58,6 +62,20 @@ class OrderService {
     static async updateStatusOrderToFinish(data:UpdateToFinishDTO){
         try{
             await apiConfig.post('staff/update-order-status-to-finished',{...data,phoneNumber:null,type:"order",status:"finished"})
+        }catch(err){
+            return Promise.reject(err)
+        }
+    }
+    static async confirmCancelOrder(data:ConfirmCancelDTO){
+        try{
+            await apiConfig.post('staff/confirm-cancel-order',data)
+        }catch(err){
+            return Promise.reject(err)
+        }
+    }
+    static async confirmCancelFood(data:ConfirmCancelDTO){
+        try{
+            await apiConfig.post('staff/confirm-cancel-food',data)
         }catch(err){
             return Promise.reject(err)
         }
