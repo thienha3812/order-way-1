@@ -3,7 +3,7 @@ import React, { useContext, useEffect,useState } from  'react'
 import { Context } from '../Context'
 import {useStyles} from '../index'
 import TableService from '../../../../../services/tables';
-import { Table } from '../../dashboard-\bstaff-order/types';
+import { Table } from '../../dashboard-staff-order/types';
 
 
 const SelectType = () =>{ 

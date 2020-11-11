@@ -1,6 +1,6 @@
 import apiConfig from './apiConfig';
 
-import {Order} from '../containers/dashboard/children/dashboard-staff-order/types'
+import {Order} from '../containers/dashboard/children/dashboard-staff-order/types'
 
 
 import moment from 'moment'

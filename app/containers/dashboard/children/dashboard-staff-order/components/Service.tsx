@@ -61,11 +61,14 @@ import StaffService from "../../../../../services/staff";
       setValue(newValue);
     };
     const handleServiceForm = (event, key) => {
-      setServiceForm({ ...serviceForm, [key]: Number.parseInt(event.target.value) });
+      setServiceForm({ ...serviceForm, [key]: event.target.value });
     };
     const handleCloseMessageBox = () => {
       setMessagBox({ ...messageBox,open: false});
     };
+    useEffect(()=>{
+      console.log(serviceForm)
+    },[serviceForm])
     const addServiceToOrder = () => {
       const regex = /^[0-9]*$/g;
       if (serviceForm.price == 0) {
@@ -203,6 +206,10 @@ import StaffService from "../../../../../services/staff";
         }
         setBillMent({...billment,payment_info:{...billment.payment_info,service:_service}})
     }
+    const handleCloseModel = () =>{
+        setBillMent({...billment,payment_info:{...billment.payment_info,service:billment.payment_info?.service.filter(s => s.new !== true)}})
+        setOpenModal(false)
+    }
     return (
       <Fragment>
         <div style={{ display: "flex", alignItems: "center" }}>
@@ -331,7 +338,7 @@ import StaffService from "../../../../../services/staff";
             </DialogContent>
             <DialogActions>
               <Button
-                onClick={() => setOpenModal(false)}
+                onClick={() => handleCloseModel()}
                 color="primary"
                 variant="outlined"
               >

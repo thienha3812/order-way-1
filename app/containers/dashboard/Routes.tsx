@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import { Route } from 'react-router';
 import { DASHBOARD, DASHBOARD_STAFF_ORDER,DASHBOARD_ORDER_HISTORY,DASHBOARD_BILL_HISTORY } from '../../constants/routes';
 import DashboardHome from './children/dashboard-home';
-import ManageOrder from './children/dashboard-staff-order';
+import ManageOrder from './children/dashboard-staff-order';
 import OrderHistory from './children/dashboard-order-history';
 import BillHistory from './children/dashboard-bill-history';
 
