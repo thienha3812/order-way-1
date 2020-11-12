@@ -4,13 +4,14 @@ import { convertToVnd } from '../utils'
 
 
 
-const BillDetail  = ({service_price,pmts,cash,credit,e_money,table_name,total,sub_total,vat_value,service,foods,discount_amount,customer_name,bill_number,is_payment}) =>{ 
+const BillDetail  = ({phone_number,service_price,pmts,cash,credit,e_money,table_name,total,sub_total,vat_value,service,foods,discount_amount,customer_name,bill_number,is_payment}) =>{ 
     return( 
         <ul  style={{ margin: "0" }}>
         <li style={{ fontSize: "25px" }}>Bàn: {table_name}</li>
         <li>Trạng thái: {is_payment? "Đã thanh toán" :"Chưa thanh toán"}</li>
         <li>Số hóa đơn: {bill_number}</li>
         <li>Khách hàng: {customer_name}</li>
+        <li>Số điện thoại: {phone_number}</li>
         <li>Tổng tiền món: {convertToVnd(sub_total)}</li>
     <li>Tổng phí dịch vụ, phụ thu:{convertToVnd(service_price)}</li>
       <li>Tổng khuyến mãi:{convertToVnd(discount_amount)}</li>

@@ -1,17 +1,7 @@
-/* eslint global-require: off, no-console: off */
-
-/**
- * This module executes inside of electron's main process. You can start
- * electron renderer process from here and communicate with the other processes
- * through IPC.
- *
- * When running `yarn build` or `yarn build-main`, this file is compiled to
- * `./app/main.prod.js` using webpack. This gives us some performance wins.
- */
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow ,screen} from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -49,6 +39,7 @@ const installExtensions = async () => {
 };
 
 const createWindow = async () => {
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize  
   if (
     process.env.NODE_ENV === 'development' ||
     process.env.DEBUG_PROD === 'true'
@@ -68,8 +59,9 @@ const createWindow = async () => {
     show: false,
     width: 1024,
     height: 728,
-    minHeight: 1024,
-    minWidth: 728,
+    center:true,
+    minHeight: height * 0.8,
+    minWidth: width * 0.8,
     icon: getAssetPath('icon.png'),
     webPreferences:
       (process.env.NODE_ENV === 'development' ||
@@ -81,10 +73,9 @@ const createWindow = async () => {
         : {
             preload: path.join(__dirname, 'dist/renderer.prod.js'),
           },
-  });
-
-  mainWindow.loadURL(`file://${__dirname}/app.html`);
-
+  });  
+  // mainWindow.setMaximumSize(0.8 * width,0.8 * height)
+  mainWindow.loadURL(`file://${__dirname}/app.html`);  
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
   mainWindow.webContents.on('did-finish-load', () => {
@@ -102,7 +93,9 @@ const createWindow = async () => {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
-
+  mainWindow.on('resize',()=>{
+    mainWindow.center()
+  })
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 

@@ -44,7 +44,7 @@ const  SelectDate = () =>  {
   }
   return (
     <MuiPickersUtilsProvider  utils={DateFnsUtils}>
-        <Grid item xs={6}>
+        <Grid item xs={3}>
         <Wrapper className={styles.datePicker}>
         <KeyboardDatePicker
         label="Từ ngày"
@@ -56,7 +56,7 @@ const  SelectDate = () =>  {
         </Grid>
         
     
-        <Grid item xs={6}>
+        <Grid item xs={3}>
         <Wrapper className={styles.datePicker}>
         <KeyboardDatePicker
         label="Đến ngày"
