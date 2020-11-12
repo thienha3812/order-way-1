@@ -218,7 +218,7 @@ const Menu = () => {
     setCategories([{category:"Tất cả"},...response.data.map(d=>({category:d.name}))])
     setData(response.data)
     initMenu(response.data)
-    setSelectedCategory(response.data[0].name)
+    setSelectedCategory("Tất cả")
   };
   const initMenu =(data)=> {
     let d = data

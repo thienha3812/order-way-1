@@ -99,9 +99,8 @@ const CustomerPayment =  () => {
         if (data) {
             const info = data.split("-") 
             if(info[0]){
-                StaffService.updateCustomerIntoOrder({cusId:info[0],orderId:billment.payment_info?.id}).then(()=>{
-                setCustomer(info[2])
-                    
+                StaffService.updateCustomerIntoOrder({cusId:info[0],orderId:billment.payment_info?.id}).then((result)=>{
+                    setBillMent({...billment,payment_info:{...billment.payment_info,phone_number:info[2],customer_name:info[1]}})
                 }).catch(err=>{
                     setMessageBox({open:true,message:"Qr không hợp lệ",type:"warning"})
                 })
@@ -125,7 +124,7 @@ const CustomerPayment =  () => {
         if(billment.payment_info?.id){
             await StaffService.updateCustomerIntoOrder({cusId:customer.id,orderId:billment.payment_info?.id})
         }
-        setBillMent({...billment,payment_info:{...billment.payment_info,customer_name:customer.nameký}})
+        setBillMent({...billment,payment_info:{...billment.payment_info,customer_name:customer.name,phone_number:customer.phone_number}})
         setOpenSearchDialog(false)
     }
     const handleSelectCity = async (event) =>{
@@ -162,7 +161,7 @@ const CustomerPayment =  () => {
         <Fragment>
           <div style={{display:"flex",alignItems:'center'}}>
               <div>
-                  <b>Khách hàng:</b> {billment.payment_info?.customer_name}
+                  <b>Khách hàng:</b> {billment.payment_info?.customer_name}  {billment.payment_info?.phone_number}
                 </div>
               <IconButton onClick={()=>setOpen(!openScanQr)} style={{color:"black",borderRadius:0}}>
                   <IoMdQrScanner/>

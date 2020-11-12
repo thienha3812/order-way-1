@@ -183,16 +183,34 @@ const Coupon = () => {
   }
   const handleScan = (data:string) => {
     if (data) {
-      let texts = data.split("-")
+      let texts = data.split("-")      
       PromotionService.checkPmt({ pmt_id: formatID(texts[0]), totalPrice: 11200 })
         .then((result) => {
-          mapApplyQuantityFromPromotionStoretToPmt(result.data,"add")
+          if(checkIsUsedCode()){
+            setMessageBox({
+              open: true,
+              message:
+                "Bạn chỉ áp dụng được duy nhất một mã khuyến mãi trên đơn hàng này",
+              type: "warning",
+            });
+            return
+          }
+          mapApplyQuantityFromPromotionStoretToPmt({...result.data,code:formatID(texts[0])},"add")
+          applyPromotion()
         })
         .catch(() => {
         });
       setOpenScanCoupon(false);
     }
   };
+  const checkIsUsedCode = () => {
+    for(let p of billment.pmts){
+      if(p.method == "trade_point"){
+        return true
+      }
+    }
+    return false
+  }
   const handleCloseMessageBox = () => {
     setMessageBox({
       open: false,
@@ -253,6 +271,15 @@ const Coupon = () => {
   };
   const confirmCoupon = () => {
     let quantity_pmt = getQuantityPmt();
+    if(checkIsUsedCode()){
+      setMessageBox({
+        open: true,
+        message:
+          "Bạn chỉ áp dụng được duy nhất một mã khuyến mãi trên đơn hàng này",
+        type: "warning",
+      });
+      return
+    }
     PromotionService.checkPmt({ pmt_id: couponInput, totalPrice: 11200 })
       .then((result) => {
         if (Number(quantity_pmt) === 2) {
