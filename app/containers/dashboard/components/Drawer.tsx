@@ -1,4 +1,4 @@
-import React, {  } from 'react';
+import React, {useState  } from 'react';
 import Drawer from '@material-ui/core/Drawer';
 import {
   List,
@@ -10,7 +10,7 @@ import {
 import styled from 'styled-components';
 import Logo from '../../../assets/images/logo.png'
 import { useHistory } from 'react-router';
-import { DASHBOARD ,DASHBOARD_STAFF_ORDER} from '../../../constants/routes';
+import { DASHBOARD ,DASHBOARD_PRINTER,DASHBOARD_STAFF_ORDER} from '../../../constants/routes';
 const useStyles = makeStyles(() => ({
   paper: {
     width: '25%',
@@ -34,14 +34,30 @@ const TitleImg = styled.div`
     height:20%;
 `
 const CustomDrawer = () => {
-    const styles = useStyles()
-    const history  = useHistory() 
-  const navigate  =  async (url) =>{ 
+  const styles = useStyles()
+  const history  = useHistory() 
+  const [selectedIndex,setIndex] = useState(0)
+  const navigate  =  async (url,index) =>{ 
      await history.push(url)
+     setIndex(index)
   }
-  const active = (url) =>{ 
-       return  history.location.pathname === url ? styles.active : undefined
+  const active = (index) =>{ 
+       return  index === selectedIndex ? styles.active : undefined
   }
+  const urls = [
+    {
+      url : DASHBOARD,
+      name: "Quản lý Order"
+    },
+    {
+      url: DASHBOARD_STAFF_ORDER,
+      name: "Nhân viên Order"
+    },
+    {
+      url: DASHBOARD_PRINTER,
+      name: "Thiết lập máy in"
+    }
+  ]
   return (
     <>
       <Drawer
@@ -58,12 +74,13 @@ const CustomDrawer = () => {
         </Title>
         <Divider/>
         <List>
-          <ListItem button onClick={()=>navigate(DASHBOARD)} className={active(DASHBOARD)} >
-            <ListItemText primary="Quản lý Order"  />
-          </ListItem>
-          <ListItem button  onClick={()=>navigate(DASHBOARD_STAFF_ORDER)} className={active(DASHBOARD_STAFF_ORDER)}>
-            <ListItemText primary="Nhân viên  Order" />
-          </ListItem>
+          {urls.map((u,index)=>(
+            <>
+              <ListItem button onClick={()=>navigate(u.url,index)} className={active(index)} >
+              <ListItemText primary={u.name}  />
+            </ListItem>
+            </>
+          ))}
         </List>
       </Drawer>
     </>

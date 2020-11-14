@@ -224,6 +224,14 @@ class StaffService {
             return Promise.reject(err)
         }
     }
+    static async getBillMentInfo  (orderId){
+        try {   
+            const response = await apiConfig.post('staff/get-bill-info-for-print',{orderId})
+            return response.data
+        }catch(err){
+            return Promise.reject(err)
+        }
+    }
 }
 
 export default StaffService

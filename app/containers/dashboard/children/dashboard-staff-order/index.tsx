@@ -18,7 +18,8 @@ import CancelOrder from './components/CancelOrder';
 import Sound  from '../../../../assets/mp3/onmessage.mp3'
 import { caculateMaxValueVoucher, caculateValueDiscount, caculateValueVoucher,caculateValueFreeItem, caculateAllValue } from '../../../../utils';
 import CancelFood from './components/CancelFood';
-
+const Store = require("electron-store")
+const store = new Store()
 
 
 const Wrapper = styled.div`
@@ -104,10 +105,15 @@ const StaffOrder = () => {
   }
   useEffect(()=>{
       fetch()
-      _counterSocket.onmessage = function(){
+      _counterSocket.onmessage = function(message){
+        console.log(JSON.parse(message.data))
+        const { autoPrintWhenStaffPayment } = store.get("orderBill")
+        if(autoPrintWhenStaffPayment){
+
+        }
         fetch()
       }
-      _notificationSocket.onmessage = async function(){
+      _notificationSocket.onmessage = async function(message){
           const audio = new Audio(Sound)
           await audio.play()       
       }

@@ -1,10 +1,18 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow ,screen} from 'electron';
+import { app, BrowserWindow,ipcMain ,screen} from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+const isDev = require('electron-is-dev');
 import MenuBuilder from './menu';
+const Store = require('electron-store')
+const store =new Store()
+
+const getSourceDirectory = () => isDev
+    ? path.join(process.cwd(), 'app') 
+    : path.join(process.resourcesPath, 'app', 'src');
+
 
 export default class AppUpdater {
   constructor() {
@@ -15,7 +23,7 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-
+let workerWindow : BrowserWindow | null = null; 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
@@ -63,16 +71,10 @@ const createWindow = async () => {
     minHeight: height * 0.8,
     minWidth: width * 0.8,
     icon: getAssetPath('icon.png'),
-    webPreferences:
-      (process.env.NODE_ENV === 'development' ||
-        process.env.E2E_BUILD === 'true') &&
-      process.env.ERB_SECURE !== 'true'
-        ? {
-            nodeIntegration: true,
-          }
-        : {
-            preload: path.join(__dirname, 'dist/renderer.prod.js'),
-          },
+    webPreferences: {
+      nodeIntegration:true,
+    }
+      
   });  
   // mainWindow.setMaximumSize(0.8 * width,0.8 * height)
   mainWindow.loadURL(`file://${__dirname}/app.html`);  
@@ -98,7 +100,37 @@ const createWindow = async () => {
   })
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
-
+  /// Worker Window
+  workerWindow = new BrowserWindow({
+    show:false,
+    webPreferences:{
+      nodeIntegration:true,
+      preload: path.join(__dirname,"preload.js")
+    }
+  })
+  workerWindow.loadURL(`file://${__dirname}/worker.html`);  
+  // workerWindow.hide()
+  workerWindow.webContents.openDevTools()
+  workerWindow.on("closed",()=>{
+    workerWindow = null
+  })
+  ipcMain.on("print",(event,content)=>{
+    workerWindow.webContents.send("print",content)
+  })
+  ipcMain.on("readyToPrint",(event,content)=>{
+    if(content.type == "printKitchenBill"){
+      const kitchenBill = store.get("kitchenBill")
+      const namePrinter = kitchenBill.name
+      workerWindow.webContents.print({deviceName:namePrinter,printBackground:true,margins:{marginType:'custom',top:20,bottom:20,left:0,right:0},silent:true},(success,err)=>{
+      })
+    }
+    if(content.type == "printOrderBill"){
+      const orderBill = store.get("orderBill")
+      const namePrinter = orderBill.name
+      workerWindow.webContents.print({deviceName:namePrinter,printBackground:true,margins:{marginType:'custom',top:20,bottom:20,left:0,right:0},silent:true},(success,err)=>{
+      })
+    }
+  })
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();

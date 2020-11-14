@@ -5,12 +5,13 @@ import Divider from "@material-ui/core/Divider";
 import { Grid, makeStyles } from "@material-ui/core";
 import { GiKnifeFork, GiCancel } from "react-icons/gi";
 import OrderService from "../../../../services/order";
-
 import CustomAlert from "../../../../components/Alert";
 import { manageOrderSocket }  from "../../../../utils/socket"
 import {Order, Orders} from './types'
 const electron = require('electron') 
 const BrowserWindow = electron.remote.BrowserWindow
+const Store = require('electron-store')
+const store = new Store()
 import { DashBoarHomeContext, Provider } from "./Context";
 import Sound  from '../../../../assets/mp3/onmessage.mp3'
 import { useSelector } from "react-redux";
@@ -20,6 +21,8 @@ import { DASHBOARD_BILL_HISTORY, DASHBOARD_ORDER_HISTORY } from "../../../../con
 import OrderDetail from "../../../../components/OrderDetail";
 import _ from 'lodash'
 import StaffService from "../../../../services/staff";
+import { ipcRenderer } from "electron";
+import { convertToVnd,parseKitchenBillToHtml } from "../../../../utils";
 const Wrapper = styled.div`
   padding: 5%;
 `;
@@ -81,7 +84,6 @@ const RenderList = ()  => {
         setMessagBox({...messageBox,open:false})
     } 
     const handleUpdateCreatedOrder = order =>{
-      console.log(order)
       if(order.type === "cancel_order"){
         OrderService.confirmCancelOrder({tableId:order.table_id,order_id:order.orderId}).then(()=>{
           setMessagBox({open:true,message:"Hủy Order thành công!",type:"success"})
@@ -98,8 +100,13 @@ const RenderList = ()  => {
       }
       if(order.type === "order"){
         StaffService.updateOrderStatusToApproved({id:order.orderId,phoneNumber:null}).then(()=>{
-          setMessagBox({open:true,message:"Cập nhật Order thành công!",type:"success"})
+          setMessagBox({open:true,message:"Xác nhận Order thành công!",type:"success"})     
           setOrders({...orders,orders_approved:[...orders.orders_approved,order],orders_created:[...orders.orders_created.filter(o=> o.orderId !== order.orderId)]})
+          const {autoPrintWhenAcceptOrder } = store.get("kitchenBill")
+          if(autoPrintWhenAcceptOrder){
+            const contentHtml = parseKitchenBillToHtml(order)
+            ipcRenderer.send("print",{contentHtml,type:"printKitchenBill"})
+          }     
         })
       }
     }
@@ -172,7 +179,7 @@ const DashboardHome = (props: any) => {
   const styles = useStyles();
   const history  = useHistory()
   const [selected, setSelected] = useState("orders_approved");
-  
+  const socket = manageOrderSocket(staff_info.fields.store_id)
   const [orders, setOrders] = useState<Orders>({
     orders_created: [],
     orders_approved: [],
@@ -193,38 +200,22 @@ const DashboardHome = (props: any) => {
     const response = await OrderService.getOrderHistory();
     setOrders(response.data.data);
   };
+  const printBill = order =>{
+      const {autoPrintStaffOrder } = store.get("kitchenBill")
+      if(autoPrintStaffOrder){
+        const contentHtml = parseKitchenBillToHtml(order)
+        ipcRenderer.send("print",{contentHtml,type:"printKitchenBill"})
+      }  
+  }
   useEffect(() => {
-    fetch()
-  //   let win = BrowserWindow.getFocusedWindow() 
-  //   var options = { 
-  //     silent: true, 
-  //     printBackground: true, 
-  //     color: false, 
-  //     margin: { 
-  //         marginType: 'printableArea'
-  //     }, 
-  //     pageSize:'A5',
-  //     landscape: false, 
-  //     pagesPerSheet: 1, 
-  //     collate: false, 
-  //     copies: 1, 
-  //     header: 'Header of the Page', 
-  //     footer: 'Footer of the Page'
-  // } 
-  //   const printers  = win?.webContents.getPrinters()
-  //   console.log(printers)
-  //   win?.webContents.print(options,(success,fail)=>{
-  //     if(!success)console.log(fail)
-  //   })
-      const socket = manageOrderSocket(staff_info.fields.store_id)
-      socket.onopen  = function(){
-        console.log('connect socket')
-      }
+      fetch()      
       socket.onmessage = async function(message){   
-          setTimeout(async()=>{
-            fetch()      
+          setTimeout(async()=>{  
+            fetch()                
             let sound = new Audio(Sound)
             await sound.play()
+            const order = JSON.parse(message.data)
+            printBill(order.text)
           },1000)
       }   
       return (()=>{

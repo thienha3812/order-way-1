@@ -19,7 +19,7 @@ import MenuService from "../../../../../services/menu";
 import { useSelector } from "react-redux";
 import { userSelector } from "../../../../../features/user/userSlice";
 import { Order } from "../types";
-import {caculateAllValue, caculateValueFreeItem, convertToVnd} from '../../../../../utils'
+import {caculateAllValue, caculateValueFreeItem,parseBillMentToHtml, convertToVnd} from '../../../../../utils'
 import CustomerService from "../../../../../services/customer";
 import CustomAlert from "../../../../../components/Alert";
 import SelectTopping from "./SelectTopping";
@@ -28,7 +28,10 @@ import CustomerPayment from "./CustomerPayment";
 import Coupon from "./Coupon";
 import Service from "./Service";
 import Currency from "./Currency";
+import { ipcRenderer } from "electron";
+import Store from 'electron-store'
 
+const store = new Store()
 
 
 const Cagtegory = styled.div`
@@ -414,8 +417,18 @@ const Menu = () => {
       StaffService.confirmPayMent({...payment_info,promotionId:pmts}).then(()=>{
         setMessagBox({open:true,message:"Thanh toán thành công!",type:"success"})
         setOpenMenu(false)
+        return payment_info.id
+      }).then(async(orderId) => {
+        const {autoPrintWhenPayment} = store.get("orderBill")
+        if(!autoPrintWhenPayment){
+          return
+        }
+        const data = await StaffService.getBillMentInfo(orderId)
+        const contentHtml = parseBillMentToHtml(data)
+        ipcRenderer.send('print',{contentHtml,type:"printOrderBill"})
       }).catch(err=>{
         const {mess} = JSON.parse(err.request.response)
+      
         setMessagBox({open:true,message:mess,type:"error"}) 
       })
   }
@@ -507,7 +520,7 @@ const Menu = () => {
             <Text><b>Chi tiết:</b></Text>
             <div>
                 <ul>
-                  {billment.payment_info?.foods.map((f,index)=>(
+                  {billment.payment_info?.foods.filter(f => f.quantity !== 0).map((f,index)=>(
                     <li key={index}>
                         {f.quantity + " x "}
                         {f.name}
@@ -534,7 +547,6 @@ const Menu = () => {
             <Button variant="contained" onClick={()=>setOpenCancelOrder(true)} >Hủy order</Button>
           <Button variant="contained" onClick={()=>setOpenCancelFood(true)}>Hủy món</Button>
           <Button variant="contained" onClick={cleanTable}>Dọn bàn</Button>
-          
           <Button variant="contained" onClick={()=>setOpenChangeTable(true)}>Đổi bàn</Button>
             </>
           )}

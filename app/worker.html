@@ -1,0 +1,20 @@
+<head>
+    <style>
+        @media print {
+        body {
+            overflow: visible !important;
+       }
+     }
+    </style>
+</head>
+
+
+
+<body>
+    <script >
+        window.ipcRenderer.on("print",(event,content)=>{
+            document.body.innerHTML = content.contentHtml.toString()
+            window.ipcRenderer.send("readyToPrint",{type:"printOrderBill"})
+        })
+    </script>    
+</body>
