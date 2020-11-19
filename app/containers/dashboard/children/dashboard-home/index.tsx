@@ -119,23 +119,23 @@ const RenderList = ()  => {
           </Grid>
           <Grid item xs={6}>
           {selected=="orders_created" && (
-                <Button onClick={()=>handleUpdateCreatedOrder(order)} color="primary" variant="contained">
+                <Button onClick={()=>handleUpdateCreatedOrder(order)} style={{backgroundColor:"#444444",color:"white"}} variant="contained">
                 Xác nhận <GiKnifeFork fontSize={20} />
               </Button>
             )}
             <br/>
             {selected=="orders_created" && (
-              <Button style={{marginTop:"2%"}} onClick={()=>handleCancleOrderInOrdersCreated(order)} color="secondary" variant="contained">
+              <Button style={{marginTop:"3%",backgroundColor:"#444444",color:"white"}} onClick={()=>handleCancleOrderInOrdersCreated(order)}  variant="contained">
                 Hủy <GiKnifeFork fontSize={20} />
               </Button>
             )}
             {selected=="orders_approved" && (
-                <Button onClick={()=>handleUpdateToDoing(order)} color="primary" variant="contained">
+                <Button onClick={()=>handleUpdateToDoing(order)} style={{backgroundColor:"#444444",color:"white"}} variant="contained">
                 Làm <GiKnifeFork fontSize={20} />
               </Button>
             )}
             {selected=="orders_doing" && (
-                <Button onClick={()=>handleUpdateToDone(order)} color="primary" variant="contained">
+                <Button onClick={()=>handleUpdateToDone(order)}  style={{backgroundColor:"#444444",color:"white"}} variant="contained">
                 Xong <GiKnifeFork fontSize={20} />
               </Button>
             )}
@@ -143,8 +143,7 @@ const RenderList = ()  => {
             {selected=="orders_done"  && ( 
                      <Button
                         onClick={()=>handleUpdateToFinish(order)}
-                       style={{ marginTop: "2%" }}
-                       color="secondary"
+                       style={{ marginTop: "2%" ,backgroundColor:"#444444",color:"white"}}                       
                        variant="contained"
                      >
                        Giao
@@ -153,8 +152,7 @@ const RenderList = ()  => {
             {selected=="orders_approved" && ( 
                  <Button
                  onClick={()=>handleCancleOrder(order)}
-                   style={{ marginTop: "2%" }}
-                   color="secondary"
+                   style={{marginTop:"3%",backgroundColor:"#444444",color:"white"}}
                    variant="contained"
                  >
                    Hủy <GiCancel fontSize={20} />
@@ -208,7 +206,7 @@ const DashboardHome = (props: any) => {
       }  
   }
   useEffect(() => {
-      fetch()      
+      fetch() 
       socket.onmessage = async function(message){   
           setTimeout(async()=>{  
             fetch()                
@@ -217,10 +215,7 @@ const DashboardHome = (props: any) => {
             const order = JSON.parse(message.data)
             printBill(order.text)
           },1000)
-      }   
-      return (()=>{
-        socket.close()
-      })
+      }       
   }, []);    
   const handleSelect = (status) => {
     setSelected(status);
@@ -239,12 +234,12 @@ const DashboardHome = (props: any) => {
         <Item>Quản lý gọi món</Item>
         <Item style={{ width: "40%", display: "flex" }}>
           <Item style={{ width: "50%" }}>
-          <Button color="primary" variant="contained" onClick={()=>history.push(DASHBOARD_BILL_HISTORY)}>
+          <Button style={{backgroundColor:"#444444",color:"white"}} variant="contained" onClick={()=>history.push(DASHBOARD_BILL_HISTORY)}>
               Lịch sử Bill
             </Button>
           </Item>
           <Item style={{ width: "50%" }}>
-            <Button color="primary" variant="contained" onClick={()=>history.push(DASHBOARD_ORDER_HISTORY)}>
+            <Button style={{backgroundColor:"#444444",color:"white"}} variant="contained" onClick={()=>history.push(DASHBOARD_ORDER_HISTORY)}>
               Lịch sử Order
             </Button>
           </Item>
@@ -254,7 +249,7 @@ const DashboardHome = (props: any) => {
       <List style={{ justifyContent: "flex-start" }}>
         {Object.keys(orders).map((key,index) => (
           <Item className={toggleActive(key)} style={{ fontSize: "16px" }} key={index}>
-            <Button onClick={() => handleSelect(key)}>
+            <Button  onClick={() => handleSelect(key)}>
               {labelOrder[key]} {(labelOrder[key] !== "Hoàn thành" && labelOrder[key] !== "Đã hủy")  && ("("+orders[key].length+")")}              
             </Button>
           </Item>

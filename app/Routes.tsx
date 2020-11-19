@@ -19,12 +19,12 @@ const LoadingScreen =  () =>{
 }
 
 const LoginPage = (props) => (
-  <React.Suspense  fallback={<LoadingScreen/>}>
+  <React.Suspense  fallback={null}>
     <LazyLoginPage {...props} />
   </React.Suspense>
 );
 const DashboardPage = (props) => (
-  <React.Suspense fallback={<LoadingScreen/>}>
+  <React.Suspense fallback={null}>
     <LazyDashboardPage {...props} />
   </React.Suspense>
 );

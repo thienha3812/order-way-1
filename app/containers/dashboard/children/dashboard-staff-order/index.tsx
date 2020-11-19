@@ -1,7 +1,7 @@
 import {
   makeStyles,
 } from '@material-ui/core';
-import React, { Fragment, useContext, useEffect, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import TableService from '../../../../services/tables';
 import { Context, Provider } from './Context';
@@ -35,7 +35,7 @@ const Box = styled.div`
   height: 100px;
   margin: 5px;
   text-align:center;
-  background-color: green;
+  background-color: #3a3a3a;
   color: white;
   display: flex;
   align-items: center;
@@ -48,7 +48,7 @@ const Box = styled.div`
 `;
 const useStyles = makeStyles(()=>({
   not_active : {
-    backgroundColor:"#FF6347",
+    backgroundColor:"#999999",
     color:"white"
   }
 }))
@@ -100,17 +100,24 @@ const StaffOrder = () => {
   const [billment,setBillMent] = useState<Billment>({all_price:0,price:0,coupon:"",currency_type:"",orders:[],table_name:'',tableId:"",payment_info:{foods:[],service:[],total:0,sub_total:0}})
   
   const fetch = async () =>{ 
-    const data = await TableService.listByCounter()
-    setTables(data.data)
+      const data = await TableService.listByCounter()
+      setTables(data.data)
+  }
+  const updateTable = async (tableID) =>{
+    const {payment_info,pmts} = await StaffService.getPaymentInfo(tableID)
+    if(openMenu){
+      setBillMent({...billment,payment_info,pmts})
+    }
   }
   useEffect(()=>{
       fetch()
       _counterSocket.onmessage = function(message){
-        console.log(JSON.parse(message.data))
-        const { autoPrintWhenStaffPayment } = store.get("orderBill")
-        if(autoPrintWhenStaffPayment){
+          const tableID = JSON.parse(message.data).text.tables[0].pk
+          updateTable(tableID)
+          const { autoPrintWhenStaffPayment } = store.get("orderBill")
+          if(autoPrintWhenStaffPayment){
 
-        }
+          }
         fetch()
       }
       _notificationSocket.onmessage = async function(message){

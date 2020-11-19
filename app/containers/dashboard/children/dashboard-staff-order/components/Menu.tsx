@@ -19,7 +19,7 @@ import MenuService from "../../../../../services/menu";
 import { useSelector } from "react-redux";
 import { userSelector } from "../../../../../features/user/userSlice";
 import { Order } from "../types";
-import {caculateAllValue, caculateValueFreeItem,parseBillMentToHtml, convertToVnd} from '../../../../../utils'
+import {caculateAllValue,parseInvoiceBillToHtml,parseBillMentToHtml, convertToVnd} from '../../../../../utils'
 import CustomerService from "../../../../../services/customer";
 import CustomAlert from "../../../../../components/Alert";
 import SelectTopping from "./SelectTopping";
@@ -419,18 +419,31 @@ const Menu = () => {
         setOpenMenu(false)
         return payment_info.id
       }).then(async(orderId) => {
-        const {autoPrintWhenPayment} = store.get("orderBill")
-        if(!autoPrintWhenPayment){
-          return
+        try{
+          const {autoPrintWhenPayment} = store.get("orderBill")
+          if(!autoPrintWhenPayment){
+            return
+          }
+          const data = await StaffService.getBillMentInfo(orderId)
+          const contentHtml = parseBillMentToHtml(data)
+          ipcRenderer.send('print',{contentHtml,type:"printOrderBill"})
+        }catch(err){
+
         }
-        const data = await StaffService.getBillMentInfo(orderId)
-        const contentHtml = parseBillMentToHtml(data)
-        ipcRenderer.send('print',{contentHtml,type:"printOrderBill"})
       }).catch(err=>{
         const {mess} = JSON.parse(err.request.response)
       
         setMessagBox({open:true,message:mess,type:"error"}) 
       })
+  }
+  const handlePrintInvoice = async () =>{
+      try{
+        const data = await StaffService.getBillMentInfo(billment.payment_info.id)
+    const contentHtml = parseInvoiceBillToHtml(data)
+    ipcRenderer.send('print',{contentHtml,type:"printOrderBill"})
+      }catch(err){
+
+      }
   }
   return (
       <MenuProvider value={{
@@ -443,7 +456,14 @@ const Menu = () => {
             <Dialog
       open={openMenu}
       aria-labelledby="simple-dialog-title"
-      fullScreen
+      fullWidth
+      maxWidth="lg"
+      style={{height:"90vh",marginTop:"5%"}}
+      BackdropProps={{
+        style:{
+            backgroundColor:"transparent"
+        }
+      }}
       onClose={handleCloseMenu}
     >
       <DialogTitle
@@ -466,7 +486,7 @@ const Menu = () => {
             ))}
           </Grid>
           <Grid item xs={3} style={{borderRight:"1px solid #333",height:"100vh"}}>
-                {billment.orders.map((o)=>( 
+                {billment.orders.filter(o=> o.quantity !==0 ).map((o)=>( 
                   <Fragment>
                   <div style={{display:'flex',alignItems:'center'}}>
                     <IconButton onClick={()=>updateAmount(o,"add")} size="small" style={{backgroundColor:"green",color:"white",height:"30px",borderRadius:"0"}} disableFocusRipple disableRipple>
@@ -492,7 +512,7 @@ const Menu = () => {
                 </Text>
                 <Grid container style={{width:'100%'}} alignItems="center" justify="center">
                 <Grid item xs={6}>
-                    <Button onClick={handleSendOrder} disabled={isLoading}  variant="outlined">Gọi món</Button>
+                    <Button onClick={handleSendOrder} disabled={isLoading} style={{backgroundColor:"#444444",color:"white"}}  variant="outlined">Gọi món</Button>
                 </Grid>
             </Grid>
           </Grid>
@@ -529,25 +549,28 @@ const Menu = () => {
                   ))}
                 </ul>
             </div>
-            <Grid container style={{width:'100%'}} alignItems="center" justify="center">
+            <Grid spacing={3} container style={{width:'100%'}} alignItems="center" justify="center">
                 <Grid item xs={6}>
-                    <Button  onClick={confirmPayment} variant="outlined">Thanh toán</Button>
+                  <Button onClick={handlePrintInvoice} style={{fontSize:"14px",backgroundColor:"#444444",color:"white"}}>In hóa đơn tạm tính</Button>
+                </Grid>
+                <Grid item xs={6}>
+                    <Button  onClick={confirmPayment} disabled={billment.payment_info.foods.length > 0 ? false : true} style={{height:"100%",fontSize:"14px",backgroundColor:"#444444",color:"white"}} variant="outlined">Thanh toán</Button>
                 </Grid>
             </Grid>
           </Grid>
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button variant="contained" onClick={handleCloseMenu}>
+        <Button style={{backgroundColor:"#444444",color:"white"}} variant="contained" onClick={handleCloseMenu}>
           Quay lại
         </Button>
-        <Button variant="contained"  onClick={()=> setOpenMergeTable(true)}>Gộp bàn</Button>
+        <Button style={{backgroundColor:"#444444",color:"white"}} variant="contained"  onClick={()=> setOpenMergeTable(true)}>Gộp bàn</Button>
           {billment.status !== 0 && (
             <>
-            <Button variant="contained" onClick={()=>setOpenCancelOrder(true)} >Hủy order</Button>
-          <Button variant="contained" onClick={()=>setOpenCancelFood(true)}>Hủy món</Button>
-          <Button variant="contained" onClick={cleanTable}>Dọn bàn</Button>
-          <Button variant="contained" onClick={()=>setOpenChangeTable(true)}>Đổi bàn</Button>
+            <Button variant="contained" style={{backgroundColor:"#444444",color:"white"}} onClick={()=>setOpenCancelOrder(true)} >Hủy order</Button>
+          <Button variant="contained" style={{backgroundColor:"#444444",color:"white"}} onClick={()=>setOpenCancelFood(true)}>Hủy món</Button>
+          <Button variant="contained" style={{backgroundColor:"#444444",color:"white"}} onClick={cleanTable}>Dọn bàn</Button>
+          <Button variant="contained" style={{backgroundColor:"#444444",color:"white"}} onClick={()=>setOpenChangeTable(true)}>Đổi bàn</Button>
             </>
           )}
       </DialogActions>

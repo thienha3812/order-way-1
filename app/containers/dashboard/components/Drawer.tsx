@@ -7,8 +7,9 @@ import {
   makeStyles,
   Divider,
 } from '@material-ui/core';
+import {FaFirstOrder,FaPrint,FaCalculator} from 'react-icons/fa'
 import styled from 'styled-components';
-import Logo from '../../../assets/images/logo.png'
+import Logo from '../../../assets/images/logo.jpg'
 import { useHistory } from 'react-router';
 import { DASHBOARD ,DASHBOARD_PRINTER,DASHBOARD_STAFF_ORDER} from '../../../constants/routes';
 const useStyles = makeStyles(() => ({
@@ -28,7 +29,7 @@ const Title = styled.div`
 `
 const TitleImg = styled.div`
     background-image: url(${Logo});
-    background-size:30% 40%;
+    background-size:40% 80%;
     background-position: center;
     background-repeat:no-repeat;
     height:20%;
@@ -47,15 +48,18 @@ const CustomDrawer = () => {
   const urls = [
     {
       url : DASHBOARD,
-      name: "Quản lý Order"
+      name: "Quản lý Order",
+      icon: <FaFirstOrder/>
     },
     {
       url: DASHBOARD_STAFF_ORDER,
-      name: "Nhân viên Order"
+      name: "Nhân viên Order",
+      icon : <FaCalculator/>
     },
     {
       url: DASHBOARD_PRINTER,
-      name: "Thiết lập máy in"
+      name: "Thiết lập máy in",
+      icon: <FaPrint/>
     }
   ]
   return (
@@ -77,6 +81,7 @@ const CustomDrawer = () => {
           {urls.map((u,index)=>(
             <>
               <ListItem button onClick={()=>navigate(u.url,index)} className={active(index)} >
+                {u.icon}
               <ListItemText primary={u.name}  />
             </ListItem>
             </>

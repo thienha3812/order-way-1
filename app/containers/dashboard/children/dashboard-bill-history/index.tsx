@@ -74,6 +74,11 @@ const BillHistory = ( ) =>{
       }}>
         <Wrapper>
         <Grid container justify="center">
+          <Grid item xs={12} justify="flex-start">
+            <Button variant="contained" onClick={filter} style={{color:'white',backgroundColor:"#444444",left:"90%"}}>
+              Lọc
+            </Button>
+          </Grid>
           <Grid item xs={3} style={{textAlign:"center"}}>
             <h2>Lịch sử Bill</h2>
           </Grid>
@@ -91,7 +96,7 @@ const BillHistory = ( ) =>{
           <MaterialUIPickers/>
           <Grid item xs={12} >
            <p className={styles.root}>Có {orders.total_row | 0} kết quả</p>
-          <Button variant="contained" onClick={filter} color="primary" style={{left:"90%"}}>
+          <Button variant="contained" onClick={filter} style={{color:'white',backgroundColor:"#444444",left:"90%"}}>
             Lọc
           </Button>
           </Grid>

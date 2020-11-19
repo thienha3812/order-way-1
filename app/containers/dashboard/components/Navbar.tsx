@@ -1,20 +1,21 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import { MdReorder, MdHome, MdPerson } from "react-icons/md";
+import {FaUserAlt} from 'react-icons/fa'
 import IconButton from "@material-ui/core/IconButton";
 import Popover from "@material-ui/core/Popover";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ListMenu from "./List";
 import { userSelector } from "../../../features/user/userSlice";
 import { DashBoardContext } from "../Context";
 import { useHistory } from "react-router";
-import { DASHBOARD, DASHBOARD_STAFF_ORDER } from "../../../constants/routes";
-
+import IconA from '../../../assets/images/icon1.png'
+import IconB from '../../../assets/images/icon2.png'
 const Navbar = styled.div`
   display: flex;
   height: 8vh;
   padding-left: 5%;
-  background-color: #ff5500;
+  background-color: #444444;
   align-items: center;
 `;
 
@@ -44,20 +45,20 @@ const CustomNavbar = (props) => {
     <Navbar {...props}>
       <Item>
         <IconButton  onClick={handleOpenDrawer}>
-          <MdReorder color="#fff" fontSize={35} />
+          <img style={{width:"40px",height:"40px"}} src={IconB} />
         </IconButton>
       </Item>
-      <Item>
+      {/* <Item>
         <IconButton onClick={()=>history.push(DASHBOARD)}>
           <MdHome color="#fff" fontSize={35} />
         </IconButton>
-      </Item>
+      </Item> */}
       <Item style={{ marginLeft: "auto", textAlign: "end", color: "#fff" }}>
         {staff_info.fields.name}
       </Item>
       <Item>
         <IconButton aria-describedby={id} onClick={handleClick}>
-          <MdPerson color="#fff" fontSize={35} />
+          <img style={{width:"40px",height:"40px"}} src={IconA} />
         </IconButton>
         <Popover
           id={id}

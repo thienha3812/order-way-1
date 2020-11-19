@@ -35,10 +35,13 @@ const userSlice = createSlice({
     setError: (state, action) => {
       state.error = action.payload;
     },
+    userLogout: (state,action) =>{
+      state.user = {staff_info : {},token:""}
+    }
   },
 });
 
-export const { setUser, setLoading, setError } = userSlice.actions;
+export const {userLogout, setUser, setLoading, setError } = userSlice.actions;
 export const login = (data: LoginDTO): AppThunk => {
   return async (dispatch) => {
     dispatch(setLoading(true));
@@ -52,5 +55,10 @@ export const login = (data: LoginDTO): AppThunk => {
     }
   };
 };
+export const logout = () : AppThunk =>{
+  return (dispatch) =>{
+    dispatch(userLogout({}))
+  }
+}
 export const userSelector = (state: { user: UserState }) => state.user;
 export default userSlice.reducer;

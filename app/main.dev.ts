@@ -1,17 +1,11 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow,ipcMain ,screen} from 'electron';
+import { app, BrowserWindow,ipcMain ,screen,Menu} from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-const isDev = require('electron-is-dev');
-import MenuBuilder from './menu';
 const Store = require('electron-store')
 const store =new Store()
-
-const getSourceDirectory = () => isDev
-    ? path.join(process.cwd(), 'app') 
-    : path.join(process.resourcesPath, 'app', 'src');
 
 
 export default class AppUpdater {
@@ -73,7 +67,7 @@ const createWindow = async () => {
     icon: getAssetPath('icon.png'),
     webPreferences: {
       nodeIntegration:true,
-    }
+    },
       
   });  
   // mainWindow.setMaximumSize(0.8 * width,0.8 * height)
@@ -98,8 +92,7 @@ const createWindow = async () => {
   mainWindow.on('resize',()=>{
     mainWindow.center()
   })
-  const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu();
+
   /// Worker Window
   workerWindow = new BrowserWindow({
     show:false,
@@ -131,6 +124,7 @@ const createWindow = async () => {
       })
     }
   })
+  Menu.setApplicationMenu(null)
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();

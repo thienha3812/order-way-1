@@ -7,6 +7,9 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { FaKey } from 'react-icons/fa';
 import { FiLogOut } from 'react-icons/fi';
 import styled from 'styled-components';
+import { useDispatch } from 'react-redux';
+import { logout } from '../../../features/user/userSlice';
+import { useHistory } from 'react-router';
 
 const Item = styled.div`
   &:hover {
@@ -15,17 +18,23 @@ const Item = styled.div`
   }
 `;
 const ListMenu = () => {
+  const dispatch = useDispatch()
+  const history = useHistory()
+  const handleLogout = () =>{
+      dispatch(logout())
+      history.push("/")
+  }
   return (
     <List dense>
-      <Item>
+      {/* <Item>
         <ListItem>
           <ListItemIcon style={{ minWidth: '30px' }}>
             <FaKey fontSize={15} />
           </ListItemIcon>
           <ListItemText primary="Đổi mật khẩu" />
         </ListItem>
-      </Item>
-      <Item>
+      </Item> */}
+      <Item onClick={handleLogout}>
         <ListItem>
           <ListItemIcon style={{ minWidth: '30px' }}>
             <FiLogOut fontSize={15} />

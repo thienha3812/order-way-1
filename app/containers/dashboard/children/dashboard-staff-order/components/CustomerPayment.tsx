@@ -56,7 +56,7 @@ const Wrapper = styled.div`
 const CustomerPayment =  () => { 
     const {billment,setBillMent} = useContext(Context)
     const [openScanQr,setOpen] = useState(false)
-    const [customer,setCustomer] = useState('')
+    const {setOpenMenu,openMenu} = useContext(Context)
     const [phone_number,setPhone] = useState('')
     const [openSearchDialog,setOpenSearchDialog] = useState(false)
     const [customers,setCustomers] = useState<any[]>([])
@@ -72,6 +72,11 @@ const CustomerPayment =  () => {
         })
         fetch()
     },[])
+    useEffect(()=>{
+        if(openMenu === false){
+            setOpen(false)
+        }
+    },[setOpenMenu])
     useEffect(()=>{
         if(form.phone !== "" && error.error_phone_number){
             if(validatePhoneNumber(form.phone)){

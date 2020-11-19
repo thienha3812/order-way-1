@@ -140,7 +140,7 @@ const Printer = ( ) =>{
                 />
                 </Grid>
                 <Grid item xs={6}>
-                <h2>Máy in Order</h2>
+                <h2>Máy in Bếp</h2>
                 <FormControl className={styles.root} >
                 <InputLabel id="demo-simple-select-label">{kitchenBill.name}</InputLabel>
                     <Select
@@ -164,7 +164,7 @@ const Printer = ( ) =>{
                         onChange={handleCheckBoxAutoPrintWhenAcceptOrder}
                     />
                     }
-                    label="Tự động in bếp khi xác nhận"
+                    label="Tự động in bếp khi xác nhận order"
                 /><br/>
                  <FormControlLabel
                     control={
@@ -175,7 +175,7 @@ const Printer = ( ) =>{
                         onChange={handleCheckBoxAutoPrintWhenStaffOrder}
                     />
                     }
-                    label="Tự động in bếp khi nhân viên thanh toán từ xa"
+                    label="Tự động in bếp khi có nhân viên order từ xa"
                 />
                 </Grid>
             </Grid>
