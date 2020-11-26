@@ -14,7 +14,7 @@ import { useHistory } from 'react-router';
 import { DASHBOARD ,DASHBOARD_PRINTER,DASHBOARD_STAFF_ORDER} from '../../../constants/routes';
 const useStyles = makeStyles(() => ({
   paper: {
-    width: '25%',
+    width: '200px',
   },
   active: {
     backgroundColor:"#e6e6e6",
@@ -29,10 +29,10 @@ const Title = styled.div`
 `
 const TitleImg = styled.div`
     background-image: url(${Logo});
-    background-size:40% 80%;
+    background-size:150px 150px;
     background-position: center;
     background-repeat:no-repeat;
-    height:20%;
+    height:200px;
 `
 const CustomDrawer = () => {
   const styles = useStyles()

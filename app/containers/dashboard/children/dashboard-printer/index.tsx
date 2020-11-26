@@ -100,7 +100,7 @@ const Printer = ( ) =>{
     <Wrapper>
             <Grid spacing={3} container>
                 <Grid item xs={6}>
-                <h2>Máy in Order</h2>
+                <h2>Máy in Bill</h2>
                 <FormControl className={styles.root}>
     <InputLabel id="demo-simple-select-label">{orderBill.name}</InputLabel>
                     <Select

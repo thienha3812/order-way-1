@@ -67,7 +67,11 @@ export const caculateValueDiscount = (billment) =>{
     let content = data.data
     const nameStoreText = `
           <h3 style="text-align:center;font-size:1rem;">${content.store_name}</h3>
-    ` 
+          <h3 style="text-align:center;font-size:0.8rem;">${content.address}</h3>
+    `
+    const billNumberText  = `
+      <h4 style="text-align:center;font-size:0.8rem;">Số hóa đơn: ${content.bill_number}</h4>
+    `
     const phoneText = `
         <p style="text-align:center;font-size:1rem;">${content.phone_number}</p>
     `
@@ -126,9 +130,11 @@ export const caculateValueDiscount = (billment) =>{
             ${nameStoreText}
             ${phoneText}
                     <h4 style="text-align:center;font-size:1rem;">Hóa đơn tạm tính</h4>
+                    ${billNumberText}
                     <div style="display:flex;justify-content:space-between;">
-            ${tableText}
-            ${bilDateText}
+                    
+                    ${tableText}
+                    ${bilDateText}
                     </div>
                     <div style="display:flex;justify-content:space-between;">
                 ${staffText}
@@ -177,12 +183,16 @@ export const caculateValueDiscount = (billment) =>{
     let content = data.data
     const nameStoreText = `
           <h3 style="text-align:center;font-size:1rem;">${content.store_name}</h3>
+          <h3 style="text-align:center;font-size:0.8rem;">${content.address}</h3>
     ` 
     const phoneText = `
         <p style="text-align:center;font-size:1rem;">${content.phone_number}</p>
     `
     const tableText = `
       <div style="font-size:0.7rem;">Bàn: ${content.table_name}</div>
+    `
+    const billNumberText  = `
+       <h4 style="text-align:center;font-size:0.8rem;">Số hóa đơn: ${content.bill_number}</h4>
     `
     const bilDateText  = `
                     <div style="font-size:0.7rem;">Ngày: ${content.bill_date}</div>
@@ -236,10 +246,11 @@ export const caculateValueDiscount = (billment) =>{
             ${nameStoreText}
             ${phoneText}
                     <h4 style="text-align:center;font-size:1rem;">Hóa đơn thanh toán</h4>
-                    <div style="display:flex;justify-content:space-between;">
-            ${tableText}
-            ${bilDateText}
-                    </div>
+                    ${billNumberText}            
+                    <div style="display:flex;justify-content:space-between;">           
+                    ${tableText}
+                    ${bilDateText}
+                    </div>                    
                     <div style="display:flex;justify-content:space-between;">
                 ${staffText}
                 ${billTimeText}
@@ -286,10 +297,10 @@ export const caculateValueDiscount = (billment) =>{
 export  const parseKitchenBillToHtml = (data) => {
     let content = data
     const tableText = `
-      <div style="font-size:0.7rem;">Bàn: ${content.table}</div>
+      <div style="font-size:1.4rem;"><b>Bàn: ${content.table}<b/></div>
     `
     const bilDateText  = `
-                    <div style="font-size:0.7rem;">Ngày: ${content.time}</div>
+                    <div style="font-size:0.7rem;">Thời gian: ${content.time}</div>
     `
     const ordersText = content.orders.reduce((a,b) => a + `
     	<div style="font-size:0.8rem">
@@ -298,10 +309,11 @@ export  const parseKitchenBillToHtml = (data) => {
     `,'')
     const contentHtml = `
       
-                    <h4 style="text-align:center;font-size:1rem;">Danh sách món</h4>
-                    <div style="display:flex;justify-content:space-between;">
-          			  ${tableText}
-	            		${bilDateText}
+                    <div>
+          			      ${tableText}	            		
+                    </div>
+                    <div>
+                      ${bilDateText}
                     </div>
                     ${ordersText}
     `

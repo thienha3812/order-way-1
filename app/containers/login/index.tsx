@@ -79,6 +79,10 @@ const LoginPage: React.FC = () => {
   } = useSelector(userSelector);
   const [errorInput,setErrorInput] = useState(false)
   const handleInputPhone = (event: any) => {
+    if(event.target.value.length > 12){
+      event.preventDefault()
+      return
+    }
     setForm({
       phone_number: event.currentTarget.value,
       password: form.password,
@@ -91,7 +95,7 @@ const LoginPage: React.FC = () => {
   },[form])
   useEffect(()=>{
     if(error!==null){
-        setMessagBox({type:"warning",open:true,message:"Tài khoản hoặc mật khẩu không đúng"})
+        setMessagBox({type:"error",open:true,message:"Tài khoản hoặc mật khẩu không đúng"})
     }
   },[error])
   const handleInputPassword = (event: any) => {
@@ -119,6 +123,7 @@ const LoginPage: React.FC = () => {
         <h3 style={{margin:0}}>Số điện thoại</h3>
         <Input
           value={form.phone_number}
+          type="number"
           onChange={handleInputPhone}
           placeholder="Nhập số điện thoại"
         />
@@ -132,7 +137,7 @@ const LoginPage: React.FC = () => {
         />
         <Button style={{backgroundColor:"#444444"}} disabled={loading} onClick={submit}>Đăng nhập</Button>
       </Form>
-      <CustomAlert type={messageBox.type} closeMessage={handleCloseMessageBox} message={messageBox.message} open={messageBox.open} />      
+      <CustomAlert anchorOrigin={{horizontal:"right",vertical:"top"}} type={messageBox.type} closeMessage={handleCloseMessageBox} message={messageBox.message} open={messageBox.open} />      
     </Wrapper>
   );
 };

@@ -12,7 +12,7 @@ const SelectType = () =>{
     const [tables,setTables] = useState<Table[]>([])
     const fetch = async () =>{
       const response = await TableService.listByCounter()
-      setTables(response.data)
+      setTables([{pk:null,model:"",fields:{name:"Tất cả",parent_id:0,parent_name:"",status:0}},...response.data])
     }
     useEffect(()=>{
       fetch()
@@ -27,11 +27,11 @@ const SelectType = () =>{
           labelId="demo-simple-select-outlined-label"
           id="demo-simple-select-outlined"
           label="Bàn"
-          value={table}
+          value={table == null ? {value:"Tất cả"} : table}
           onChange={handleChange}
         >
           {tables.map((l)=> ( 
-            <MenuItem value={l.pk}>{l.fields.name}</MenuItem>
+            <MenuItem  value={l.pk}>{l.fields.name}</MenuItem>
           ))}
         </Select>
       </FormControl>

@@ -1,5 +1,5 @@
-import { Grid,MenuItem,Button,Menu,Select,FormControl,InputLabel,TextField, makeStyles, Divider } from '@material-ui/core'
-import React, { useMemo, useState } from  'react'
+import { Grid,Button,makeStyles, Divider } from '@material-ui/core'
+import React, { useState } from  'react'
 import styled from 'styled-components'
 import StaffService from '../../../../services/staff';
 import MaterialUIPickers from './components/SelectDate';
@@ -7,11 +7,11 @@ import SelectStatus from './components/SelectStatus';
 import SelectTable from './components/SelectTable';
 import { Provider } from './Context';
 import moment from 'moment'
-import ReactPaginate from 'react-paginate';
 import Pagination from '../../../../components/Pagination';
-import OrderDetail from '../../../../components/OrderDetail';
 import PhoneInput from './components/PhoneInput';
 import BillDetail from '../../../../components/BillDetail';
+import { useHistory } from 'react-router';
+
 
 const Wrapper = styled.div`
   padding: 5%;
@@ -48,6 +48,7 @@ const BillHistory = ( ) =>{
     const [table,setTable]  = useState<number | null>(null)
     const [phone,setPhone]  = useState('')
     const styles = useStyles()
+    const history  = useHistory()
     const [fromDate,setFromDate] = useState(new Date())
     const [toDate,setToDate] = useState(new Date())
     const [orders,setOrders] = useState({orders:[],total_row:0})
@@ -56,6 +57,7 @@ const BillHistory = ( ) =>{
       setOrders(response.data)
     }
     const handleSelectPage =  async (index) =>{
+      
       const response  = await StaffService.searchBillHistory({fromDate : moment(fromDate).format("YYYY-MM-DD"),offset:(index-1)*10,toDate:moment(toDate).format("YYYY-MM-DD"),limit:10,status,phoneNumber:phone,table})
       setOrders(response.data)
     }
@@ -74,10 +76,13 @@ const BillHistory = ( ) =>{
       }}>
         <Wrapper>
         <Grid container justify="center">
-          <Grid item xs={12} justify="flex-start">
-            <Button variant="contained" onClick={filter} style={{color:'white',backgroundColor:"#444444",left:"90%"}}>
-              Lọc
-            </Button>
+          <Grid item xs={12}  style={{display:"flex",justifyContent:"start"}}>
+            
+            <Grid container justify="flex-start">
+              <Button variant="contained" onClick={()=>history.go(-1)} style={{color:'white',backgroundColor:"#444444"}}>
+                Quay lại
+              </Button>
+            </Grid>
           </Grid>
           <Grid item xs={3} style={{textAlign:"center"}}>
             <h2>Lịch sử Bill</h2>
@@ -103,7 +108,7 @@ const BillHistory = ( ) =>{
         </Grid>
         <Grid container>
           <Grid item xs={12}>
-              {orders.orders.map((order,index)=> ( 
+              {orders.orders.map((order)=> ( 
                 <div style={{marginBottom:"10px"}}>
                 <BillDetail {...order} />
                 <div style={{marginBottom:"10px"}}></div>

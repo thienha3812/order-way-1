@@ -207,7 +207,7 @@ const MenuProvider = MenuContext.Provider
 const Menu = () => {
   const {user} = useSelector(userSelector)
   const styles=  useStyles()
-  const {  openMenu, setOpenMenu} = useContext(Context);
+  const {  openMenu, setOpenMenu,setPaidOrder} = useContext(Context);
   const [isLoading,setLoading] = useState(false)
   const [categories,setCategories] = useState<Category[]>([])
   const [data,setData]  = useState<Data[]>([])
@@ -417,6 +417,7 @@ const Menu = () => {
       StaffService.confirmPayMent({...payment_info,promotionId:pmts}).then(()=>{
         setMessagBox({open:true,message:"Thanh toán thành công!",type:"success"})
         setOpenMenu(false)
+        setPaidOrder({payment_info,pmts})
         return payment_info.id
       }).then(async(orderId) => {
         try{
@@ -428,7 +429,7 @@ const Menu = () => {
           const contentHtml = parseBillMentToHtml(data)
           ipcRenderer.send('print',{contentHtml,type:"printOrderBill"})
         }catch(err){
-
+            setMessagBox({type:"error",message:"Chưa kết nối máy in",open:true})
         }
       }).catch(err=>{
         const {mess} = JSON.parse(err.request.response)
@@ -456,9 +457,7 @@ const Menu = () => {
             <Dialog
       open={openMenu}
       aria-labelledby="simple-dialog-title"
-      fullWidth
-      maxWidth="lg"
-      style={{height:"90vh",marginTop:"5%"}}
+      fullScreen
       BackdropProps={{
         style:{
             backgroundColor:"transparent"
@@ -470,7 +469,10 @@ const Menu = () => {
         style={{ color: "black !important" }}
         id="simple-dialog-title"
       >
-        Order
+        <Button style={{backgroundColor:"#444444",color:"white"}} variant="contained" onClick={handleCloseMenu}>
+          Quay lại
+        </Button>
+        <span style={{marginLeft:'20px'}}>Order</span>
       </DialogTitle>
       <DialogContent>
         <Divider style={{ marginBottom: "2%" }} />
@@ -485,7 +487,12 @@ const Menu = () => {
                 <OrderItem key={index}  {...m} />
             ))}
           </Grid>
-          <Grid item xs={3} style={{borderRight:"1px solid #333",height:"100vh"}}>
+          <Grid item xs={3} style={{borderRight:"1px solid #333",height:"100vh"}}>    
+                <Grid container style={{width:'100%'}} alignItems="center" justify="flex-end">
+                  <Grid item xs={6} style={{display:'flex',justifyContent:"flex-end"}}>
+                      <Button onClick={handleSendOrder} disabled={isLoading} style={{backgroundColor:"#444444",color:"white"}}  variant="outlined">Gọi món</Button>
+                  </Grid>
+                </Grid>         
                 {billment.orders.filter(o=> o.quantity !==0 ).map((o)=>( 
                   <Fragment>
                   <div style={{display:'flex',alignItems:'center'}}>
@@ -510,24 +517,30 @@ const Menu = () => {
                 <Text>
                   Tổng tiền: {sumPrice()}
                 </Text>
-                <Grid container style={{width:'100%'}} alignItems="center" justify="center">
-                <Grid item xs={6}>
-                    <Button onClick={handleSendOrder} disabled={isLoading} style={{backgroundColor:"#444444",color:"white"}}  variant="outlined">Gọi món</Button>
-                </Grid>
-            </Grid>
+             
           </Grid>
           {/* style={{position:"fixed",width:"40%",paddingTop:"0",marginLeft:"60%"}} */}
           <Grid item xs={3}  >
-            <Text><b>Bàn: </b> {billment.payment_info?.table_name || billment.table_name}</Text>
-            <Text><b>Thành tiền:</b>{convertToVnd(billment.payment_info.total)}</Text>
-            <Text><b>Tổng giảm giá: </b> {convertToVnd(Math.max(0,billment.payment_info?.sub_total - billment.payment_info?.total))}</Text>
-            <Text><b>Tổng tiền món: </b> {convertToVnd(billment.payment_info?.sub_total || 0)}</Text>
+          <Grid spacing={3} container style={{width:'100%'}} alignItems="center" justify="center">
+                    <Grid item xs={7} style={{textAlign:'center'}}>
+                      <Button onClick={handlePrintInvoice} style={{fontSize:"12px",backgroundColor:"#444444",color:"white"}}>In hóa đơn tạm tính</Button>
+                    </Grid>
+                    <Grid style={{textAlign:'center'}} item xs={5}>
+                        <Button  onClick={confirmPayment} disabled={billment.payment_info.foods.length > 0 ? false : true} style={{height:"100%",fontSize:"12px",backgroundColor:"#444444",color:"white"}} variant="outlined">Thanh toán</Button>
+                    </Grid>
+              </Grid>
+            <Text style={{margin:"0",padding:'0',height:'25px'}}><b>Bàn: </b> {billment.payment_info?.table_name || billment.table_name}</Text>
+            <Text style={{margin:"0",padding:'0',height:'25px'}}><b>Thành tiền:</b>{convertToVnd(billment.payment_info.total)}</Text>
+            <Text style={{margin:"0",padding:'0',height:'25px'}}><b>Tổng giảm giá: </b> {convertToVnd(Math.max(0,billment.payment_info?.sub_total - billment.payment_info?.total))}</Text>
+            <Text style={{margin:"0",padding:'0',height:'25px'}}  ><b>Tổng tiền món: </b> {convertToVnd(billment.payment_info?.sub_total || 0)}</Text>
             <CustomerPayment/>
             <Coupon/> 
             <Service/>
             <Currency/>
-            <Text><b>Khuyến mãi đang áp dụng:</b></Text>
-            <div>
+            {billment.pmts.length > 0 && (
+              <>
+              <Text><b>Khuyến mãi đang áp dụng:</b></Text>
+              <div>
               <ul>
                 {billment.pmts?.filter(p=>p.quantity_apply !==0).map((p,index)=>(
 
@@ -537,6 +550,9 @@ const Menu = () => {
                 ))}
               </ul>
             </div>
+              </>
+            )}   
+           
             <Text><b>Chi tiết:</b></Text>
             <div>
                 <ul>
@@ -549,21 +565,11 @@ const Menu = () => {
                   ))}
                 </ul>
             </div>
-            <Grid spacing={3} container style={{width:'100%'}} alignItems="center" justify="center">
-                <Grid item xs={6}>
-                  <Button onClick={handlePrintInvoice} style={{fontSize:"14px",backgroundColor:"#444444",color:"white"}}>In hóa đơn tạm tính</Button>
-                </Grid>
-                <Grid item xs={6}>
-                    <Button  onClick={confirmPayment} disabled={billment.payment_info.foods.length > 0 ? false : true} style={{height:"100%",fontSize:"14px",backgroundColor:"#444444",color:"white"}} variant="outlined">Thanh toán</Button>
-                </Grid>
-            </Grid>
+           
           </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions>
-        <Button style={{backgroundColor:"#444444",color:"white"}} variant="contained" onClick={handleCloseMenu}>
-          Quay lại
-        </Button>
+      <DialogActions>       
         <Button style={{backgroundColor:"#444444",color:"white"}} variant="contained"  onClick={()=> setOpenMergeTable(true)}>Gộp bàn</Button>
           {billment.status !== 0 && (
             <>

@@ -16,8 +16,9 @@ import MergeTable from './components/MergeTable';
 import ChangeTable from './components/ChangeTable';
 import CancelOrder from './components/CancelOrder';
 import Sound  from '../../../../assets/mp3/onmessage.mp3'
-import { caculateMaxValueVoucher, caculateValueDiscount, caculateValueVoucher,caculateValueFreeItem, caculateAllValue } from '../../../../utils';
+import { caculateMaxValueVoucher, caculateValueDiscount, caculateValueVoucher,caculateValueFreeItem, caculateAllValue, parseBillMentToHtml } from '../../../../utils';
 import CancelFood from './components/CancelFood';
+import { ipcRenderer } from 'electron';
 const Store = require("electron-store")
 const store = new Store()
 
@@ -94,6 +95,7 @@ const StaffOrder = () => {
   const [openCancelOrder,setOpenCancelOrder] = useState(false)
   const [selectedOrder,setOrder] = useState<Order | null>(null)
   const [openChangeTable,setOpenChangeTable] = useState(false)
+  const [paidOrder,setPaidOrder] = useState({})
   const [ openScanCoupon,setOpenScanCoupon] = useState(false)
   const [openTypeCoupon,setOpenTypeCoupon] = useState(false)
   const [openCancelFood ,setOpenCancelFood] = useState(false)
@@ -102,23 +104,39 @@ const StaffOrder = () => {
   const fetch = async () =>{ 
       const data = await TableService.listByCounter()
       setTables(data.data)
-  }
-  const updateTable = async (tableID) =>{
-    const {payment_info,pmts} = await StaffService.getPaymentInfo(tableID)
-    if(openMenu){
-      setBillMent({...billment,payment_info,pmts})
+  }  
+  const updateTable = async (tableID,payment_id) =>{
+    if(!billment.payment_info.table_id){
+      return
+    }
+    if(payment_id){
+      return
+    }
+    if(openMenu && (billment.payment_info.table_id == tableID || tableID == billment.tableId)){
+      const {payment_info,pmts} = await StaffService.getPaymentInfo(tableID)
+      let allValue = caculateAllValue({payment_info,pmts})
+      allValue = Math.max(0,payment_info.sub_total - allValue)
+      setBillMent({...billment,payment_info:{...payment_info,total:allValue},pmts,orders:[]})  
     }
   }
   useEffect(()=>{
       fetch()
-      _counterSocket.onmessage = function(message){
+      _counterSocket.onmessage = async function(message){
+          const payment_id = JSON.parse(message.data).text.payment_id
           const tableID = JSON.parse(message.data).text.tables[0].pk
-          updateTable(tableID)
+          const createdBy = JSON.parse(message.data).text.created_by
+          fetch()
+          updateTable(tableID,payment_id)
           const { autoPrintWhenStaffPayment } = store.get("orderBill")
-          if(autoPrintWhenStaffPayment){
-
+          if(autoPrintWhenStaffPayment && createdBy !== staff_info.pk){
+              const {payment_id} = JSON.parse(message.data).text
+              if(!payment_id){
+                return
+              }
+              const data = await StaffService.getBillMentInfo(payment_id)
+              const contentHtml = parseBillMentToHtml(data)
+              ipcRenderer.send('print',{contentHtml,type:"printOrderBill"})
           }
-        fetch()
       }
       _notificationSocket.onmessage = async function(message){
           const audio = new Audio(Sound)
@@ -126,9 +144,8 @@ const StaffOrder = () => {
       }
       return (()=>{
         _notificationSocket.close()
-        _counterSocket.close()
       })
-  },[])
+  },[billment,openMenu,paidOrder])
   useEffect(()=>{
     fetch()
   },[openMergeTable,openMenu])
@@ -154,7 +171,9 @@ const StaffOrder = () => {
         openTypeCoupon,
         setOpenTypeCoupon,
         setOpenCancelFood,
-        openCancelFood
+        openCancelFood,
+        paidOrder,
+        setPaidOrder
     }}>
        <Wrapper>
       {openMenu && (

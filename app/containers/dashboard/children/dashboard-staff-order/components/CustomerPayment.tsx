@@ -166,7 +166,7 @@ const CustomerPayment =  () => {
         <Fragment>
           <div style={{display:"flex",alignItems:'center'}}>
               <div>
-                  <b>Khách hàng:</b> {billment.payment_info?.customer_name}  {billment.payment_info?.phone_number}
+                  <b>Khách hàng:</b> {billment.payment_info?.customer_name}
                 </div>
               <IconButton onClick={()=>setOpen(!openScanQr)} style={{color:"black",borderRadius:0}}>
                   <IoMdQrScanner/>
@@ -302,7 +302,7 @@ const CustomerPayment =  () => {
                                         <TableCell align="center">{row.name}</TableCell>
                                         <TableCell align="center">{row.total_money}</TableCell>
                                         <TableCell align="center">
-                                            <Button onClick={()=>handleSelectCustomer(row)} color="secondary" variant="outlined">Chọn</Button>
+                                            <Button onClick={()=>handleSelectCustomer(row)} style={{backgroundColor:"#444444",color:"#fff"}} >Chọn</Button>
                                         </TableCell>
                                         </TableRow>
                                     ))}

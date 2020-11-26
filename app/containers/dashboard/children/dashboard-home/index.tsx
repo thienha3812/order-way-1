@@ -8,8 +8,6 @@ import OrderService from "../../../../services/order";
 import CustomAlert from "../../../../components/Alert";
 import { manageOrderSocket }  from "../../../../utils/socket"
 import {Order, Orders} from './types'
-const electron = require('electron') 
-const BrowserWindow = electron.remote.BrowserWindow
 const Store = require('electron-store')
 const store = new Store()
 import { DashBoarHomeContext, Provider } from "./Context";
@@ -58,7 +56,7 @@ const RenderList = ()  => {
     }
     const handleUpdateToFinish  = async (order:Order) => {
         OrderService.updateStatusOrderToFinish({id:order.orderId}).then(()=>{
-            setMessagBox({open:true,message:"Hủy Order thành công!",type:"success"})    
+            setMessagBox({open:true,message:"Giao thành công!",type:"success"})    
             setOrders({...orders,orders_finish:[...orders.orders_finish,order],orders_done:[...orders.orders_done.filter(o => o.orderId !== order.orderId)]})
         }).catch(err=>{ 
             setMessagBox({open:true,message:err.toString(),type:"error"})
@@ -76,13 +74,22 @@ const RenderList = ()  => {
         OrderService.updateStatusOrderToDoing({id:order.orderId}).then(()=>{
             setOrders({...orders,orders_doing:[...orders.orders_doing,order],orders_approved:[...orders.orders_approved.filter(o=> o.orderId !== order.orderId)]})
             setMessagBox({open:true,message:"Cập nhật Order thành công!",type:"success"})
+            printBill(order)
         }).catch((err)=>{
             setMessagBox({open:true,message:err.toString(),type:"error"})
         })
     }
     const handleCloseMessageBox =() =>{
         setMessagBox({...messageBox,open:false})
-    } 
+    }
+    const printBill = order =>{
+      const {autoPrintWhenAcceptOrder } = store.get("kitchenBill")
+      const { status } = order
+      if(autoPrintWhenAcceptOrder){
+        const contentHtml = parseKitchenBillToHtml(order)
+        ipcRenderer.send("print",{contentHtml,type:"printKitchenBill"})
+      }  
+  } 
     const handleUpdateCreatedOrder = order =>{
       if(order.type === "cancel_order"){
         OrderService.confirmCancelOrder({tableId:order.table_id,order_id:order.orderId}).then(()=>{
@@ -102,11 +109,7 @@ const RenderList = ()  => {
         StaffService.updateOrderStatusToApproved({id:order.orderId,phoneNumber:null}).then(()=>{
           setMessagBox({open:true,message:"Xác nhận Order thành công!",type:"success"})     
           setOrders({...orders,orders_approved:[...orders.orders_approved,order],orders_created:[...orders.orders_created.filter(o=> o.orderId !== order.orderId)]})
-          const {autoPrintWhenAcceptOrder } = store.get("kitchenBill")
-          if(autoPrintWhenAcceptOrder){
-            const contentHtml = parseKitchenBillToHtml(order)
-            ipcRenderer.send("print",{contentHtml,type:"printKitchenBill"})
-          }     
+          printBill(order)
         })
       }
     }
@@ -177,7 +180,7 @@ const DashboardHome = (props: any) => {
   const styles = useStyles();
   const history  = useHistory()
   const [selected, setSelected] = useState("orders_approved");
-  const socket = manageOrderSocket(staff_info.fields.store_id)
+  const socket =  manageOrderSocket(staff_info.fields.store_id)
   const [orders, setOrders] = useState<Orders>({
     orders_created: [],
     orders_approved: [],
@@ -200,7 +203,9 @@ const DashboardHome = (props: any) => {
   };
   const printBill = order =>{
       const {autoPrintStaffOrder } = store.get("kitchenBill")
-      if(autoPrintStaffOrder){
+      const { status } = order
+      
+      if(autoPrintStaffOrder && status === "approved"){
         const contentHtml = parseKitchenBillToHtml(order)
         ipcRenderer.send("print",{contentHtml,type:"printKitchenBill"})
       }  
@@ -208,13 +213,11 @@ const DashboardHome = (props: any) => {
   useEffect(() => {
       fetch() 
       socket.onmessage = async function(message){   
-          setTimeout(async()=>{  
-            fetch()                
-            let sound = new Audio(Sound)
-            await sound.play()
-            const order = JSON.parse(message.data)
-            printBill(order.text)
-          },1000)
+          fetch()                
+          let sound = new Audio(Sound)
+          await sound.play()
+          const order = JSON.parse(message.data)
+          printBill(order.text)
       }       
   }, []);    
   const handleSelect = (status) => {
@@ -233,16 +236,17 @@ const DashboardHome = (props: any) => {
       <List style={{ marginBottom: "2%" }}>
         <Item>Quản lý gọi món</Item>
         <Item style={{ width: "40%", display: "flex" }}>
+           <Item style={{ width: "50%" }}>
+            <Button style={{backgroundColor:"#444444",width:'auto',color:"white"}} variant="contained" onClick={()=>history.push(DASHBOARD_ORDER_HISTORY)}>
+              Lịch sử Order
+            </Button>
+          </Item>
           <Item style={{ width: "50%" }}>
           <Button style={{backgroundColor:"#444444",color:"white"}} variant="contained" onClick={()=>history.push(DASHBOARD_BILL_HISTORY)}>
               Lịch sử Bill
             </Button>
           </Item>
-          <Item style={{ width: "50%" }}>
-            <Button style={{backgroundColor:"#444444",color:"white"}} variant="contained" onClick={()=>history.push(DASHBOARD_ORDER_HISTORY)}>
-              Lịch sử Order
-            </Button>
-          </Item>
+          
         </Item>
       </List>
       <Divider />

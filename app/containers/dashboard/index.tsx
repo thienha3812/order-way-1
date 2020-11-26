@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {
   Grid,
@@ -8,6 +8,11 @@ import Routes from './Routes';
 import './style.scss';
 import CustomDrawer from './components/Drawer';
 import { ContextProvider } from './Context';
+import { app, BrowserWindow,ipcMain,remote ,screen,Menu} from 'electron';
+import { current } from '@reduxjs/toolkit';
+
+
+
 
 const Wrapper = styled.div`
   height: 100vh;
@@ -16,27 +21,34 @@ const Body = styled.div`
   width: 100%;
   color: black;
 `;
+declare global {
+  interface Window  {
+    manageOrderSocket:any
+  }
+}
 const DashboardPage = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
+  
   const value = {
     openDrawer,
     setOpenDrawer,
   };
+  
   return (
     <ContextProvider value={value}>
       <Wrapper>
         <Body>
-          <Grid container>
+          <div style={{display:'flex'}}>
             {openDrawer && (
-              <Grid item xs={3}>
+              <div style={{width:"220px"}} >
                 <CustomDrawer />
-              </Grid>
+              </div>
             )}
-            <Grid item xs={openDrawer ? 9 : 12}>
+            <div style={{width:'100%'}}>
               <CustomNavbar />
               <Routes />
-            </Grid>
-          </Grid>
+            </div>
+          </div>
         </Body>
       </Wrapper>
     </ContextProvider>

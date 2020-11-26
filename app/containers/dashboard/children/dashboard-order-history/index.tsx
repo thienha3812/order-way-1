@@ -9,6 +9,7 @@ import { Provider } from './Context';
 import moment from 'moment'
 import Pagination from '../../../../components/Pagination';
 import OrderDetail from '../../../../components/OrderDetail';
+import { useHistory } from 'react-router';
 
 const Wrapper = styled.div`
   padding: 5%;
@@ -44,6 +45,7 @@ const OrderHistory = ( ) =>{
     const [status,setStatus]  = useState('')
     const [type,setType]  = useState('')
     const styles = useStyles()
+    const history = useHistory()
     const [fromDate,setFromDate] = useState(new Date())
     const [toDate,setToDate] = useState(new Date())
     const [orders,setOrders] = useState({orders:[],total_row:0})
@@ -68,6 +70,14 @@ const OrderHistory = ( ) =>{
       }}>
         <Wrapper>
         <Grid container justify="center">
+        <Grid item xs={12}  style={{display:"flex",justifyContent:"start"}}>
+            
+            <Grid container justify="flex-start">
+              <Button variant="contained" onClick={()=>history.go(-1)} style={{color:'white',backgroundColor:"#444444"}}>
+                Quay lại
+              </Button>
+            </Grid>
+          </Grid>
           <Grid item xs={3} style={{textAlign:"center"}}> 
             <h2>Lịch sử Order</h2>
           </Grid>
@@ -82,7 +92,7 @@ const OrderHistory = ( ) =>{
           <MaterialUIPickers/>
           <Grid item xs={12} >
            <p className={styles.root}>Có {orders.total_row | 0} kết quả</p>
-          <Button variant="contained" onClick={filter} color="primary" style={{left:"90%"}}>
+          <Button variant="contained" onClick={filter}  style={{backgroundColor:"#444444",color:'#fff',left:"90%"}}>
             Lọc
           </Button>
           </Grid>

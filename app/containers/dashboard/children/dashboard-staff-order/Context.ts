@@ -25,6 +25,8 @@ type IContext = {
     setOpenTypeCoupon : (boolean) => void
     openCancelFood : boolean
     setOpenCancelFood : (boolean) => void
+    paidOrder : any 
+    setPaidOrder : (any) => void
 }
 
 
@@ -57,7 +59,9 @@ export const Context = React.createContext<IContext>({
     openTypeCoupon:false,
     setOpenTypeCoupon:(value:boolean) =>{},
     openCancelFood : false,
-    setOpenCancelFood : (value:boolean) =>{}
+    setOpenCancelFood : (value:boolean) =>{},
+    paidOrder:{},
+    setPaidOrder: (value:any) =>{ }
 })
 
 

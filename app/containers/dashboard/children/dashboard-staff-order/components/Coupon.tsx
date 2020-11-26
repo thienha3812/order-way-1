@@ -486,10 +486,8 @@ const Coupon = () => {
               </Grid>
               <Grid item xs={4} style={{ height: "80px" }}>
                 <Button
-                  color="secondary"
                   onClick={confirmCoupon}
-                  variant="outlined"
-                  style={{ height: "100%" }}
+                  style={{ height: "100%",backgroundColor:"#444444",color:"#fff" }}
                 >
                   Xác nhận
                 </Button>

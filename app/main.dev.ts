@@ -62,7 +62,7 @@ const createWindow = async () => {
     width: 1024,
     height: 728,
     center:true,
-    minHeight: height * 0.8,
+    minHeight: height * 0.9,
     minWidth: width * 0.8,
     icon: getAssetPath('icon.png'),
     webPreferences: {
@@ -79,7 +79,7 @@ const createWindow = async () => {
       throw new Error('"mainWindow" is not defined');
     }
     if (process.env.START_MINIMIZED) {
-      mainWindow.minimize();
+      // mainWindow.minimize();
     } else {
       mainWindow.show();
       mainWindow.focus();

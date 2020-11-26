@@ -66,9 +66,6 @@ import StaffService from "../../../../../services/staff";
     const handleCloseMessageBox = () => {
       setMessagBox({ ...messageBox,open: false});
     };
-    useEffect(()=>{
-      console.log(serviceForm)
-    },[serviceForm])
     const addServiceToOrder = () => {
       const regex = /^[0-9]*$/g;
       if (serviceForm.price == 0) {
@@ -273,8 +270,7 @@ import StaffService from "../../../../../services/staff";
                   >
                     <Button
                       onClick={addServiceToOrder}
-                      color="primary"
-                      style={{height: "60px", marginTop: "10px" }}
+                      style={{height: "60px",backgroundColor:"#444444",color:"#fff", marginTop: "10px" }}
                       variant="contained"
                     >
                       Thêm
@@ -307,8 +303,7 @@ import StaffService from "../../../../../services/staff";
                   >
                     <Button
                       onClick={addSurchargeToOrder}
-                      color="primary"
-                      style={{ height: "60px", marginTop: "10px" }}
+                      style={{ height: "60px",backgroundColor:"#444444",color:"#fff", marginTop: "10px" }}
                       variant="contained"
                     >
                       Thêm
@@ -339,12 +334,11 @@ import StaffService from "../../../../../services/staff";
             <DialogActions>
               <Button
                 onClick={() => handleCloseModel()}
-                color="primary"
                 variant="outlined"
               >
                 Hủy 
               </Button>
-              <Button onClick={confirmUpdateOrder} color="primary" variant="outlined">
+              <Button onClick={confirmUpdateOrder} variant="outlined">
                 Xác nhận
               </Button>
             </DialogActions>
