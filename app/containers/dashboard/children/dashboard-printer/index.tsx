@@ -1,8 +1,6 @@
 import { FormControl, Grid,Select, InputLabel, makeStyles, MenuItem, Checkbox, FormControlLabel } from '@material-ui/core'
 import React, { useEffect, useState } from  'react'
 import styled from 'styled-components'
-import StaffService from '../../../../services/staff';
-import moment from 'moment'
 const Store = require('electron-store')
 const electron = require('electron') 
 const BrowserWindow = electron.remote.BrowserWindow
@@ -19,15 +17,18 @@ const useStyles = makeStyles(()=>({
 const Printer = ( ) =>{ 
     const styles = useStyles()
     const [printers,setPrinters] = useState([])
+    const arrFontSize = Array.from(new Array(21).keys()).filter(v => v>=10)
     const [kitchenBill,setKitchenBill] = useState(store.get("kitchenBill")  !== undefined ? store.get("kitchenBill")  : {
         name:"",
         autoPrintWhenAcceptOrder:false,
-        autoPrintStaffOrder:false,
+        autoPrintStaffOrder:false,    
+        fontSizeKitchenBill:null,
     })
     const [orderBill,setOrderBill] = useState( store.get("orderBill") !== undefined ? store.get("orderBill") : {
         name:"",
         autoPrintWhenPayment:false,
-        autoPrintWhenStaffPayment:false
+        autoPrintWhenStaffPayment:false,
+        fontSizeOrderBill:null
     })
     useEffect(()=>{
         let win = BrowserWindow.getFocusedWindow() 
@@ -83,10 +84,10 @@ const Printer = ( ) =>{
     const handleCheckBoxStaffPayment = () =>  {
         setOrderBill({...orderBill,
             autoPrintWhenStaffPayment:!orderBill.autoPrintWhenStaffPayment})
-            store.set("orderBill",{
-                ...orderBill,
-                autoPrintWhenStaffPayment:!orderBill.autoPrintWhenStaffPayment
-            })
+        store.set("orderBill",{
+            ...orderBill,
+            autoPrintWhenStaffPayment:!orderBill.autoPrintWhenStaffPayment
+        })
     }
     const handleCheckBoxAutoPaymentBill = () =>{
         setOrderBill({...orderBill,
@@ -96,13 +97,32 @@ const Printer = ( ) =>{
                 autoPrintWhenPayment:!orderBill.autoPrintWhenPayment
             })
     }
+    const handleFontSizeBillChange  = event => {
+        setOrderBill({...orderBill,
+            fontSizeOrderBill:event.target.value
+        })
+        store.set("orderBill",{
+            ...orderBill,
+            fontSizeOrderBill:event.target.value
+        })
+    }
+    const handleFontSizeKitchenBillChange = event => {
+        setKitchenBill({
+            ...kitchenBill,
+            fontSizeKitchenBill:event.target.value
+        })
+        store.set("kitchenBill",{
+            ...kitchenBill,
+            fontSizeKitchenBill: event.target.value,
+        })
+    }   
     return ( 
     <Wrapper>
             <Grid spacing={3} container>
                 <Grid item xs={6}>
                 <h2>Máy in Bill</h2>
                 <FormControl className={styles.root}>
-    <InputLabel id="demo-simple-select-label">{orderBill.name}</InputLabel>
+                    <InputLabel id="demo-simple-select-label">{orderBill.name}</InputLabel>
                     <Select
                     variant="outlined"
                     label={orderBill.name}
@@ -114,7 +134,6 @@ const Printer = ( ) =>{
                         {printers.map(p => (
                             <MenuItem value={p.name}>{p.name}</MenuItem>                            
                         ))}
-                        
                     </Select>
                 </FormControl>
                 <FormControlLabel
@@ -131,13 +150,30 @@ const Printer = ( ) =>{
                  <FormControlLabel
                     control={
                     <Checkbox
-                        checked={orderBill.autoPrintWhenStaffPayment}                 onChange={handleCheckBoxStaffPayment}
+                        checked={orderBill.autoPrintWhenStaffPayment}                
+                        onChange={handleCheckBoxStaffPayment}
                         name="checkedB"
                         color="primary"
                     />
                     }
                     label="Tự động in bill khi nhân viên thanh toán từ xa"
                 />
+                <FormControl className={styles.root}>
+                    <InputLabel id="demo-simple-select-label">Kích cỡ chữ</InputLabel>
+                    <Select
+                    variant="outlined"
+                    classes={{root:styles.root}}
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={orderBill.fontSizeOrderBill || null}
+                    onChange={handleFontSizeBillChange}
+                    >
+                        {arrFontSize.map(f => (
+                            <MenuItem value={f}>{f}</MenuItem>                            
+                        ))}
+                        
+                    </Select>
+                </FormControl>
                 </Grid>
                 <Grid item xs={6}>
                 <h2>Máy in Bếp</h2>
@@ -177,7 +213,24 @@ const Printer = ( ) =>{
                     }
                     label="Tự động in bếp khi có nhân viên order từ xa"
                 />
+                  <FormControl className={styles.root}>
+                    <InputLabel id="demo-simple-select-label">Kích cỡ chữ</InputLabel>
+                    <Select
+                    variant="outlined"
+                    classes={{root:styles.root}}
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={kitchenBill.fontSizeKitchenBill|| null}
+                    onChange={handleFontSizeKitchenBillChange}
+                    >
+                        {arrFontSize.map(f => (
+                            <MenuItem value={f}>{f}</MenuItem>                            
+                        ))}
+                        
+                    </Select>
+                </FormControl>
                 </Grid>
+                
             </Grid>
     </Wrapper>
         
