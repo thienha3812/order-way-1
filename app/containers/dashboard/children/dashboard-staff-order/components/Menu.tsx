@@ -519,14 +519,13 @@ const Menu = () => {
                 </Text>
              
           </Grid>
-          {/* style={{position:"fixed",width:"40%",paddingTop:"0",marginLeft:"60%"}} */}
           <Grid item xs={3}  >
           <Grid spacing={3} container style={{width:'100%'}} alignItems="center" justify="center">
                     <Grid item xs={7} style={{textAlign:'center'}}>
                       <Button onClick={handlePrintInvoice} style={{fontSize:"12px",backgroundColor:"#444444",color:"white"}}>In hóa đơn tạm tính</Button>
                     </Grid>
                     <Grid style={{textAlign:'center'}} item xs={5}>
-                        <Button  onClick={confirmPayment} disabled={billment.payment_info.foods.length > 0 ? false : true} style={{height:"100%",fontSize:"12px",backgroundColor:"#444444",color:"white"}} variant="outlined">Thanh toán</Button>
+                        <Button  onClick={confirmPayment} disabled={( billment.orders.filter(o => o.quantity !== 0 ).length > 0 && billment.payment_info.foods.length > 0 )? true : false} style={{height:"100%",fontSize:"12px",backgroundColor:"#444444",color:"white"}} variant="outlined">Thanh toán</Button>
                     </Grid>
               </Grid>
             <Text style={{margin:"0",padding:'0',height:'25px'}}><b>Bàn: </b> {billment.payment_info?.table_name || billment.table_name}</Text>
