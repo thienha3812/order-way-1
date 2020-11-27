@@ -160,9 +160,9 @@ const IncrementButton = (props) => {
   
   return (
     <Fragment>
-        <Button onClick={()=>handleAddItem()} style={{ borderRadius: "0",bottom:0, width:'30px',height: "30px" }} variant="outlined">
-        <MdAdd fontSize={20} />
-      </Button>
+      <IconButton onClick={()=>handleAddItem()}size="small" style={{backgroundColor:"green",color:"white",height:"30px",borderRadius:"0"}} disableFocusRipple disableRipple>
+                        <MdAdd fontSize={25}/>
+        </IconButton>
       <IncrementInput value={props.count} disabled />  
     </Fragment>
   );
@@ -585,7 +585,7 @@ const Menu = () => {
                 </Grid>         
                 {billment.orders.filter(o=> o.quantity !==0 ).map((o,index)=>( 
                   <Fragment key={index}>
-                  <div style={{display:'flex',alignItems:'center'}}>
+                  <div style={{display:'flex',alignItems:'flex-start'}}>
                     <IconButton onClick={()=>updateAmount(o,"add")} size="small" style={{backgroundColor:"green",color:"white",height:"30px",borderRadius:"0"}} disableFocusRipple disableRipple>
                         <MdAdd fontSize={25}/>
                     </IconButton>
@@ -598,11 +598,14 @@ const Menu = () => {
                     <IconButton  onClick={()=>updateAmount(o,"sub")} size="small" style={{backgroundColor:"#e0e0e0",marginLeft:"5px",color:"white",height:"30px",borderRadius:"0"}} disableFocusRipple disableRipple>
                         <RiSubtractLine fontSize={25}/>
                     </IconButton>
-                    <p style={{marginLeft:"5px"}}>{o.name+","}</p> <br/>
-                    <p>Giá: {convertToVnd(o.price)}</p> 
-                    {(o.can_edit_price || user.staff_info.fields.role_name == "ADMIN" && (
-                          <IconButton onClick={()=>handleOpenChangePriceDialog(o)} style={{borderRadius:"0"}}><FaRegEdit fontSize={15}/></IconButton>
-                      ))}
+                    <div style={{display:"flex",flexDirection:"column"}}>
+                      <div style={{marginLeft:"5px"}}>{o.name}</div>
+                      <div>Giá: {convertToVnd(o.price)}
+                      {(o.can_edit_price || user.staff_info.fields.role_name == "ADMIN" && (
+                            <IconButton onClick={()=>handleOpenChangePriceDialog(o)} style={{borderRadius:"0"}}><FaRegEdit fontSize={15}/></IconButton>
+                        ))}
+                      </div>    
+                    </div>                 
                   </div>
                   <div style={{display:'flex',justifyContent:'space-between'}}>
                     <NoteInput onChange={(event) => handleNoteChange(event.target.value,index)}  placeholder="Thêm ghi chú..."/>                    
