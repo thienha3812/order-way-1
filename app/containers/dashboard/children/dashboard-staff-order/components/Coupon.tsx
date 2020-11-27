@@ -498,8 +498,8 @@ const Coupon = () => {
             <h5>Đang áp dụng </h5>
             <Grid container>
                 <ul>
-                    {billment.pmts.filter(p=>p.quantity_apply !==0).map((p=>(
-                      <li>{p.quantity_apply} x {p.name}</li>
+                    {billment.pmts.filter(p=>p.quantity_apply !==0).map(((p,index)=>(
+                      <li key={index}>{p.quantity_apply} x {p.name}</li>
                     )))}
                 </ul>
             </Grid>

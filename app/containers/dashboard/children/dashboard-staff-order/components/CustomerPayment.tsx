@@ -1,6 +1,6 @@
 import React,{Fragment, useContext, useEffect, useState} from 'react'
 import QrReader from 'react-qr-reader'
-
+import {BsFillTrashFill} from 'react-icons/bs'
 import {IoMdQrScanner} from 'react-icons/io'
 import {BsSearch} from 'react-icons/bs'
 import {GrAdd} from 'react-icons/gr'
@@ -116,8 +116,19 @@ const CustomerPayment =  () => {
     const handleCloseMessageBox =() =>{
         setMessageBox({...messageBox,open:false})
     }
+    const removeCustomer  = async () => {
+        if(billment.payment_info?.id){
+            StaffService.updateCustomerIntoOrder({cusId:null,orderId:billment.payment_info?.id}).then(()=>{
+                setBillMent({...billment,payment_info:{
+                    ...billment.payment_info,
+                    customer_name:"",
+                    customer_id:null,
+                }})
+            })
+        }
+    }
     const  handleError = err => {
-      }
+    }
     const handleSearchInput =(event) =>{
         setPhone(event.target.value)
     }
@@ -129,7 +140,7 @@ const CustomerPayment =  () => {
         if(billment.payment_info?.id){
             await StaffService.updateCustomerIntoOrder({cusId:customer.id,orderId:billment.payment_info?.id})
         }
-        setBillMent({...billment,payment_info:{...billment.payment_info,customer_name:customer.name,phone_number:customer.phone_number}})
+        setBillMent({...billment,payment_info:{...billment.payment_info,customer_name:customer.name + "-" + customer.phone_number,phone_number:customer.phone_number}})
         setOpenSearchDialog(false)
     }
     const handleSelectCity = async (event) =>{
@@ -164,19 +175,27 @@ const CustomerPayment =  () => {
     return ( 
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
         <Fragment>
-          <div style={{display:"flex",alignItems:'center'}}>
-              <div>
-                  <b>Khách hàng:</b> {billment.payment_info?.customer_name}
-                </div>
-              <IconButton onClick={()=>setOpen(!openScanQr)} style={{color:"black",borderRadius:0}}>
-                  <IoMdQrScanner/>
-              </IconButton>
-              <IconButton onClick={()=>setOpenSearchDialog(true)} style={{color:"black",borderRadius:0}}>
-                  <BsSearch/>
-              </IconButton>
-              <IconButton onClick={()=>setOpenAddCustomer(true)} style={{color:"black",borderRadius:0}}>
-                  <GrAdd/>
-              </IconButton>
+          <div style={{display:"flex",alignItems:'center',height:'35px',marginTop:'10px'}}>
+              <div style={{display:'flex',justifyContent:'center',alignItems:'center'}}>
+                  <b>Khách hàng:</b> {billment.payment_info?.customer_name} { billment.payment_info.customer_name && ( 
+                  <IconButton onClick={()=>removeCustomer()} style={{color:"black",borderRadius:0}}>
+                        <BsFillTrashFill size={20}/>
+                    </IconButton>
+                  )}
+            </div>
+             {!billment.payment_info.customer_name && (
+                 <>
+                    <IconButton onClick={()=>setOpen(!openScanQr)} style={{color:"black",borderRadius:0}}>
+                       <IoMdQrScanner/>
+                    </IconButton>
+                    <IconButton onClick={()=>setOpenSearchDialog(true)} style={{color:"black",borderRadius:0}}>
+                        <BsSearch/>
+                    </IconButton>
+                    <IconButton onClick={()=>setOpenAddCustomer(true)} style={{color:"black",borderRadius:0}}>
+                        <GrAdd/>
+                    </IconButton>
+                 </>
+             )}
           </div>
           <Dialog  
           

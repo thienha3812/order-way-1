@@ -22,7 +22,7 @@ import { Order } from "../types";
 import {caculateAllValue,parseInvoiceBillToHtml,parseBillMentToHtml, convertToVnd} from '../../../../../utils'
 import CustomerService from "../../../../../services/customer";
 import CustomAlert from "../../../../../components/Alert";
-import SelectTopping from "./SelectTopping";
+import {FaRegEdit} from 'react-icons/fa';
 import StaffService from "../../../../../services/staff";
 import CustomerPayment from "./CustomerPayment";
 import Coupon from "./Coupon";
@@ -30,7 +30,8 @@ import Service from "./Service";
 import Currency from "./Currency";
 import { ipcRenderer } from "electron";
 import Store from 'electron-store'
-
+import ChangePriceDialog from "./ChangePrice";
+import ChangeQuantityDialog from "./ChangeQuantity";
 const store = new Store()
 
 
@@ -126,7 +127,6 @@ const useStyles = makeStyles(()=>({
 const IncrementButton = (props) => {
     const {billment,setBillMent,setOrder,setOpenSelectTopping} = useContext(Context)
     const {menu} = useContext(MenuContext)
-    
     const handleAddItem =() =>{       
       let orders= billment.orders
       if(props.toppings && props.options){
@@ -139,10 +139,13 @@ const IncrementButton = (props) => {
               if(o.foodId === props.id){
                 o.quantity+=1
                 o.amount = o.price * o.quantity
+                o.can_edit_price = props.can_edit_price
+                o.can_edit_quantity = props.can_edit_quantity
+                o.note = ""
               }
             })
         }else{
-            orders = [...orders,{amount:props.price,index:billment.orders.length,name:props.name,foodId:props.id,price:props.price,quantity:1,stt:`${orders.length}`}]
+            orders = [...orders,{amount:props.price,index:billment.orders.length,name:props.name,foodId:props.id,price:props.price,quantity:1,stt:`${orders.length}`,can_edit_quantity:props.can_edit_quantity,can_edit_price:props.can_edit_price,note:props.note}]
         }
         setBillMent({...billment,orders,payment_info:{...billment.payment_info,total:billment.payment_info?.total + props.price,sub_total:billment.payment_info?.sub_total + props.price}})
         increaseCount("add")
@@ -215,7 +218,9 @@ const Menu = () => {
   const [selectedCategory,setSelectedCategory] = useState("")
   const [menu,setMenu] = useState<Menu[]>([])
   const [messageBox,setMessagBox] = useState({open:false,message:"",type:""})
-
+  const [selectedOrder,setSelectedOrder] = useState({})
+  const [changePriceDialog,setChangePriceDialog] = useState(false)
+  const [changeQuantityDialog,setChangeQuantityDialog] = useState(false)
   const fetch = async () => {
     const response = await MenuService.getMenuByStoreID(47)
     setCategories([{category:"Tất cả"},...response.data.map(d=>({category:d.name}))])
@@ -270,6 +275,9 @@ const Menu = () => {
       return 
     }
     let orders = billment.orders.filter(o=>o.quantity !== 0)
+    orders.forEach((o)=>{
+      o.name = o.name + "(Note:" + o.note + ")"
+    })
     CustomerService.sendOrder({customerId:null,customerName:null, tableId:billment.tableId,userType:"staff",staffId:user.staff_info.pk,storeId:user.staff_info.fields.store_id.toString(),request:null,staffName:user.staff_info.fields.name,orders}).then(async()=>{
         setMessagBox({open:true,message:"Đặt món thành công vui lòng chờ đợi !",type:"info"})      
         resetData()
@@ -278,10 +286,10 @@ const Menu = () => {
             setBillMent({...billment,status:1,payment_info,pmts,orders:[]})
         }else{
           let allValue = caculateAllValue({payment_info,pmts})
-          allValue = Math.max(0,payment_info.sub_total - allValue)
-          setBillMent({...billment,payment_info:{...payment_info,total:allValue},pmts,orders:[]})
+          allValue = Math.max(0,payment_info.sub_total - allValue)          
           payment_info.total = allValue
           await StaffService.updatStoreOrderInfo({...payment_info,promotionId:pmts})
+          setBillMent({...billment,payment_info:{...payment_info,total:allValue},pmts,orders:[]})
         }
       }).catch(err=>{
         setMessagBox({open:true,message:err.toString(),type:"error"})      
@@ -417,7 +425,6 @@ const Menu = () => {
       StaffService.confirmPayMent({...payment_info,promotionId:pmts}).then(()=>{
         setMessagBox({open:true,message:"Thanh toán thành công!",type:"success"})
         setOpenMenu(false)
-        setPaidOrder({payment_info,pmts})
         return payment_info.id
       }).then(async(orderId) => {
         try{
@@ -429,11 +436,10 @@ const Menu = () => {
           const contentHtml = parseBillMentToHtml(data)
           ipcRenderer.send('print',{contentHtml,type:"printOrderBill"})
         }catch(err){
-            setMessagBox({type:"error",message:"Chưa kết nối máy in",open:true})
+          setMessagBox({type:"error",message:"Chưa kết nối máy in",open:true})
         }
       }).catch(err=>{
         const {mess} = JSON.parse(err.request.response)
-      
         setMessagBox({open:true,message:mess,type:"error"}) 
       })
   }
@@ -445,6 +451,91 @@ const Menu = () => {
       }catch(err){
 
       }
+  }
+  const handleCloseChangePriceDialog = (props) =>{
+    const {index,canceled,price:oldPrice,quantity} = props
+    if(canceled){
+      setChangePriceDialog(false)
+      return
+    }
+    const newPrice = Number(props.newPrice)
+    billment.orders.forEach(o=>{
+      if(o.index=== index){
+        o.price = newPrice
+        o.amount = o.quantity * newPrice
+      }
+    })
+    if(oldPrice<newPrice){
+      let amount = (newPrice - oldPrice) * quantity
+      setBillMent({
+        ...billment,
+        payment_info:{
+          ...billment.payment_info,
+          total: billment.payment_info.total + amount,
+          sub_total: billment.payment_info.sub_total + amount
+        }
+      })
+    }else{
+      let amount = (oldPrice-newPrice) * quantity
+      setBillMent({
+        ...billment,
+        payment_info:{
+          ...billment.payment_info,
+          total: billment.payment_info.total - amount,
+          sub_total: billment.payment_info.sub_total - amount
+        }
+      })
+    }
+    setChangePriceDialog(false)
+  }
+  const handleOpenChangePriceDialog = async (order) =>{
+    setSelectedOrder(order)
+    setChangePriceDialog(true)
+  }
+  const handleOpenChangeQuantityDialog = (order) =>{ 
+    setSelectedOrder(order)
+    setChangeQuantityDialog(true)
+  }
+  const handleCloseChangeQuantityDialog  = (props) =>{
+    const {index,canceled,price,quantity,newQuantity} = props
+    if(canceled){
+      setChangeQuantityDialog(false)
+      return
+    }   
+    billment.orders.forEach(o=>{
+      if(o.index=== index){
+        o.quantity =  newQuantity
+        o.amount = o.quantity * o.price
+      }
+    })
+    if(Number(quantity) < Number(newQuantity)){
+        let _quantity = newQuantity
+        let newAmount = (_quantity * price) - (quantity * price)
+        setBillMent({
+          ...billment,
+          payment_info:{
+            ...billment.payment_info,
+            total: billment.payment_info.total + newAmount,
+            sub_total: billment.payment_info.sub_total + newAmount
+          }
+        })
+    }    
+    if(Number(quantity) > Number(newQuantity)){
+      let _quantity = newQuantity
+      let newAmount =   (quantity * price) - (_quantity * price)
+      setBillMent({
+        ...billment,
+        payment_info:{
+          ...billment.payment_info,
+          total: billment.payment_info.total - newAmount,
+          sub_total: billment.payment_info.sub_total - newAmount
+        }
+      })
+    }
+    setChangeQuantityDialog(false)
+  }
+  const handleNoteChange = (inputValue,index) =>{
+      billment.orders[index].note =  inputValue
   }
   return (
       <MenuProvider value={{
@@ -482,33 +573,40 @@ const Menu = () => {
                 <Cagtegory key={index} className={active(c.category)} onClick={()=>handleSelect(c.category)}>{c.category}</Cagtegory>
             ))}  
           </Grid>
-          <Grid item xs={4}  style={{borderRight:"1px solid #333",height:"100vh"}}>
+          <Grid item xs={3}  style={{borderRight:"1px solid #333",height:"100vh"}}>
             {menu.map((m,index)=> ( 
                 <OrderItem key={index}  {...m} />
             ))}
           </Grid>
-          <Grid item xs={3} style={{borderRight:"1px solid #333",height:"100vh"}}>    
+          <Grid item xs={4} style={{borderRight:"1px solid #333",height:"100vh"}}>    
                 <Grid container style={{width:'100%'}} alignItems="center" justify="flex-end">
                   <Grid item xs={6} style={{display:'flex',justifyContent:"flex-end"}}>
                       <Button onClick={handleSendOrder} disabled={isLoading} style={{backgroundColor:"#444444",color:"white"}}  variant="outlined">Gọi món</Button>
                   </Grid>
                 </Grid>         
-                {billment.orders.filter(o=> o.quantity !==0 ).map((o)=>( 
-                  <Fragment>
+                {billment.orders.filter(o=> o.quantity !==0 ).map((o,index)=>( 
+                  <Fragment key={index}>
                   <div style={{display:'flex',alignItems:'center'}}>
                     <IconButton onClick={()=>updateAmount(o,"add")} size="small" style={{backgroundColor:"green",color:"white",height:"30px",borderRadius:"0"}} disableFocusRipple disableRipple>
                         <MdAdd fontSize={25}/>
                     </IconButton>
-                    <div style={{color:'red',marginLeft:'5px'}}>
+                    <div style={{color:'red',display:'flex',alignItems:'center',marginLeft:'5px'}}>
                       <b>{o.quantity}</b>
+                      {(o.can_edit_quantity || user.staff_info.fields.role_name == "ADMIN" && (
+                          <IconButton onClick={()=>handleOpenChangeQuantityDialog(o)} style={{borderRadius:"0"}}><FaRegEdit fontSize={15}/></IconButton>
+                      ))}
                     </div>
                     <IconButton  onClick={()=>updateAmount(o,"sub")} size="small" style={{backgroundColor:"#e0e0e0",marginLeft:"5px",color:"white",height:"30px",borderRadius:"0"}} disableFocusRipple disableRipple>
                         <RiSubtractLine fontSize={25}/>
                     </IconButton>
-                    <p style={{marginLeft:"5px"}}>{o.name}</p>
+                    <p style={{marginLeft:"5px"}}>{o.name+","}</p> <br/>
+                    <p>Giá: {convertToVnd(o.price)}</p> 
+                    {(o.can_edit_price || user.staff_info.fields.role_name == "ADMIN" && (
+                          <IconButton onClick={()=>handleOpenChangePriceDialog(o)} style={{borderRadius:"0"}}><FaRegEdit fontSize={15}/></IconButton>
+                      ))}
                   </div>
                   <div style={{display:'flex',justifyContent:'space-between'}}>
-                    <NoteInput  placeholder="Thêm ghi chú..."/>                    
+                    <NoteInput onChange={(event) => handleNoteChange(event.target.value,index)}  placeholder="Thêm ghi chú..."/>                    
                     <small><b>{convertToVnd(o.amount)}</b></small>
                   </div>
                   <Divider/>
@@ -536,10 +634,8 @@ const Menu = () => {
             <Coupon/> 
             <Service/>
             <Currency/>
-            {billment.pmts.length > 0 && (
-              <>
-              <Text><b>Khuyến mãi đang áp dụng:</b></Text>
-              <div>
+            <Text><b>Khuyến mãi đang áp dụng:</b></Text>
+            <div>
               <ul>
                 {billment.pmts?.filter(p=>p.quantity_apply !==0).map((p,index)=>(
 
@@ -549,9 +645,6 @@ const Menu = () => {
                 ))}
               </ul>
             </div>
-              </>
-            )}   
-           
             <Text><b>Chi tiết:</b></Text>
             <div>
                 <ul>
@@ -579,9 +672,11 @@ const Menu = () => {
             </>
           )}
       </DialogActions>
-    </Dialog>
+    </Dialog>    
     <CustomAlert type={messageBox.type} closeMessage={handleCloseMessageBox} message={messageBox.message} open={messageBox.open} />      
-      </MenuProvider>
+    <ChangePriceDialog {...selectedOrder} open={changePriceDialog} onClose={handleCloseChangePriceDialog} />
+    <ChangeQuantityDialog {...selectedOrder} open={changeQuantityDialog} onClose={handleCloseChangeQuantityDialog} />
+    </MenuProvider>
     
   );
 };

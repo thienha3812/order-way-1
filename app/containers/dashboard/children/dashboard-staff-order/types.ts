@@ -86,6 +86,9 @@ export type Order = {
     topping?: Array<any>
     toppingPrice?: number
     options?: Array<Option>
+    can_edit_price: boolean
+    can_edit_quantity: boolean
+    note: string
 }
 export type Topping  = {
     id: number

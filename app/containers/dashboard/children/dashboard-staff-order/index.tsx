@@ -120,13 +120,16 @@ const StaffOrder = () => {
     }
   }
   useEffect(()=>{
-      fetch()
+    fetch()
+  },[])
+  useEffect(()=>{
       _counterSocket.onmessage = async function(message){
           const payment_id = JSON.parse(message.data).text.payment_id
           const tableID = JSON.parse(message.data).text.tables[0].pk
           const createdBy = JSON.parse(message.data).text.created_by
-          fetch()
-          updateTable(tableID,payment_id)
+          if(createdBy != staff_info.pk){
+            updateTable(tableID,payment_id)
+          }
           const { autoPrintWhenStaffPayment } = store.get("orderBill")
           if(autoPrintWhenStaffPayment && createdBy !== staff_info.pk){
               const {payment_id} = JSON.parse(message.data).text
