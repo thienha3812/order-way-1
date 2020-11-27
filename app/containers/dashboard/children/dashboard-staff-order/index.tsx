@@ -139,7 +139,7 @@ const StaffOrder = () => {
               }
               const data = await StaffService.getBillMentInfo(payment_id)
               const contentHtml = parseBillMentToHtml(data)
-              ipcRenderer.send('print',{contentHtml,type:"printOrderBill"})
+              ipcRenderer.send('print',{contentHtml,type:"printKitchenBill"})
           }
       }
       _notificationSocket.onmessage = async function(message){

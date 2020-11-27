@@ -14,7 +14,7 @@
     <script >
         window.ipcRenderer.on("print",(event,content)=>{
             document.body.innerHTML = content.contentHtml.toString()
-            window.ipcRenderer.send("readyToPrint",{type:"printOrderBill"})
+            window.ipcRenderer.send("readyToPrint",{type:content.type})
         })
     </script>    
 </body>
