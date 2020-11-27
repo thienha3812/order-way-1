@@ -85,13 +85,13 @@ const RenderList = ()  => {
     }
     const printBill = order =>{
       const {autoPrintWhenAcceptOrder } = store.get("kitchenBill")
-      const { status } = order
       if(autoPrintWhenAcceptOrder){
         const contentHtml = parseKitchenBillToHtml(order)
         ipcRenderer.send("print",{contentHtml,type:"printKitchenBill"})
       }  
   } 
     const handleUpdateCreatedOrder = order =>{
+      console.log(order)
       if(order.type === "cancel_order"){
         OrderService.confirmCancelOrder({tableId:order.table_id,order_id:order.orderId}).then(()=>{
           setMessagBox({open:true,message:"Hủy Order thành công!",type:"success"})
@@ -106,7 +106,7 @@ const RenderList = ()  => {
         })
         return 
       }
-      if(order.type === "order"){
+      if(order.type === "order" || order.type ==  "request"){
         StaffService.updateOrderStatusToApproved({id:order.orderId,phoneNumber:null}).then(()=>{
           setMessagBox({open:true,message:"Xác nhận Order thành công!",type:"success"})     
           setOrders({...orders,orders_approved:[...orders.orders_approved,order],orders_created:[...orders.orders_created.filter(o=> o.orderId !== order.orderId)]})
