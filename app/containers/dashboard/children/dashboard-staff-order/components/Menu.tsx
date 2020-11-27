@@ -276,7 +276,9 @@ const Menu = () => {
     }
     let orders = billment.orders.filter(o=>o.quantity !== 0)
     orders.forEach((o)=>{
-      o.name = o.name + "(Note:" + o.note + ")"
+      if(o.note !== ""){
+        o.name = o.name  + "(Note:" + o.note + ")" 
+      }      
     })
     CustomerService.sendOrder({customerId:null,customerName:null, tableId:billment.tableId,userType:"staff",staffId:user.staff_info.pk,storeId:user.staff_info.fields.store_id.toString(),request:null,staffName:user.staff_info.fields.name,orders}).then(async()=>{
         setMessagBox({open:true,message:"Đặt món thành công vui lòng chờ đợi !",type:"info"})      
