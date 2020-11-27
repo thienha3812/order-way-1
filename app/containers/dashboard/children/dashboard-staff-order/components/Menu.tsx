@@ -50,8 +50,7 @@ const Cagtegory = styled.div`
 const IncrementInput = styled.input`
   text-align: center;
   border: none;
-  border-bottom: 1px solid #3333;
-  height: 39px !important;
+  border-bottom: 1px solid #3333;  
   height: 100%;
   padding: 0;
   width:30%;
@@ -59,18 +58,16 @@ const IncrementInput = styled.input`
   &:focus {
     outline: none;
   }
-  @media only screen and (min-width:1000px){
-    height: 40px !important;
-  }
+  
 `;
 
 const Text = styled.div`
-  font-size: 16px;
+  font-size: 14px;
   line-height: 40px;
   height: 40px;
 `;
 const P = styled.div`
-  font-size:16px;
+  font-size:14px;
   
 `
 const NoteInput = styled.input`
@@ -92,7 +89,7 @@ const OrderItem = (props:Menu) => {
     >
       <div style={{ width: "auto" }}>
         <img
-          style={{ height: "150px", width: "150px" }}
+          style={{ height: "80px", width: "80px" }}
           src={props.image}
         />
       </div>
@@ -108,7 +105,7 @@ const OrderItem = (props:Menu) => {
         <div>
         <P>{props.name}</P>
         </div>
-        <div>Đơn giá: {convertToVnd(props.price)}</div>
+        <div><P>Đơn giá: {convertToVnd(props.price)}</P></div>
         <div>
           <IncrementButton {...props} />
         </div>
@@ -163,7 +160,7 @@ const IncrementButton = (props) => {
   
   return (
     <Fragment>
-        <Button onClick={()=>handleAddItem()} style={{ borderRadius: "0",bottom:0, height: "40px" }} variant="outlined">
+        <Button onClick={()=>handleAddItem()} style={{ borderRadius: "0",bottom:0, width:'30px',height: "30px" }} variant="outlined">
         <MdAdd fontSize={20} />
       </Button>
       <IncrementInput value={props.count} disabled />  
@@ -570,7 +567,7 @@ const Menu = () => {
       <DialogContent>
         <Divider style={{ marginBottom: "2%" }} />
         <Grid spacing={3} container >
-          <Grid item xs={2}  style={{borderRight:"1px solid #333",height:"100vh"}} >
+          <Grid item xs={"auto"}  style={{borderRight:"1px solid #333",height:"100vh"}} >
               {categories.map((c,index)=>(
                 <Cagtegory key={index} className={active(c.category)} onClick={()=>handleSelect(c.category)}>{c.category}</Cagtegory>
             ))}  
@@ -580,7 +577,7 @@ const Menu = () => {
                 <OrderItem key={index}  {...m} />
             ))}
           </Grid>
-          <Grid item xs={4} style={{borderRight:"1px solid #333",height:"100vh"}}>    
+          <Grid item xs={4} style={{borderRight:"1px solid #333",height:"100vh",fontSize:'14px'}}>    
                 <Grid container style={{width:'100%'}} alignItems="center" justify="flex-end">
                   <Grid item xs={6} style={{display:'flex',justifyContent:"flex-end"}}>
                       <Button onClick={handleSendOrder} disabled={isLoading} style={{backgroundColor:"#444444",color:"white"}}  variant="outlined">Gọi món</Button>
@@ -619,7 +616,7 @@ const Menu = () => {
                 </Text>
              
           </Grid>
-          <Grid item xs={3}  >
+          <Grid item xs={3}  style={{fontSize:'14px'}} >
           <Grid spacing={3} container style={{width:'100%'}} alignItems="center" justify="center">
                     <Grid item xs={7} style={{textAlign:'center'}}>
                       <Button onClick={handlePrintInvoice} style={{fontSize:"12px",backgroundColor:"#444444",color:"white"}}>In hóa đơn tạm tính</Button>

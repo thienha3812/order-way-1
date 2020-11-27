@@ -24,7 +24,6 @@ const Item = styled.div`
 const CustomNavbar = (props) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const { openDrawer,setOpenDrawer } = useContext(DashBoardContext);
-  const [width,hegiht] = remote.BrowserWindow.getFocusedWindow().getSize()
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
