@@ -28,6 +28,7 @@ const Wrapper = styled.div`
   flex-wrap: wrap;
   flex-flow: row wrap;
   display: flex;
+  margin-top:80px;
 `;
 
 const Box = styled.div`

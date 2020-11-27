@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useCallback, useContext } from "react";
 import styled from "styled-components";
 import IconButton from "@material-ui/core/IconButton";
 import Popover from "@material-ui/core/Popover";
@@ -6,7 +6,6 @@ import { useSelector } from "react-redux";
 import ListMenu from "./List";
 import { userSelector } from "../../../features/user/userSlice";
 import { DashBoardContext } from "../Context";
-import { useHistory } from "react-router";
 import IconA from '../../../assets/images/icon1.png'
 import IconB from '../../../assets/images/icon2.png'
 const Navbar = styled.div`
@@ -38,8 +37,11 @@ const CustomNavbar = (props) => {
   const handleOpenDrawer = () =>{
      setOpenDrawer(!openDrawer)
   }
+  const changeMarginWhenOpenDrawer = useCallback(()=>{
+      return openDrawer ? "52%" : "70%"
+  },[openDrawer])
   return (
-    <Navbar {...props}>
+    <Navbar {...props} style={{position:'fixed',width:'100%',zIndex:999}}>
       <Item>
         <IconButton  onClick={handleOpenDrawer}>
           <img style={{width:"60px",height:"60px"}} src={IconB} />
@@ -50,7 +52,7 @@ const CustomNavbar = (props) => {
           <MdHome color="#fff" fontSize={35} />
         </IconButton>
       </Item> */}
-      <div style={{ width:'auto',marginLeft: "auto",fontSize:"25px", textAlign: "end", color: "#fff" }}>
+      <div style={{ width:'auto',marginLeft: changeMarginWhenOpenDrawer(),fontSize:"25px", textAlign: "end", color: "#fff" }}>
         {staff_info.fields.name}
       </div>
       <Item>

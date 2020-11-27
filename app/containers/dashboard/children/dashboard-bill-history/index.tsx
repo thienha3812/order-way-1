@@ -15,6 +15,7 @@ import { useHistory } from 'react-router';
 
 const Wrapper = styled.div`
   padding: 5%;
+  margin-top:80px;
 `;
 export const useStyles = makeStyles((theme) => ({
   formControl: {

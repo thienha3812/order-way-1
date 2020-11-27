@@ -23,6 +23,7 @@ import { ipcRenderer } from "electron";
 import { convertToVnd,parseKitchenBillToHtml } from "../../../../utils";
 const Wrapper = styled.div`
   padding: 5%;
+  margin-top:80px;
 `;
 const List = styled.div`
   display: flex;
