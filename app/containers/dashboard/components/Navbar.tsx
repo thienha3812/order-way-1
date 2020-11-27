@@ -8,6 +8,7 @@ import { userSelector } from "../../../features/user/userSlice";
 import { DashBoardContext } from "../Context";
 import IconA from '../../../assets/images/icon1.png'
 import IconB from '../../../assets/images/icon2.png'
+import { remote } from "electron";
 const Navbar = styled.div`
   display: flex;
   height: 80px;
@@ -23,6 +24,7 @@ const Item = styled.div`
 const CustomNavbar = (props) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const { openDrawer,setOpenDrawer } = useContext(DashBoardContext);
+  const [width,hegiht] = remote.BrowserWindow.getFocusedWindow().getSize()
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -37,11 +39,11 @@ const CustomNavbar = (props) => {
   const handleOpenDrawer = () =>{
      setOpenDrawer(!openDrawer)
   }
-  const changeMarginWhenOpenDrawer = useCallback(()=>{
-      return openDrawer ? "52%" : "70%"
+  const changeMarginWhenOpenDrawer = useCallback(()=>{      
+        return openDrawer ? "300px" : "100px"
   },[openDrawer])
   return (
-    <Navbar {...props} style={{position:'fixed',width:'100%',zIndex:999}}>
+    <Navbar {...props} style={{position:'fixed',width:'100vw',zIndex:999}}>
       <Item>
         <IconButton  onClick={handleOpenDrawer}>
           <img style={{width:"60px",height:"60px"}} src={IconB} />
@@ -52,10 +54,10 @@ const CustomNavbar = (props) => {
           <MdHome color="#fff" fontSize={35} />
         </IconButton>
       </Item> */}
-      <div style={{ width:'auto',marginLeft: changeMarginWhenOpenDrawer(),fontSize:"25px", textAlign: "end", color: "#fff" }}>
+      <div style={{ width:'100%',marginLeft: "auto",fontSize:"25px", textAlign: "end", color: "#fff" }}>
         {staff_info.fields.name}
       </div>
-      <Item>
+      <Item style={{marginRight:changeMarginWhenOpenDrawer()}}>
         <IconButton aria-describedby={id} onClick={handleClick}>
           <img style={{width:"60px",height:"60px"}} src={IconA} />
         </IconButton>

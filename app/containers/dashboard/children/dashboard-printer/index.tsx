@@ -137,6 +137,22 @@ const Printer = ( ) =>{
                         ))}
                     </Select>
                 </FormControl>
+                <FormControl className={styles.root} style={{marginTop:"10px"}}>
+                    <InputLabel id="demo-simple-select-label">Kích cỡ chữ</InputLabel>
+                    <Select
+                    variant="outlined"
+                    classes={{root:styles.root}}
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={orderBill.fontSizeOrderBill || null}
+                    onChange={handleFontSizeBillChange}
+                    >
+                        {arrFontSize.map(f => (
+                            <MenuItem value={f}>{f}</MenuItem>                            
+                        ))}
+                        
+                    </Select>
+                </FormControl>
                 <FormControlLabel
                     control={
                     <Checkbox                     
@@ -158,23 +174,7 @@ const Printer = ( ) =>{
                     />
                     }
                     label="Tự động in bill khi nhân viên thanh toán từ xa"
-                />
-                <FormControl className={styles.root}>
-                    <InputLabel id="demo-simple-select-label">Kích cỡ chữ</InputLabel>
-                    <Select
-                    variant="outlined"
-                    classes={{root:styles.root}}
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={orderBill.fontSizeOrderBill || null}
-                    onChange={handleFontSizeBillChange}
-                    >
-                        {arrFontSize.map(f => (
-                            <MenuItem value={f}>{f}</MenuItem>                            
-                        ))}
-                        
-                    </Select>
-                </FormControl>
+                />               
                 </Grid>
                 <Grid item xs={6}>
                 <h2>Máy in Bếp</h2>
@@ -190,6 +190,22 @@ const Printer = ( ) =>{
                       {printers.map(p => (
                             <MenuItem value={p.name}>{p.name}</MenuItem>                            
                         ))}
+                    </Select>
+                </FormControl>
+                <FormControl className={styles.root} style={{marginTop:"10px"}}>
+                    <InputLabel id="demo-simple-select-label">Kích cỡ chữ</InputLabel>
+                    <Select
+                    variant="outlined"
+                    classes={{root:styles.root}}
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={kitchenBill.fontSizeKitchenBill|| null}
+                    onChange={handleFontSizeKitchenBillChange}
+                    >
+                        {arrFontSize.map(f => (
+                            <MenuItem value={f}>{f}</MenuItem>                            
+                        ))}
+                        
                     </Select>
                 </FormControl>
                 <FormControlLabel
@@ -214,22 +230,7 @@ const Printer = ( ) =>{
                     }
                     label="Tự động in bếp khi có nhân viên order từ xa"
                 />
-                  <FormControl className={styles.root}>
-                    <InputLabel id="demo-simple-select-label">Kích cỡ chữ</InputLabel>
-                    <Select
-                    variant="outlined"
-                    classes={{root:styles.root}}
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={kitchenBill.fontSizeKitchenBill|| null}
-                    onChange={handleFontSizeKitchenBillChange}
-                    >
-                        {arrFontSize.map(f => (
-                            <MenuItem value={f}>{f}</MenuItem>                            
-                        ))}
-                        
-                    </Select>
-                </FormControl>
+                  
                 </Grid>
                 
             </Grid>
