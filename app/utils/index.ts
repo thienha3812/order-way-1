@@ -166,7 +166,7 @@ export const caculateValueDiscount = (billment) =>{
                     <div>
                         <table style="width:100%;">
                         <tr>
-                            <th style="width:30%;text-align:start;font-size:${fontSize};font-weight:400;">Tên</th>
+                            <th style="width:60%;text-align:start;font-size:${fontSize};font-weight:400;">Số lượng</th>
                             <th style="text-align:center;font-size:${fontSize};font-weight:400;">Đơn giá</th>
                             <th style="text-align:end;font-size:${fontSize};font-weight:400;">Thành tiền</th>
                         </tr>
@@ -181,7 +181,7 @@ export const caculateValueDiscount = (billment) =>{
                     ${pmtsText}
                     <div style="display:flex;justify-content:center;">
                         <div style="width:50%;font-size:${fontSize};" >Tổng giảm giá</div>
-                        ${discountText}
+                        ${content.discount_amount > 0 ? discountText : ""}
                     </div>
                     <div style="display:flex;justify-content:center;">
                         <div style="width:50%;font-size:${fontSize};" >Thành tiền</div>
@@ -279,7 +279,7 @@ export const caculateValueDiscount = (billment) =>{
                           <div style="width:50%;font-size:${fontSize};">${convertToVnd(content.sub_total)}</div>
     `
     const discountText =  `
-                        <div style="width:50%;font-size:${fontSize};">- ${convertToVnd(content.discount_amount)}</div>	
+                      <div style="width:50%;font-size:${fontSize};">- ${convertToVnd(content.discount_amount)}</div>	
     ` 
     const titlePmts = `
     <div style="display:flex;justify-content:center;">
@@ -304,7 +304,7 @@ export const caculateValueDiscount = (billment) =>{
                     <div>
                         <table style="width:100%;">
                         <tr>
-                            <th style="width:30%;text-align:start;font-size:${fontSize};font-weight:400;">Tên</th>
+                            <th style="width:60%;text-align:start;font-size:${fontSize};font-weight:400;">Số lượng</th>
                             <th style="text-align:center;font-size:${fontSize};font-weight:400;">Đơn giá</th>
                             <th style="text-align:end;font-size:${fontSize};font-weight:400;">Thành tiền</th>
                         </tr>
@@ -319,7 +319,7 @@ export const caculateValueDiscount = (billment) =>{
                     ${pmtsText}
                     <div style="display:flex;justify-content:center;">
                         <div style="width:50%;font-size:${fontSize};" >Tổng giảm giá</div>
-                        ${discountText}
+                        ${content.discount_amount > 0 ? discountText : ""}
                     </div>
                     <div style="display:flex;justify-content:center;">
                         <div style="width:50%;font-size:${fontSize};" >Thành tiền</div>
