@@ -154,14 +154,23 @@ const CustomerPayment =  () => {
     }
     const handleAddCustomer = async () =>{
         CustomerService.addCustomerByStaff(form).then(async (response)=>{
+            console.log(billment.payment_info.id)
             setMessageBox({message:"Thêm khách hàng thành công!",open:true,type:"success"})
-            await StaffService.updateCustomerIntoOrder({cusId:response.data.id,orderId:billment.payment_info?.id})
+            if(billment.payment_info.id){
+                await StaffService.updateCustomerIntoOrder({cusId:response.data.id,orderId:billment.payment_info?.id})
+            }
             setBillMent({...billment,payment_info:{...billment.payment_info,customer_name:response.data.name}})
             setOpenAddCustomer(false)
             resetData()
         }).catch(err=>{
-            const {mess} = JSON.parse(err.request.response)
-            setMessageBox({open:true,message:mess,type:"error"}) 
+            const {mess,status} = JSON.parse(err.request.response)
+            if(status == 500){
+                setMessageBox({open:true,message:"Lỗi hệ thống",type:"error"}) 
+            }
+            if(status == 422){
+                setMessageBox({open:true,message:mess,type:"error"}) 
+            }
+            
         })
     }
     const validatePhoneNumber = (phoneNumber:string) =>{

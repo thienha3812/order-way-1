@@ -373,7 +373,7 @@ const Coupon = () => {
       address: payment_info?.address,
       bill_number:payment_info?.bill_number,
       bill_sequence:payment_info?.bill_sequence,
-      cash: Math.max(0,payment_info?.sub_total - valueVoucher - valuePercent - valueFreeItem - valueWithMaxValue),
+      cash: payment_info.sub_total,
       content_discount: payment_info?.content_discount,
       credit:payment_info?.credit,
       cus_order_id:payment_info?.cus_order_id,
