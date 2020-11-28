@@ -64,7 +64,7 @@ const CustomerPayment =  () => {
     const [openAddCustomer,setOpenAddCustomer] = useState(false)
     const [districts,setDistricts] = useState<any[]>([])
     const [messageBox,setMessageBox] = useState({open:false,message:"",type:""})
-    const [error,setError] = useState({error_phone_number:true,error_name:true,error_birth_day:true,error_district:true,error_city:true})
+    const [error,setError] = useState({error_phone_number:false,error_name:false,error_birth_day:false,error_district:false,error_city:false})
     const [form,setForm] = useState<AddCustomerByStaffDTO>({city_id:0,birthday:"",district_id:0,gender:"1",name:"",phone:"",phone_number:""})
 
     useEffect(()=>{
@@ -213,7 +213,7 @@ const CustomerPayment =  () => {
                 </DialogTitle>
                 <DialogContent>
                 <TextField id="name-input" error={error.error_name} helperText={error.error_name && "Tên không hợp lệ!"} style={{marginTop:"10px"}} label="Tên" onChange={(event)=>setForm({...form,name:event.target.value})} fullWidth  variant="outlined" /> 
-                <TextField id="phone-input"  style={{marginTop:"10px"}} error={error.error_phone_number} value={form.phone_number} helperText={error.error_phone_number && "Số điện thoại không hợp lệ!"}  label="Số điện thoại" onChange={(event)=> setForm({...form,phone:event.target.value,phone_number:event.target.value})} fullWidth  variant="outlined" />                        
+                <TextField  id="phone-input" type="number"  style={{marginTop:"10px"}} error={error.error_phone_number} value={form.phone_number} helperText={error.error_phone_number && "Số điện thoại không hợp lệ!"}  label="Số điện thoại" onChange={(event)=> setForm({...form,phone:event.target.value,phone_number:event.target.value})} fullWidth  variant="outlined" />                        
                 <FormControl style={{marginTop:"10px"}} fullWidth variant="outlined">
                     <InputLabel>Giới tính</InputLabel>
                     <Select
@@ -263,8 +263,8 @@ const CustomerPayment =  () => {
                 </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={()=>setOpenAddCustomer(false)}>Hủy</Button>
-                    <Button disabled={error.error_birth_day || error.error_city || error.error_district || error.error_name || error.error_phone_number}  onClick={handleAddCustomer}>Đăng ký</Button>
+                    <Button  style={{color:"white",backgroundColor:"#ffc107"}} onClick={()=>setOpenAddCustomer(false)}>Hủy</Button>
+                    <Button style={{backgroundColor:"#444444",color:"white"}} disabled={error.error_birth_day || error.error_city || error.error_district || error.error_name || error.error_phone_number}  onClick={handleAddCustomer}>Đăng ký</Button>
                 </DialogActions>
           </Dialog>
           <Dialog 

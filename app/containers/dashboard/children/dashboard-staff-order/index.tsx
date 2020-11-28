@@ -1,7 +1,7 @@
 import {
   makeStyles,
 } from '@material-ui/core';
-import React, { Fragment, useContext, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import TableService from '../../../../services/tables';
 import { Context, Provider } from './Context';
@@ -16,7 +16,7 @@ import MergeTable from './components/MergeTable';
 import ChangeTable from './components/ChangeTable';
 import CancelOrder from './components/CancelOrder';
 import Sound  from '../../../../assets/mp3/onmessage.mp3'
-import { caculateMaxValueVoucher, caculateValueDiscount, caculateValueVoucher,caculateValueFreeItem, caculateAllValue, parseBillMentToHtml } from '../../../../utils';
+import { caculateAllValue, parseBillMentToHtml } from '../../../../utils';
 import CancelFood from './components/CancelFood';
 import { ipcRenderer } from 'electron';
 const Store = require("electron-store")
@@ -65,8 +65,9 @@ const RenderTable = () =>{
       return
     }
     let allValue = caculateAllValue({payment_info,pmts})
+    let discount_amount = caculateAllValue({payment_info,pmts})
     allValue = Math.max(0,payment_info.sub_total - allValue)
-    setBillMent({...billment,table_name:table.fields.name,status:2,tableId:table.pk.toString(),payment_info:{...payment_info,total:allValue},pmts})
+    setBillMent({...billment,table_name:table.fields.name,status:2,tableId:table.pk.toString(),payment_info:{...payment_info,total:allValue,discount_amount},pmts})
     setOpenMenu(true)
   }
   const isActive = (status) => {
@@ -142,7 +143,7 @@ const StaffOrder = () => {
               ipcRenderer.send('print',{contentHtml,type:"printKitchenBill"})
           }
       }
-      _notificationSocket.onmessage = async function(message){
+      _notificationSocket.onmessage = async function(){
           const audio = new Audio(Sound)
           await audio.play()       
       }

@@ -158,8 +158,8 @@ const Currency = () =>{
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={()=>setOpenDialog(false)}>Hủy</Button>
-                    <Button onClick={updateOrder} disabled={!checkValid()}>Xác nhận</Button>
+                    <Button  style={{color:"white",backgroundColor:"#ffc107"}} onClick={()=>setOpenDialog(false)}>Hủy</Button>
+                    <Button style={{color:'white',backgroundColor:"#444444"}} onClick={updateOrder} disabled={!checkValid()}>Xác nhận</Button>
                 </DialogActions>
             </Dialog>
             <CustomAlert type={messageBox.type} closeMessage={handleCloseMessageBox} message={messageBox.message} open={messageBox.open} />      

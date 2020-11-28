@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect, useState,useRef } from "react";
+import React, { Fragment, useContext, useEffect, useState } from "react";
 
 import { IoMdQrScanner } from "react-icons/io";
 import { GrAdd } from "react-icons/gr";
@@ -29,8 +29,6 @@ import ConfigService from "../../../../../services/config";
 import { MdAdd } from "react-icons/md";
 import { RiSubtractLine } from "react-icons/ri";
 import StaffService from "../../../../../services/staff";
-import { current } from "@reduxjs/toolkit";
-import { caculateAllValue } from "../../../../../utils";
 
 const TabPanel = (props) => {
   const { children, value, index, ...other } = props;
@@ -369,6 +367,7 @@ const Coupon = () => {
     const valueVoucher = caculateValueVoucher()
     const valueFreeItem = caculateValueFreeItem()
     const valueWithMaxValue = caculateMaxValueVoucher()
+    let discount_amount = (valuePercent + valueVoucher + valueFreeItem + valueWithMaxValue)
     const payment_info = billment.payment_info
     StaffService.updatStoreOrderInfo({
       address: payment_info?.address,
@@ -380,7 +379,7 @@ const Coupon = () => {
       cus_order_id:payment_info?.cus_order_id,
       customer_id:payment_info?.customer_id,
       customer_name:payment_info?.customer_name,
-      discount_amount:payment_info?.discount_amount,
+      discount_amount,
       e_money:payment_info?.e_money,
       foods:payment_info.foods,
       id:payment_info?.id,
@@ -402,7 +401,7 @@ const Coupon = () => {
       setBillMent({...billment,pmts,payment_info:new_payment_info})
       setOpenTypeCoupon(false)
       setMessageBox({message:"Sử dụng mã khuyến mãi thành công",open:true,type:"success"})
-    }).catch(err=>{
+    }).catch(()=>{
       setMessageBox({message:"Đã xảy ra lỗi!",open:true,type:"warning"})
     })
     
@@ -563,8 +562,8 @@ const Coupon = () => {
             </Grid>
           </TabPanel>
           <DialogActions>
-            <Button onClick={handleCloseTypeCoupon}>Hủy</Button>
-            <Button onClick={applyPromotion}>Xác nhận</Button>
+            <Button  style={{color:"white",backgroundColor:"#ffc107"}} onClick={handleCloseTypeCoupon}>Hủy</Button>
+            <Button style={{color:"white",backgroundColor:"#444444"}}  onClick={applyPromotion}>Xác nhận</Button>
           </DialogActions>
         </DialogContent>
       </Dialog>

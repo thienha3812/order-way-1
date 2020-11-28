@@ -61,8 +61,8 @@ const ChangeTable = () =>{
                     </ul>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={()=>setOpenChangeTable(false)}>Hủy</Button>
-                    <Button onClick={()=>handleChangeTable()}>Xác nhận</Button>
+                    <Button style={{color:"white",backgroundColor:"#ffc107"}} onClick={()=>setOpenChangeTable(false)}>Hủy</Button>
+                    <Button style={{color:"white",backgroundColor:"#444444"}} onClick={()=>handleChangeTable()}>Xác nhận</Button>
                 </DialogActions>
             </Dialog>
             <CustomAlert type={messageBox.type} closeMessage={handleCloseMessageBox} message={messageBox.message} open={messageBox.open} />      

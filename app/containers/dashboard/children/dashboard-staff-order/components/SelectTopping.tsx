@@ -137,10 +137,10 @@ const SelectTopping = (props:Order) =>{
                         </div>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={()=> setOpenSelectTopping(false)}>
+                    <Button style={{color:"white",backgroundColor:"#ffc107"}} onClick={()=> setOpenSelectTopping(false)}>
                         Hủy
                     </Button>
-                    <Button onClick={addToOrders}>
+                    <Button style={{color:"white",backgroundColor:"#444444"}} onClick={addToOrders}>
                         Xác nhận
                     </Button>
                 </DialogActions>

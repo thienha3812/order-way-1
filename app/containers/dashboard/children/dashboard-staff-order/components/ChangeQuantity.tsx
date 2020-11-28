@@ -25,8 +25,8 @@ const ChangeQuantityDialog = ({onClose,open,...rest}) =>{
                 </form>
             </DialogContent>
             <DialogActions>
-                <Button onClick={()=>handleClose({canceled:true})}>Hủy</Button>
-                <Button onClick={()=>handleClose({...rest,newQuantity:Number(newQuantity),canceled:false})}>Xác nhận</Button>
+                <Button  style={{color:"white",backgroundColor:"#ffc107"}} onClick={()=>handleClose({canceled:true})}>Hủy</Button>
+                <Button style={{color:"white",backgroundColor:"#444444"}} onClick={()=>handleClose({...rest,newQuantity:Number(newQuantity),canceled:false})}>Xác nhận</Button>
             </DialogActions>
         </Dialog>
     )

@@ -286,8 +286,10 @@ const Menu = () => {
             setBillMent({...billment,status:1,payment_info,pmts,orders:[]})
         }else{
           let allValue = caculateAllValue({payment_info,pmts})
+          let discount_amount = caculateAllValue({payment_info,pmts})
           allValue = Math.max(0,payment_info.sub_total - allValue)          
           payment_info.total = allValue
+          payment_info.discount_amount = discount_amount
           await StaffService.updatStoreOrderInfo({...payment_info,promotionId:pmts})
           setBillMent({...billment,payment_info:{...payment_info,total:allValue},pmts,orders:[]})
         }
@@ -626,7 +628,7 @@ const Menu = () => {
           <Grid item xs={3}  style={{fontSize:'14px'}} >
           <Grid spacing={3} container style={{width:'100%'}} alignItems="center" justify="center">
                     <Grid item xs={7} style={{textAlign:'center'}}>
-                      <Button onClick={handlePrintInvoice} style={{fontSize:"12px",backgroundColor:"#444444",color:"white"}}>In hóa đơn tạm tính</Button>
+                      <Button disabled={(billment.payment_info.foods.length == 0)} onClick={handlePrintInvoice} style={{fontSize:"12px",backgroundColor:"#444444",color:"white"}}>In hóa đơn tạm tính</Button>
                     </Grid>
                     <Grid style={{textAlign:'center'}} item xs={5}>
                         <Button   onClick={confirmPayment} disabled={( billment.payment_info.foods.length == 0 && !billment.orders.some(o => o.quantity > 0) )? true : billment.orders.some(o => o.quantity > 0) ? true : false} style={{height:"100%",opacity:1,fontSize:"12px",backgroundColor:"#444444",color:"white"}} variant="outlined">Thanh toán</Button>
@@ -640,7 +642,9 @@ const Menu = () => {
             <Coupon/> 
             <Service/>
             <Currency/>
-            <Text><b>Khuyến mãi đang áp dụng:</b></Text>
+            {billment.pmts.length > 0 ? (
+              <Text><b>Khuyến mãi đang áp dụng:</b></Text>
+            ) : ""}
             <div>
               <ul>
                 {billment.pmts?.filter(p=>p.quantity_apply !==0).map((p,index)=>(
@@ -668,13 +672,16 @@ const Menu = () => {
         </Grid>
       </DialogContent>
       <DialogActions>       
+      {billment.status !== 0 && (
+        <Button variant="contained" style={{backgroundColor:"#444444",color:"white"}} onClick={()=>setOpenChangeTable(true)}>Đổi bàn</Button>
+      )}
         <Button style={{backgroundColor:"#444444",color:"white"}} variant="contained"  onClick={()=> setOpenMergeTable(true)}>Gộp bàn</Button>
           {billment.status !== 0 && (
             <>
             <Button variant="contained" style={{backgroundColor:"#444444",color:"white"}} onClick={()=>setOpenCancelOrder(true)} >Hủy order</Button>
           <Button variant="contained" style={{backgroundColor:"#444444",color:"white"}} onClick={()=>setOpenCancelFood(true)}>Hủy món</Button>
           <Button variant="contained" style={{backgroundColor:"#444444",color:"white"}} onClick={cleanTable}>Dọn bàn</Button>
-          <Button variant="contained" style={{backgroundColor:"#444444",color:"white"}} onClick={()=>setOpenChangeTable(true)}>Đổi bàn</Button>
+          
             </>
           )}
       </DialogActions>

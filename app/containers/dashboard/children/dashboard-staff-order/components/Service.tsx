@@ -95,6 +95,7 @@ import StaffService from "../../../../../services/staff";
         let payment_info = billment.payment_info
         let sub_total = Number(payment_info?.sub_total) + payment_info?.service?.filter(s => s.new === true).reduce((a,b)=> a + Number(b.price),0)
         let total = sub_total - caculateAllValue({payment_info : {...payment_info,sub_total : sub_total},pmts : billment.pmts})
+        let discount_amount = caculateAllValue({payment_info : {...payment_info,sub_total : sub_total},pmts : billment.pmts})
         StaffService.updatStoreOrderInfo({
             address: payment_info?.address,
             bill_number:payment_info?.bill_number,
@@ -105,7 +106,7 @@ import StaffService from "../../../../../services/staff";
             cus_order_id:payment_info?.cus_order_id,
             customer_id:payment_info?.customer_id,
             customer_name:payment_info?.customer_name,
-            discount_amount:payment_info?.discount_amount,
+            discount_amount,
             e_money:payment_info?.e_money,
             foods:payment_info.foods,
             id:payment_info?.id,
@@ -251,7 +252,7 @@ import StaffService from "../../../../../services/staff";
                       onChange={(event) => handleServiceForm(event, "name")}
                       style={{ width: "100%" }}
                       variant="outlined"
-                      label="Tên phụ thu"
+                      label="Tên dịch vụ"
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -260,7 +261,7 @@ import StaffService from "../../../../../services/staff";
                       onChange={(event) => handleServiceForm(event, "price")}
                       style={{ width: "100%", marginTop: "10px" }}
                       variant="outlined"
-                      label="Số tiền phụ thu"
+                      label="Giá dịch vụ"
                     />
                   </Grid>
                   <Grid
@@ -285,7 +286,7 @@ import StaffService from "../../../../../services/staff";
                       onChange={(event) => handleSurchargeForm(event, "name")}
                       style={{ width: "100%" }}
                       variant="outlined"
-                      label="Tên dịch vụ"
+                      label="Tên phụ thu"
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -293,7 +294,7 @@ import StaffService from "../../../../../services/staff";
                       onChange={(event) => handleSurchargeForm(event, "price")}
                       style={{ width: "100%", marginTop: "10px" }}
                       variant="outlined"
-                      label="Phí dịch vụ"
+                      label="Số tiền phụ thu"
                     />
                   </Grid>
                   <Grid
@@ -334,11 +335,11 @@ import StaffService from "../../../../../services/staff";
             <DialogActions>
               <Button
                 onClick={() => handleCloseModel()}
-                variant="outlined"
+                style={{color:"white",backgroundColor:"#ffc107"}}
               >
                 Hủy 
               </Button>
-              <Button onClick={confirmUpdateOrder} variant="outlined">
+              <Button style={{color:'white',backgroundColor:"#444444"}} onClick={confirmUpdateOrder} variant="outlined">
                 Xác nhận
               </Button>
             </DialogActions>

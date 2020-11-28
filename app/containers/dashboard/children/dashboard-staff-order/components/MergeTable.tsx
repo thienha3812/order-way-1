@@ -62,8 +62,8 @@ const MergeTable = () =>{
                     </ul>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={()=>setOpenMergeTable(false)}>Hủy</Button>
-                    <Button onClick={()=>handleMergeTable()}>Xác nhận</Button>
+                    <Button style={{color:"white",backgroundColor:"#ffc107"}} onClick={()=>setOpenMergeTable(false)}>Hủy</Button>
+                    <Button style={{color:"white",backgroundColor:"#444444"}} onClick={()=>handleMergeTable()}>Xác nhận</Button>
                 </DialogActions>
             </Dialog>
             <CustomAlert type={messageBox.type} closeMessage={handleCloseMessageBox} message={messageBox.message} open={messageBox.open} />      
