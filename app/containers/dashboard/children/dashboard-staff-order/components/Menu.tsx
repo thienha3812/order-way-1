@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect, useState,useCallback, useRef } from "react";
+import React, { Fragment, useContext, useEffect, useState,useCallback, useRef, useMemo } from "react";
 import {
   Button,
   Dialog,
@@ -232,22 +232,23 @@ const Menu = () => {
             _m.count = 0
         })
     })
-    setMenu(d[0].menus)
+    setMenu(d.map(d=> d.menus).flat())
+    
   }
   const active = (category) => {
     return category === selectedCategory ? styles.active : undefined
   }
   useEffect(() => {
       fetch()
-  }, []);
-  const handleSelect=  (category) =>{ 
+  }, []);  
+  const handleSelect = useCallback((category)=>{
       setSelectedCategory(category)
       if(category === "Tất cả"){
         return setMenu(data.map(d=> d.menus).flat())
       }
       let {menus} = data.filter(d => d.name === category)[0]
       setMenu(menus)
-  }
+  },[selectedCategory])
   const handleCloseMenu = () => {
     setOpenScanCoupon(false)
     setOpenTypeCoupon(false)
