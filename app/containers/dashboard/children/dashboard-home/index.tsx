@@ -236,13 +236,13 @@ const DashboardHome = (props: any) => {
         <Wrapper {...props}>
       <List style={{ marginBottom: "2%" }}>
         <Item>Quản lý gọi món</Item>
-        <Item style={{ width: "40%", display: "flex" }}>
-           <Item style={{ width: "50%" }}>
-            <Button style={{backgroundColor:"#444444",width:'auto',color:"white"}} variant="contained" onClick={()=>history.push(DASHBOARD_ORDER_HISTORY)}>
+        <Item style={{ width: "auto", display: "flex"}}>
+           <Item style={{ width: "150px",marginRight:'5px' }}>
+            <Button style={{backgroundColor:"#444444",width:"100%",color:"white"}} variant="contained" onClick={()=>history.push(DASHBOARD_ORDER_HISTORY)}>
               Lịch sử Order
             </Button>
           </Item>
-          <Item style={{ width: "50%" }}>
+          <Item style={{ width: "150px" }}>
           <Button style={{backgroundColor:"#444444",color:"white"}} variant="contained" onClick={()=>history.push(DASHBOARD_BILL_HISTORY)}>
               Lịch sử Bill
             </Button>

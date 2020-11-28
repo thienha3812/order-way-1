@@ -60,7 +60,9 @@
       "app.html",
       "main.prod.js",
       "main.prod.js.map",
-      "package.json"
+      "package.json",
+      "preload.js",
+      "worker.html"
     ],
     "dmg": {
       "contents": [

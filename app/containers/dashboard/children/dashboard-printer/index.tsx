@@ -8,7 +8,7 @@ const BrowserWindow = electron.remote.BrowserWindow
 const store = new Store()
 const Wrapper = styled.div`
   padding: 5%;
-  margin-top:80px;
+  margin-top:40px;
 `;
 const useStyles = makeStyles(()=>({
     root : {

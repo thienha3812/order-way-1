@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect, useState,useCallback } from "react";
+import React, { Fragment, useContext, useEffect, useState,useCallback, useRef } from "react";
 import {
   Button,
   Dialog,
@@ -51,7 +51,7 @@ const IncrementInput = styled.input`
   text-align: center;
   border: none;
   border-bottom: 1px solid #3333;  
-  height: 100%;
+  height: 30px;
   padding: 0;
   width:30%;
   bottom:0;
@@ -535,7 +535,7 @@ const Menu = () => {
   }
   const handleNoteChange = (inputValue,index) =>{
       billment.orders[index].note =  inputValue
-  }
+  }  
   return (
       <MenuProvider value={{
           menu,
@@ -580,7 +580,7 @@ const Menu = () => {
           <Grid item xs={4} style={{borderRight:"1px solid #333",height:"100vh",fontSize:'14px'}}>    
                 <Grid container style={{width:'100%'}} alignItems="center" justify="flex-end">
                   <Grid item xs={6} style={{display:'flex',justifyContent:"flex-end"}}>
-                      <Button onClick={handleSendOrder} disabled={isLoading} style={{backgroundColor:"#444444",color:"white"}}  variant="outlined">Gọi món</Button>
+                      <Button onClick={handleSendOrder}  disabled={(isLoading || !billment.orders.some(o=>o.quantity > 0))} style={{opacity:1,backgroundColor:"#444444",color:"white"}}  variant="outlined">Gọi món</Button>
                   </Grid>
                 </Grid>         
                 {billment.orders.filter(o=> o.quantity !==0 ).map((o,index)=>( 
@@ -614,9 +614,12 @@ const Menu = () => {
                   <Divider/>
                   </Fragment>
                 ))}
-                <Text>
+                {billment.orders.some(o=>o.quantity > 0) ? (
+                  <Text>
                   Tổng tiền: {sumPrice()}
                 </Text>
+                ) : "" }
+                
              
           </Grid>
           <Grid item xs={3}  style={{fontSize:'14px'}} >
@@ -625,7 +628,7 @@ const Menu = () => {
                       <Button onClick={handlePrintInvoice} style={{fontSize:"12px",backgroundColor:"#444444",color:"white"}}>In hóa đơn tạm tính</Button>
                     </Grid>
                     <Grid style={{textAlign:'center'}} item xs={5}>
-                        <Button  onClick={confirmPayment} disabled={( billment.orders.filter(o => o.quantity !== 0 ).length > 0 && billment.payment_info.foods.length > 0 )? true : false} style={{height:"100%",fontSize:"12px",backgroundColor:"#444444",color:"white"}} variant="outlined">Thanh toán</Button>
+                        <Button   onClick={confirmPayment} disabled={( billment.payment_info.foods.length == 0 && !billment.orders.some(o => o.quantity > 0) )? true : billment.orders.some(o => o.quantity > 0) ? true : false} style={{height:"100%",opacity:1,fontSize:"12px",backgroundColor:"#444444",color:"white"}} variant="outlined">Thanh toán</Button>
                     </Grid>
               </Grid>
             <Text style={{margin:"0",padding:'0',height:'25px'}}><b>Bàn: </b> {billment.payment_info?.table_name || billment.table_name}</Text>
