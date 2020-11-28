@@ -93,7 +93,7 @@ export const caculateValueDiscount = (billment) =>{
               <div style="font-size:${fontSize};">Giờ: ${content.bill_time}</div>   
     `
     const foodsText = content.foods.reduce((a,b) => a + `
-        <div style="border-bottom:1px solid black;width:100%;display:flex;flex-direction:row;flex-wrap:wrap">
+        <div style="border-bottom:1px solid sliver;width:100%;display:flex;flex-direction:row;flex-wrap:wrap">
         	 <div >
              	${b.name}
              </div>           
@@ -157,12 +157,12 @@ export const caculateValueDiscount = (billment) =>{
                     ${tableText}
                     ${bilDateText}
                     </div>                    
-                    <div style="display:flex;justify-content:space-between;">
+                    <div style="display:flex;justify-content:space-between;border-bottom:1px solid sliver">
                 ${staffText}
                 ${billTimeText}
                     </div>
                     <div >
-                    	<div style="display:flex;width:100%;border-bottom:1px solid black">
+                    	<div style="display:flex;width:100%;border-bottom:1px solid sliver">
                         	<div style="width:33%;text-align:center;">
                             	Số lượng
                             </div>
@@ -230,7 +230,7 @@ export const caculateValueDiscount = (billment) =>{
               <div style="font-size:${fontSize};">Giờ: ${content.bill_time}</div>   
     `
     const foodsText = content.foods.reduce((a,b) => a + `
-        <div style="border-bottom:1px solid black;width:100%;display:flex;flex-direction:row;flex-wrap:wrap">
+        <div style="border-bottom:1px solid sliver;width:100%;display:flex;flex-direction:row;flex-wrap:wrap">
         	 <div >
              	${b.name}
              </div>           
@@ -290,7 +290,7 @@ export const caculateValueDiscount = (billment) =>{
             ${phoneText}
                     <h4 style="margin:0;text-align:center;font-size:${fontSizeForTitle};">Hóa đơn thanh toán</h4>
                     ${billNumberText}            
-                    <div style="display:flex;justify-content:space-between;">           
+                    <div style="display:flex;justify-content:space-between;border-bottom:1px solid sliver">           
                     ${tableText}
                     ${bilDateText}
                     </div>                    
@@ -299,7 +299,7 @@ export const caculateValueDiscount = (billment) =>{
                 ${billTimeText}
                     </div>
                     <div >
-                    	<div style="display:flex;width:100%;border-bottom:1px solid black">
+                    	<div style="display:flex;width:100%;border-bottom:1px solid sliver">
                         	<div style="width:33%;text-align:center;">
                             	Số lượng
                             </div>
