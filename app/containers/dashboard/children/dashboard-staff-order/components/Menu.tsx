@@ -103,7 +103,7 @@ const OrderItem = (props:Menu) => {
         }}
       >
         <div>
-        <P>{props.name}</P>
+        <P><b>{props.name}</b></P>
         </div>
         <div><P>Đơn giá: {convertToVnd(props.price)}</P></div>
         <div>
@@ -585,22 +585,22 @@ const Menu = () => {
                 </Grid>         
                 {billment.orders.filter(o=> o.quantity !==0 ).map((o,index)=>( 
                   <Fragment key={index}>
-                  <div style={{display:'flex',alignItems:'flex-start'}}>
+                  <div style={{display:'flex',alignItems:'flex-start',marginTop:"10px"}}>
                     <IconButton onClick={()=>updateAmount(o,"add")} size="small" style={{backgroundColor:"green",color:"white",height:"30px",borderRadius:"0"}} disableFocusRipple disableRipple>
                         <MdAdd fontSize={25}/>
                     </IconButton>
                     <div style={{color:'red',display:'flex',alignItems:'center',marginLeft:'5px'}}>
-                      <b>{o.quantity}</b>
-                      {(o.can_edit_quantity || user.staff_info.fields.role_name == "ADMIN" && (
+                      <b>{o.quantity}</b>                      
+                    </div>
+                    {(o.can_edit_quantity || user.staff_info.fields.role_name == "ADMIN" && (
                           <IconButton onClick={()=>handleOpenChangeQuantityDialog(o)} style={{borderRadius:"0"}}><FaRegEdit fontSize={15}/></IconButton>
                       ))}
-                    </div>
                     <IconButton  onClick={()=>updateAmount(o,"sub")} size="small" style={{backgroundColor:"#e0e0e0",marginLeft:"5px",color:"white",height:"30px",borderRadius:"0"}} disableFocusRipple disableRipple>
                         <RiSubtractLine fontSize={25}/>
                     </IconButton>
                     <div style={{display:"flex",flexDirection:"column"}}>
                       <div style={{marginLeft:"5px"}}>{o.name}</div>
-                      <div>Giá: {convertToVnd(o.price)}
+                      <div style={{marginLeft:"5px"}}>Giá: {convertToVnd(o.price)}
                       {(o.can_edit_price || user.staff_info.fields.role_name == "ADMIN" && (
                             <IconButton onClick={()=>handleOpenChangePriceDialog(o)} style={{borderRadius:"0"}}><FaRegEdit fontSize={15}/></IconButton>
                         ))}
