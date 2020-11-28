@@ -214,11 +214,12 @@ const DashboardHome = (props: any) => {
   useEffect(() => {
       fetch() 
       socket.onmessage = async function(message){   
-          fetch()                
-          let sound = new Audio(Sound)
-          await sound.play()
-          const order = JSON.parse(message.data)
-          printBill(order.text)
+          fetch().then(async()=>{
+            let sound = new Audio(Sound)
+            await sound.play()
+            const order = JSON.parse(message.data)
+            printBill(order.text)
+          })
       }       
   }, []);    
   const handleSelect = (status) => {
