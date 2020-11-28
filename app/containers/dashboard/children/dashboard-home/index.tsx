@@ -221,7 +221,7 @@ const DashboardHome = (props: any) => {
             printBill(order.text)
           })
       }       
-  }, []);    
+  }, [orders]);    
   const handleSelect = (status) => {
     setSelected(status);
   };

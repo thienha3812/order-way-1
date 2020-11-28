@@ -274,7 +274,7 @@ const Menu = () => {
     }
     let orders = billment.orders.filter(o=>o.quantity !== 0)
     orders.forEach((o)=>{
-      if(o.note !== ""){
+      if(o.note){
         o.name = o.name  + "(Note:" + o.note + ")" 
       }      
     })
