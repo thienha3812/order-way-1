@@ -496,6 +496,7 @@ const Menu = () => {
     setChangePriceDialog(true)
   }
   const handleOpenChangeQuantityDialog = (order) =>{ 
+    console.log(user.staff_info.fields.role_name == "ADMIN")
     setSelectedOrder(order)
     setChangeQuantityDialog(true)
   }
@@ -596,18 +597,18 @@ const Menu = () => {
                     <div style={{color:'red',display:'flex',alignItems:'center',marginLeft:'5px'}}>
                       <b>{o.quantity}</b>                      
                     </div>
-                    {(o.can_edit_quantity || user.staff_info.fields.role_name == "ADMIN" && (
+                    {(o.can_edit_quantity || user.staff_info.fields.role_name == "ADMIN") && (
                           <IconButton onClick={()=>handleOpenChangeQuantityDialog(o)} style={{borderRadius:"0"}}><FaRegEdit fontSize={15}/></IconButton>
-                      ))}
+                      )}
                     <IconButton  onClick={()=>updateAmount(o,"sub")} size="small" style={{backgroundColor:"#e0e0e0",marginLeft:"5px",color:"white",height:"30px",borderRadius:"0"}} disableFocusRipple disableRipple>
                         <RiSubtractLine fontSize={25}/>
                     </IconButton>
                     <div style={{display:"flex",flexDirection:"column"}}>
                       <div style={{marginLeft:"5px"}}>{o.name}</div>
                       <div style={{marginLeft:"5px"}}>Giá: {convertToVnd(o.price)}
-                      {(o.can_edit_price || user.staff_info.fields.role_name == "ADMIN" && (
+                      {(o.can_edit_price || user.staff_info.fields.role_name == "ADMIN") && (
                             <IconButton onClick={()=>handleOpenChangePriceDialog(o)} style={{borderRadius:"0"}}><FaRegEdit fontSize={15}/></IconButton>
-                        ))}
+                        )}
                       </div>    
                     </div>                 
                   </div>
