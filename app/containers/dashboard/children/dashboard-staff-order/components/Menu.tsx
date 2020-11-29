@@ -630,7 +630,7 @@ const Menu = () => {
           <Grid item xs={3}  style={{fontSize:'14px'}} >
           <Grid spacing={3} container style={{width:'100%'}} alignItems="center" justify="center">
                     <Grid item xs={7} style={{textAlign:'center'}}>
-                      <Button disabled={(billment.payment_info.foods.length == 0)} onClick={handlePrintInvoice} style={{fontSize:"12px",backgroundColor:"#444444",color:"white"}}>In hóa đơn tạm tính</Button>
+                      <Button disabled={(billment.payment_info.foods.length == 0 || false)} onClick={handlePrintInvoice} style={{fontSize:"12px",backgroundColor:"#444444",color:"white"}}>In hóa đơn tạm tính</Button>
                     </Grid>
                     <Grid style={{textAlign:'center'}} item xs={5}>
                         <Button   onClick={confirmPayment} disabled={( billment.payment_info.foods.length == 0 && !billment.orders.some(o => o.quantity > 0) )? true : billment.orders.some(o => o.quantity > 0) ? true : false} style={{height:"100%",opacity:1,fontSize:"12px",backgroundColor:"#444444",color:"white"}} variant="outlined">Thanh toán</Button>
