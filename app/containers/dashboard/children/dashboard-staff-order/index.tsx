@@ -112,6 +112,7 @@ const StaffOrder = () => {
     if(payment_id){
       return
     }
+    console.log(tableID,payment_id)
     if(openMenu && (billment.payment_info.table_id == tableID || tableID == billment.tableId)){
       const {payment_info,pmts} = await StaffService.getPaymentInfo(tableID)
       let allValue = caculateAllValue({payment_info,pmts})
@@ -124,6 +125,7 @@ const StaffOrder = () => {
   },[])
   useEffect(()=>{
       _counterSocket.onmessage = async function(message){
+          console.log(JSON.parse(message.data))
           const payment_id = JSON.parse(message.data).text.payment_id
           const tableID = JSON.parse(message.data).text.tables[0].pk
           const createdBy = JSON.parse(message.data).text.created_by
@@ -147,7 +149,7 @@ const StaffOrder = () => {
       }
       return (()=>{
         _notificationSocket.close()
-        _counterSocket.close()
+        // _counterSocket.close()
       })
   },[billment,openMenu,paidOrder])
   useEffect(()=>{
