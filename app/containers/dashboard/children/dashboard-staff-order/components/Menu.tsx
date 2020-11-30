@@ -289,7 +289,8 @@ const Menu = () => {
           let discount_amount = caculateAllValue({payment_info,pmts})
           allValue = Math.max(0,payment_info.sub_total - allValue)          
           let vat_value = (payment_info.vat_percent / 100) * allValue
-          payment_info.total = allValue  + vat_value
+          let servicePrice = payment_info.service.reduce((a,b)=> a + Number(b.price),0)
+          payment_info.total = allValue  + vat_value + servicePrice
           payment_info.cash = payment_info.total
           payment_info.discount_amount = discount_amount
           await StaffService.updatStoreOrderInfo({...payment_info,promotionId:pmts})
