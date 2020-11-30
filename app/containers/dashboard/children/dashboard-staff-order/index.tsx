@@ -105,7 +105,7 @@ const StaffOrder = () => {
       const data = await TableService.listByCounter()
       setTables(data.data)
   }  
-  const updateTable = async (tableID,payment_id) =>{    
+  const updateTable = async (tableID) =>{    
     if(openMenu && (billment.payment_info.table_id == tableID || tableID == billment.tableId)){
       const {payment_info,pmts} = await StaffService.getPaymentInfo(tableID)
       let allValue = caculateAllValue({payment_info,pmts})
@@ -118,11 +118,12 @@ const StaffOrder = () => {
   },[])
   useEffect(()=>{
       _counterSocket.onmessage = async function(message){
+          fetch()
           const payment_id = JSON.parse(message.data).text.payment_id
           const tableID = JSON.parse(message.data).text.tables[0].pk
           const createdBy = JSON.parse(message.data).text.created_by
-          if(createdBy != staff_info.pk){
-            updateTable(tableID,payment_id)
+          if(createdBy != staff_info.pk && !payment_id){
+            updateTable(tableID)
           }
           const { autoPrintWhenStaffPayment } = store.get("orderBill")
           if(autoPrintWhenStaffPayment && createdBy !== staff_info.pk){
@@ -141,7 +142,7 @@ const StaffOrder = () => {
       }
       return (()=>{
         _notificationSocket.close()
-        // _counterSocket.close()
+        _counterSocket.close()
       })
   },[billment,openMenu,paidOrder])
   useEffect(()=>{

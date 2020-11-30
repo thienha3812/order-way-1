@@ -27,12 +27,19 @@ const CancelFood = () =>{
     const {billment,setOpenCancelOrder,setOpenCancelFood,openCancelFood} = useContext(Context)
     const [order,setOrder] = useState({have_cancel:false,payment_info: {request:null,customerId:0,customerName:"",orderId:[],tableId:0,time:"",table:"",foods:[]}})
     const [currentFoods,setFoods] = useState([])
+    const [error,setError] = useState(false)
     const {payment_info,have_cancel} = order
     const [loading,setLoading] = useState(false)
     const {user:{staff_info}} = useSelector(userSelector)
     const [messageBox,setMessagBox] = useState({open:false,message:"",type:""})
     const fetch = async () =>{ 
         const {data} = await StaffService.getOrderInfo(billment.tableId)
+        console.log(data)
+        if(data.have_cancel){
+            setLoading(true)
+            setOrder({have_cancel:true,payment_info:{...order.payment_info}})
+            return
+        }
         const {have_cancel,payment_info}  = data
         setFoods(data.payment_info.foods.map(f=>({...f,quantity:0})))
         setOrder({have_cancel,payment_info})
@@ -89,6 +96,11 @@ const CancelFood = () =>{
                       <div>
                         <h4 style={{color:"red"}}>Bạn có yêu cầu hủy trước đó chưa được xác nhận. Hãy xác nhận lần hủy trước để thực hiện yêu cầu hủy tiếp theo</h4>
                     </div>  
+                    )}
+                    {(loading == true && error) && (
+                        <div>
+                            Bạn có yêu cầu hủy trước đó chưa được xác nhận. Hãy xác nhận lần hủy trước để thực hiện yêu cầu hủy tiếp theo
+                        </div>
                     )}
                     {(loading == true && have_cancel == false && payment_info.foods.length > 0) && ( 
                       <div>

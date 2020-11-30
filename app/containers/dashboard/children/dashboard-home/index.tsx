@@ -75,7 +75,6 @@ const RenderList = ()  => {
         OrderService.updateStatusOrderToDoing({id:order.orderId}).then(()=>{
             setOrders({...orders,orders_doing:[...orders.orders_doing,order],orders_approved:[...orders.orders_approved.filter(o=> o.orderId !== order.orderId)]})
             setMessagBox({open:true,message:"Cập nhật Order thành công!",type:"success"})
-            printBill(order)
         }).catch((err)=>{
             setMessagBox({open:true,message:err.toString(),type:"error"})
         })
@@ -225,9 +224,11 @@ const DashboardHome = (props: any) => {
       
       socket.onmessage = async function(message){               
             sound.play()
+
             const order = JSON.parse(message.data)            
             printBill(order.text)
-            addToOrders(order.text)
+            // addToOrders(order.text)
+            fetch()
       }       
   }, [orders]);    
   const addToOrders = (order) =>{
