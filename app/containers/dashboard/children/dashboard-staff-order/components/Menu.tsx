@@ -288,8 +288,9 @@ const Menu = () => {
           let allValue = caculateAllValue({payment_info,pmts})
           let discount_amount = caculateAllValue({payment_info,pmts})
           allValue = Math.max(0,payment_info.sub_total - allValue)          
-          payment_info.total = allValue
-          payment_info.cash = payment_info.sub_total
+          console.log(payment_info.service.reduce((a,b) => a  + Number(b.price),0))
+          payment_info.total = allValue + payment_info.service.reduce((a,b) => a  + Number(b.price),0)
+          payment_info.cash = payment_info.total
           payment_info.discount_amount = discount_amount
           await StaffService.updatStoreOrderInfo({...payment_info,promotionId:pmts})
           setBillMent({...billment,payment_info:{...payment_info,total:allValue},pmts,orders:[]})
