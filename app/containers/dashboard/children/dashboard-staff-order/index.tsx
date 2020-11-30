@@ -109,10 +109,6 @@ const StaffOrder = () => {
     if(!billment.payment_info.table_id){
       return
     }
-    if(payment_id){
-      return
-    }
-    console.log(tableID,payment_id)
     if(openMenu && (billment.payment_info.table_id == tableID || tableID == billment.tableId)){
       const {payment_info,pmts} = await StaffService.getPaymentInfo(tableID)
       let allValue = caculateAllValue({payment_info,pmts})
