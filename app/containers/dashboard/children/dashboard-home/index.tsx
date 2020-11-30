@@ -227,7 +227,6 @@ const DashboardHome = (props: any) => {
             sound.play()
             const order = JSON.parse(message.data)            
             printBill(order.text)
-            console.log(order.text)
             addToOrders(order.text)
       }       
   }, [orders]);    

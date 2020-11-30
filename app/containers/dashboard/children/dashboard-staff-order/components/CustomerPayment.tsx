@@ -154,7 +154,6 @@ const CustomerPayment =  () => {
     }
     const handleAddCustomer = async () =>{
         CustomerService.addCustomerByStaff(form).then(async (response)=>{
-            console.log(billment.payment_info.id)
             setMessageBox({message:"Thêm khách hàng thành công!",open:true,type:"success"})
             if(billment.payment_info.id){
                 await StaffService.updateCustomerIntoOrder({cusId:response.data.id,orderId:billment.payment_info?.id})

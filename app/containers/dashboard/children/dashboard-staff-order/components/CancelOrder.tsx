@@ -15,7 +15,6 @@ const CancelOrder = () =>{
     const fetch = async () =>{ 
         const {data} = await StaffService.getOrderInfo(billment.tableId)
         setOrder(data)
-        console.log(data)
     }
     useEffect(()=>{
         fetch()

@@ -41,9 +41,6 @@ const CancelFood = () =>{
     useEffect(()=>{
         fetch()
     },[])
-    useEffect(()=>{
-        console.log(order)
-    },[order])
     const handleChangeInput = (event,food) =>{
         let _foods = JSON.parse(JSON.stringify(currentFoods))
         _foods.forEach(f=>{

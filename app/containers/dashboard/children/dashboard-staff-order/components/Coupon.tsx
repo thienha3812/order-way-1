@@ -181,7 +181,6 @@ const Coupon = () => {
   }
   const handleScan = (data:string) => {
     if (data) {
-      console.log(data)
       let texts = data.split("-")      
       PromotionService.checkPmt({ pmt_id: formatID(texts[0]), totalPrice: 11200 })
         .then((result) => {

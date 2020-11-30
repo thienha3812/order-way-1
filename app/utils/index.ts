@@ -200,12 +200,12 @@ export const caculateValueDiscount = (billment) =>{
                         <div style="width:50%;font-size:${fontSize};" ><b>Tổng cộng</b></div>
                         <div style="width:50%;font-size:${fontSize};"><b>${convertToVnd(totalPriceFoodsText)}</b></div>
                     </div>
+                    ${content.pmts.length > 0 ? titlePmts :"" }
+                    ${pmtsText}
+                    ${discountText}                    
                     ${content.service.length > 0 ? "<div style='display:flex;margin-top:5px'> <div style='width:33.3%'>Loại</div> <div style='width:33.3%'>Tên</div><div style='width:33.3%'>Thành tiền</div> </div>" :""}
                     ${content.service.length > 0 ? serviceText : ""}
                     ${content.service.length > 0 ? servicePrice : ""}
-                    ${content.pmts.length > 0 ? titlePmts :"" }
-                    ${pmtsText}
-                  	${discountText}
                     <div style="display:flex;justify-content:center;margin-top:5px">
                         <div style="width:50%;font-size:${fontSize};" ><b>Thành tiền</b></div>
               ${totalText}
@@ -360,12 +360,12 @@ export const caculateValueDiscount = (billment) =>{
                         <div style="width:50%;font-size:${fontSize};" ><b>Tổng cộng</b></div>
                         <div style="width:50%;font-size:${fontSize};"><b>${convertToVnd(totalPriceFoodsText)}</b></div>
                     </div>
-                    ${content.service.length > 0 ? "<div style='display:flex;margin-top:5px'> <div style='width:33.3%'>Loại</div> <div style='width:33.3%'>Tên</div><div style='width:33.3%'>Thành tiền</div> </div>" :""}
-                    ${content.service.length > 0 ? serviceText : ""}
-                    ${content.service.length > 0 ? servicePrice : ""}
                     ${content.pmts.length > 0 ? titlePmts :"" }
                     ${pmtsText}
                   	${discountText}
+                    ${content.service.length > 0 ? "<div style='display:flex;margin-top:5px'> <div style='width:33.3%'>Loại</div> <div style='width:33.3%'>Tên</div><div style='width:33.3%'>Thành tiền</div> </div>" :""}
+                    ${content.service.length > 0 ? serviceText : ""}
+                    ${content.service.length > 0 ? servicePrice : ""}
                     <div style="display:flex;justify-content:center;margin-top:5px">
                         <div style="width:50%;font-size:${fontSize};" ><b>Thành tiền</b></div>
               ${totalText}
