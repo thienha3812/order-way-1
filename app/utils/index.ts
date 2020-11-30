@@ -94,7 +94,7 @@ export const caculateValueDiscount = (billment) =>{
               <div style="font-size:${fontSize};">Giờ: ${content.bill_time}</div>   
     `
     const foodsText = content.foods.reduce((a,b) => a + `
-        <div style="border-bottom:0.5px solid  black	;width:100%;display:flex;flex-direction:row;flex-wrap:wrap">
+        <div style="border-bottom:1px solid #555555;width:100%;display:flex;flex-direction:row;flex-wrap:wrap">
         	 <div >
              	${b.name}
              </div>           
@@ -125,13 +125,13 @@ export const caculateValueDiscount = (billment) =>{
     const totalPriceFoodsText = content.foods.reduce((a,b) => a + b.quantity * b.price,0)
 
     const pmtsText = content.pmts.length > 0 ? content.pmts.reduce((a,b) => a + `
-      <div style="display:flex;justify-content:center;border-bottom:0.5px solid  black;">
+      <div style="display:flex;justify-content:center;border-bottom:1px solid #555555;">
                         <div style="width:50%;font-size:${fontSize};" >${b.name}</div>
                         <div style="width:50%;font-size:${fontSize};">${b.quantity}</div>
         </div>
     `,'') : ""
     const totalText = `
-                          <div style="width:50%;font-size:${fontSize};"><b>${convertToVnd(content.sub_total-content.discount_amount+content.service_price)}</b></div>
+                          <div style="width:50%;font-size:${fontSize};"><b>${convertToVnd(content.sub_total-content.discount_amount+content.service_price + content.vat_value)}</b></div>
     `
     const discountText = content.discount_amount > 0 ? `
                  <div style="display:flex;justify-content:center;margin-top:5px;">
@@ -143,25 +143,28 @@ export const caculateValueDiscount = (billment) =>{
                     </div>
     `  : ""
     const titlePmts = `
-    <div style="margin-top:5px;display:flex;justify-content:center;border-bottom:0.5px solid  black;">
+    <div style="margin-top:5px;display:flex;justify-content:center;border-bottom:1px solid #555555;">
     <div style="width:50%;font-size:${fontSize};" >Tên khuyến mãi</div>
     <div style="width:50%;font-size:${fontSize};">SL</div>
     </div>
     `
     const serviceText = content.service.reduce((a,b) => a + `
-        <div style="border-bottom:0.5px solid  black	;width:100%;display:flex;">
-        	 <div style="width:33.3%" >
-             	${b.type === "service" ? "Dịch vụ" : "Phụ thu"}
-             </div>           
-        	 <div style="width:33.3%;" >
-				${b.name}
+        <div style="border-bottom:1px solid #555555;width:100%;display:flex;">
+        	 <div style="width:50%;" >
+        				${b.name}
             </div>
-        	 <div style="width:33.3%" >
+        	 <div style="width:50%" >
             	${convertToVnd(b.price)}
             </div>
         </div>
         
     `,'')  
+    const vatText = `
+        <div style="display:flex;justify-content:center;margin-top:5px">
+        <div style="width:50%;font-size:${fontSize};" ><b>Thuế VAT</b></div>
+        <div style="width:50%;font-size:${fontSize};" ><b>${content.vat_value}</b></div>
+      </div>
+    `
     const servicePrice = `
     	             <div style="display:flex;justify-content:flex-end;">
                         <div style="width:50%;font-size:${fontSize};" ><b>Tổng phí</b></div>
@@ -174,7 +177,7 @@ export const caculateValueDiscount = (billment) =>{
             ${phoneText}
                     <h4 style="margin:0;text-align:center;font-size:${fontSizeForTitle};">Hóa đơn tạm tính</h4>
                     ${billNumberText}            
-                    <div style="display:flex;justify-content:space-between;border-bottom:0.5px solid  black">           
+                    <div style="display:flex;justify-content:space-between;border-bottom:1px solid #555555">           
                     ${tableText}
                     ${bilDateText}
                     </div>                    
@@ -183,7 +186,7 @@ export const caculateValueDiscount = (billment) =>{
                 ${billTimeText}
                     </div>
                     <div >
-                    	<div style="margin-top:5px;display:flex;width:100%;border-bottom:0.5px solid  black	">
+                    	<div style="margin-top:5px;display:flex;width:100%;border-bottom:1px solid  #555555">
                         	<div style="width:33%;text-align:center;">
                             	Số lượng
                             </div>
@@ -202,10 +205,11 @@ export const caculateValueDiscount = (billment) =>{
                     </div>
                     ${content.pmts.length > 0 ? titlePmts :"" }
                     ${pmtsText}
-                    ${discountText}                    
-                    ${content.service.length > 0 ? "<div style='display:flex;margin-top:5px'> <div style='width:33.3%'>Loại</div> <div style='width:33.3%'>Tên</div><div style='width:33.3%'>Thành tiền</div> </div>" :""}
+                  	${discountText}
+                    ${content.service.length > 0 ? "<div style='display:flex;margin-top:5px'><div style='width:50%'>Tên dịch vụ/phụ thu</div><div style='width:50%'>Số tiền</div> </div>" :""}
                     ${content.service.length > 0 ? serviceText : ""}
                     ${content.service.length > 0 ? servicePrice : ""}
+                    ${content.vat_value > 0 ? vatText : ""}
                     <div style="display:flex;justify-content:center;margin-top:5px">
                         <div style="width:50%;font-size:${fontSize};" ><b>Thành tiền</b></div>
               ${totalText}
@@ -254,7 +258,7 @@ export const caculateValueDiscount = (billment) =>{
               <div style="font-size:${fontSize};">Giờ: ${content.bill_time}</div>   
     `
     const foodsText = content.foods.reduce((a,b) => a + `
-        <div style="border-bottom:0.5px solid  black	;width:100%;display:flex;flex-direction:row;flex-wrap:wrap">
+        <div style="border-bottom:1px solid #555555;width:100%;display:flex;flex-direction:row;flex-wrap:wrap">
         	 <div >
              	${b.name}
              </div>           
@@ -285,13 +289,13 @@ export const caculateValueDiscount = (billment) =>{
     const totalPriceFoodsText = content.foods.reduce((a,b) => a + b.quantity * b.price,0)
 
     const pmtsText = content.pmts.length > 0 ? content.pmts.reduce((a,b) => a + `
-      <div style="display:flex;justify-content:center;border-bottom:0.5px solid  black;">
+      <div style="display:flex;justify-content:center;border-bottom:1px solid #555555;">
                         <div style="width:50%;font-size:${fontSize};" >${b.name}</div>
                         <div style="width:50%;font-size:${fontSize};">${b.quantity}</div>
         </div>
     `,'') : ""
     const totalText = `
-                          <div style="width:50%;font-size:${fontSize};"><b>${convertToVnd(content.sub_total-content.discount_amount+content.service_price)}</b></div>
+                          <div style="width:50%;font-size:${fontSize};"><b>${convertToVnd(content.sub_total-content.discount_amount+content.service_price + content.vat_value)}</b></div>
     `
     const discountText = content.discount_amount > 0 ? `
                  <div style="display:flex;justify-content:center;margin-top:5px;">
@@ -303,25 +307,28 @@ export const caculateValueDiscount = (billment) =>{
                     </div>
     `  : ""
     const titlePmts = `
-    <div style="margin-top:5px;display:flex;justify-content:center;border-bottom:0.5px solid  black;">
+    <div style="margin-top:5px;display:flex;justify-content:center;border-bottom:1px solid #555555;">
     <div style="width:50%;font-size:${fontSize};" >Tên khuyến mãi</div>
     <div style="width:50%;font-size:${fontSize};">SL</div>
     </div>
     `
     const serviceText = content.service.reduce((a,b) => a + `
-        <div style="border-bottom:0.5px solid  black	;width:100%;display:flex;">
-        	 <div style="width:33.3%" >
-             	${b.type === "service" ? "Dịch vụ" : "Phụ thu"}
-             </div>           
-        	 <div style="width:33.3%;" >
-				${b.name}
+        <div style="border-bottom:1px solid #555555;width:100%;display:flex;">
+        	 <div style="width:50%;" >
+        				${b.name}
             </div>
-        	 <div style="width:33.3%" >
+        	 <div style="width:50%" >
             	${convertToVnd(b.price)}
             </div>
         </div>
         
     `,'')  
+    const vatText = `
+        <div style="display:flex;justify-content:center;margin-top:5px">
+        <div style="width:50%;font-size:${fontSize};" ><b>Thuế VAT</b></div>
+        <div style="width:50%;font-size:${fontSize};" ><b>${content.vat_value}</b></div>
+      </div>
+    `
     const servicePrice = `
     	             <div style="display:flex;justify-content:flex-end;">
                         <div style="width:50%;font-size:${fontSize};" ><b>Tổng phí</b></div>
@@ -334,7 +341,7 @@ export const caculateValueDiscount = (billment) =>{
             ${phoneText}
                     <h4 style="margin:0;text-align:center;font-size:${fontSizeForTitle};">Hóa đơn thanh toán</h4>
                     ${billNumberText}            
-                    <div style="display:flex;justify-content:space-between;border-bottom:0.5px solid  black">           
+                    <div style="display:flex;justify-content:space-between;border-bottom:1px solid #555555">           
                     ${tableText}
                     ${bilDateText}
                     </div>                    
@@ -343,7 +350,7 @@ export const caculateValueDiscount = (billment) =>{
                 ${billTimeText}
                     </div>
                     <div >
-                    	<div style="margin-top:5px;display:flex;width:100%;border-bottom:0.5px solid  black	">
+                    	<div style="margin-top:5px;display:flex;width:100%;border-bottom:1px solid  #555555">
                         	<div style="width:33%;text-align:center;">
                             	Số lượng
                             </div>
@@ -363,9 +370,10 @@ export const caculateValueDiscount = (billment) =>{
                     ${content.pmts.length > 0 ? titlePmts :"" }
                     ${pmtsText}
                   	${discountText}
-                    ${content.service.length > 0 ? "<div style='display:flex;margin-top:5px'> <div style='width:33.3%'>Loại</div> <div style='width:33.3%'>Tên</div><div style='width:33.3%'>Thành tiền</div> </div>" :""}
+                    ${content.service.length > 0 ? "<div style='display:flex;margin-top:5px'><div style='width:50%'>Tên dịch vụ/phụ thu</div><div style='width:50%'>Số tiền</div> </div>" :""}
                     ${content.service.length > 0 ? serviceText : ""}
                     ${content.service.length > 0 ? servicePrice : ""}
+                    ${content.vat_value > 0 ? vatText : ""}
                     <div style="display:flex;justify-content:center;margin-top:5px">
                         <div style="width:50%;font-size:${fontSize};" ><b>Thành tiền</b></div>
               ${totalText}
