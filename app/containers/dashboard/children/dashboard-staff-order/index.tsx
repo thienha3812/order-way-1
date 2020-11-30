@@ -147,6 +147,7 @@ const StaffOrder = () => {
       }
       return (()=>{
         _notificationSocket.close()
+        _counterSocket.close()
       })
   },[billment,openMenu,paidOrder])
   useEffect(()=>{

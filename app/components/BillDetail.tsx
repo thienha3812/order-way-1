@@ -33,7 +33,7 @@ const BillDetail  = ({phone_number,service_price,pmts,cash,credit,e_money,table_
           <ul>
             {service.map((s,index)=>(
                 <li key={index}>
-                    {"Loại: " + (s.type == "service" ? "Dịch vụ,v" : "Phụ thu, " )}  {"Tên:" + s.name +", "} {"Giá: " + convertToVnd(s.price)}
+                    {"Loại: " + (s.type == "service" ? "Dịch vụ," : "Phụ thu, " )}  {"Tên:" + s.name +", "} {"Giá: " + convertToVnd(s.price)}
                 </li>
             ))}
             

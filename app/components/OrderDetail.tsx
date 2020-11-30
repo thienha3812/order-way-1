@@ -23,6 +23,9 @@ const OrderDetail  = (props ) =>{
        {props.type === "order" && (
           <li><b>Loại:Order</b></li>
        ) }
+       {props.type === "request" && (
+          <li><b>Loại:Yêu cầu</b></li>
+       ) }
         <li><b>Nhân viên:</b> {props.staff_name}</li>
         <li><b>Khách hàng:</b> {props.customerName}</li>
         <li><b>Thời gian:</b> {props.time}</li>

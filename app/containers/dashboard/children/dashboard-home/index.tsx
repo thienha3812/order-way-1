@@ -91,7 +91,6 @@ const RenderList = ()  => {
       }  
   } 
     const handleUpdateCreatedOrder = order =>{
-      console.log(order)
       if(order.type === "cancel_order"){
         OrderService.confirmCancelOrder({tableId:order.table_id,order_id:order.orderId}).then(()=>{
           setMessagBox({open:true,message:"Hủy Order thành công!",type:"success"})
@@ -189,6 +188,7 @@ const DashboardHome = (props: any) => {
   const history  = useHistory()
   const [selected, setSelected] = useState("orders_approved");
   const socket =  manageOrderSocket(staff_info.fields.store_id)
+  const sound = new Audio(Sound)
   const [orders, setOrders] = useState<Orders>({
     orders_created: [],
     orders_approved: [],
@@ -218,17 +218,37 @@ const DashboardHome = (props: any) => {
         ipcRenderer.send("print",{contentHtml,type:"printKitchenBill"})
       }  
   }
+  useEffect(()=>{
+    fetch() 
+  },[])
   useEffect(() => {
-      fetch() 
-      socket.onmessage = async function(message){   
-          fetch().then(async()=>{
-            let sound = new Audio(Sound)
-            await sound.play()
-            const order = JSON.parse(message.data)
+      
+      socket.onmessage = async function(message){               
+            sound.play()
+            const order = JSON.parse(message.data)            
             printBill(order.text)
-          })
+            console.log(order.text)
+            addToOrders(order.text)
       }       
   }, [orders]);    
+  const addToOrders = (order) =>{
+    const {type,status} = order
+    if(type === "cancel_food"){
+        setOrders({...orders,orders_created:[order,...orders.orders_created]})
+    }
+    if(type === "cancel_order"){
+      setOrders({...orders,orders_created:[order,...orders.orders_created]})
+    }
+    if(type === "order" && status === "created"){
+      setOrders({...orders,orders_created:[order,...orders.orders_created]})
+    }
+    if(type === "order" && status === "approved"){
+      setOrders({...orders,orders_approved:[order,...orders.orders_approved]})
+    }
+    if(type === "request"){
+      setOrders({...orders,orders_created:[order,...orders.orders_created]})
+    }
+  }
   const handleSelect = (status) => {
     setSelected(status);
   };
