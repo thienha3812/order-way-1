@@ -117,6 +117,7 @@ const RenderList = ()  => {
         StaffService.updateOrderStatusToApproved({id:order.orderId,phoneNumber:null}).then(()=>{
           setMessagBox({open:true,message:"Xác nhận Order thành công!",type:"success"})     
           setOrders({...orders,orders_finish:[...orders.orders_finish,order],orders_created:[...orders.orders_created.filter(o=> o.orderId !== order.orderId)]})
+          printBill(order)
         })
       }
     }

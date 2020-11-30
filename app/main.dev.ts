@@ -112,24 +112,15 @@ const createWindow = async () => {
   })
   ipcMain.on("readyToPrint",(event,content)=>{
     try{
-      let win = BrowserWindow.getFocusedWindow() 
-      const printers  = win?.webContents.getPrinters()
-      const printersName = printers.map(p => p.name)      
       if(content.type == "printKitchenBill"){
         const kitchenBill = store.get("kitchenBill")        
         const namePrinter = kitchenBill.name
-        if(!printersName.includes(name)){
-            return
-        }
         workerWindow.webContents.print({deviceName:namePrinter,printBackground:true,margins:{marginType:'custom',top:20,bottom:20,left:0,right:0},silent:true},(success,err)=>{
         })
       }
       if(content.type == "printOrderBill"){
         const orderBill = store.get("orderBill")
         const namePrinter = orderBill.name
-        if(!printersName.includes(name)){
-          return
-        }
         workerWindow.webContents.print({deviceName:namePrinter,printBackground:true,margins:{marginType:'custom',top:20,bottom:20,left:0,right:0},silent:true},(success,err)=>{
         })
       }

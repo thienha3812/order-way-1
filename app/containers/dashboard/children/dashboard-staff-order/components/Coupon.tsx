@@ -367,13 +367,15 @@ const Coupon = () => {
     const valueVoucher = caculateValueVoucher()
     const valueFreeItem = caculateValueFreeItem()
     const valueWithMaxValue = caculateMaxValueVoucher()
-    let discount_amount = (valuePercent + valueVoucher + valueFreeItem + valueWithMaxValue)
+    
+    let discount_amount = (valuePercent + valueVoucher + valueFreeItem + valueWithMaxValue)    
     const payment_info = billment.payment_info
+    const _vatValue = Math.max(0,payment_info?.sub_total - discount_amount)  * (payment_info.vat_percent / 100)
     StaffService.updatStoreOrderInfo({
       address: payment_info?.address,
       bill_number:payment_info?.bill_number,
       bill_sequence:payment_info?.bill_sequence,
-      cash: payment_info.sub_total,
+      cash: Math.max(0,payment_info?.sub_total - discount_amount),
       content_discount: payment_info?.content_discount,
       credit:payment_info?.credit,
       cus_order_id:payment_info?.cus_order_id,
@@ -393,9 +395,9 @@ const Coupon = () => {
       table_id:payment_info?.table_id,
       table_name: payment_info.table_name,
       time_in:payment_info?.time_in,
-      total:Math.max(0,payment_info?.sub_total - valueVoucher - valuePercent - valueFreeItem - valueWithMaxValue),
+      total:Math.max(0,payment_info?.sub_total - discount_amount) + _vatValue,
       vat_percent:payment_info?.vat_percent,
-      vat_value:payment_info?.vat_value
+      vat_value:_vatValue
     }).then(async()=>{
       const {payment_info : new_payment_info,pmts} = await StaffService.getPaymentInfo(billment.tableId)
       setBillMent({...billment,pmts,payment_info:new_payment_info})

@@ -64,10 +64,8 @@ const RenderTable = () =>{
       setOpenMenu(true)
       return
     }
-    let allValue = caculateAllValue({payment_info,pmts})
     let discount_amount = caculateAllValue({payment_info,pmts})
-    allValue = Math.max(0,payment_info.sub_total - allValue)
-    setBillMent({...billment,table_name:table.fields.name,status:2,tableId:table.pk.toString(),payment_info:{...payment_info,total:allValue,discount_amount},pmts})
+    setBillMent({...billment,table_name:table.fields.name,status:2,tableId:table.pk.toString(),payment_info:{...payment_info,total:payment_info.total,discount_amount},pmts})
     setOpenMenu(true)
   }
   const isActive = (status) => {

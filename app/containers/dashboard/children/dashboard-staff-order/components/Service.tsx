@@ -7,7 +7,7 @@ import React, {
   } from "react";
 
   import { FaTrash } from 'react-icons/fa';
-  import { GrAdd } from "react-icons/gr";
+  import { GrAdd, GrServicePlay } from "react-icons/gr";
   import {
     Dialog,
     DialogContent,
@@ -93,20 +93,20 @@ import StaffService from "../../../../../services/staff";
     };
     const confirmUpdateOrder =() =>{ 
         let payment_info = billment.payment_info
-        let sub_total = Number(payment_info?.sub_total) + payment_info?.service?.filter(s => s.new === true).reduce((a,b)=> a + Number(b.price),0)
-        let total = sub_total - caculateAllValue({payment_info : {...payment_info,sub_total : sub_total},pmts : billment.pmts})
-        let discount_amount = caculateAllValue({payment_info : {...payment_info,sub_total : sub_total},pmts : billment.pmts})
+        const servicePrice = payment_info?.service?.filter(s => s.new === true).reduce((a,b)=> a + Number(b.price),0)
+        let sub_total = payment_info.sub_total
+        let total = payment_info.total +  servicePrice        
         StaffService.updatStoreOrderInfo({
             address: payment_info?.address,
             bill_number:payment_info?.bill_number,
             bill_sequence:payment_info?.bill_sequence,
-            cash: sub_total,
+            cash: total,
             content_discount: payment_info?.content_discount,
             credit:payment_info?.credit,
             cus_order_id:payment_info?.cus_order_id,
             customer_id:payment_info?.customer_id,
             customer_name:payment_info?.customer_name,
-            discount_amount,
+            discount_amount : payment_info.discount_amount,
             e_money:payment_info?.e_money,
             foods:payment_info.foods,
             id:payment_info?.id,
@@ -163,15 +163,15 @@ import StaffService from "../../../../../services/staff";
     const removeService = (service,index) => {
         let payment_info = billment.payment_info  
         let _service = billment.payment_info?.service
-        let sub_total = billment.payment_info?.sub_total - service.price
-        let total =  sub_total -  caculateAllValue({payment_info : {...payment_info,sub_total : sub_total},pmts : billment.pmts})
+        let sub_total = billment.payment_info?.sub_total
+        let total =  billment.payment_info.total - service.price
         delete _service[index]
         if(service.new !== true){
           StaffService.updatStoreOrderInfo({
             address: payment_info?.address,
             bill_number:payment_info?.bill_number,
             bill_sequence:payment_info?.bill_sequence,
-            cash: sub_total,
+            cash: total,
             content_discount: payment_info?.content_discount,
             credit:payment_info?.credit,
             cus_order_id:payment_info?.cus_order_id,

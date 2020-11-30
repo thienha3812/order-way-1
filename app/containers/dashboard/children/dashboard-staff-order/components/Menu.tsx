@@ -288,12 +288,12 @@ const Menu = () => {
           let allValue = caculateAllValue({payment_info,pmts})
           let discount_amount = caculateAllValue({payment_info,pmts})
           allValue = Math.max(0,payment_info.sub_total - allValue)          
-          console.log(payment_info.service.reduce((a,b) => a  + Number(b.price),0))
-          payment_info.total = allValue + payment_info.service.reduce((a,b) => a  + Number(b.price),0)
+          let vat_value = (payment_info.vat_percent / 100) * allValue
+          payment_info.total = allValue  + vat_value
           payment_info.cash = payment_info.total
           payment_info.discount_amount = discount_amount
           await StaffService.updatStoreOrderInfo({...payment_info,promotionId:pmts})
-          setBillMent({...billment,payment_info:{...payment_info,total:allValue},pmts,orders:[]})
+          setBillMent({...billment,payment_info:{...payment_info,total:payment_info.total},pmts,orders:[]})
         }
       }).catch(err=>{
         setMessagBox({open:true,message:err.toString(),type:"error"})      
@@ -388,20 +388,23 @@ const Menu = () => {
     return 0
   }
   const removePromotionInOrder =(promotion) =>{
-    const valueDecrease = caculateValueForPromotion(promotion)
+       const valueDecrease = caculateValueForPromotion(promotion)
       let pmts = billment.pmts.filter(p=> p.id !== promotion.id)
       let payment_info = billment.payment_info
+      payment_info.total = payment_info.total + valueDecrease - payment_info.vat_value
+      let _vatValue = (payment_info.vat_percent / 100) * payment_info.total
+      payment_info.total += _vatValue
       StaffService.updatStoreOrderInfo({
         address: payment_info?.address,
             bill_number:payment_info?.bill_number,
             bill_sequence:payment_info?.bill_sequence,
-            cash: Math.min(payment_info.cash + valueDecrease,payment_info?.sub_total),
+            cash: payment_info.total,
             content_discount: payment_info?.content_discount,
             credit:payment_info.credit,
             cus_order_id:payment_info?.cus_order_id,
             customer_id:payment_info?.customer_id,
             customer_name:payment_info?.customer_name,
-            discount_amount:payment_info?.discount_amount,
+            discount_amount:payment_info?.discount_amount - valueDecrease,
             e_money:payment_info.e_money,
             foods:payment_info.foods,
             id:payment_info?.id,
@@ -415,9 +418,9 @@ const Menu = () => {
             table_id:payment_info?.table_id,
             table_name: payment_info.table_name,
             time_in:payment_info?.time_in,
-            total: Math.min(payment_info.total + valueDecrease,payment_info?.sub_total),
+            total: payment_info.total,
             vat_percent:payment_info?.vat_percent,
-            vat_value:payment_info?.vat_value
+            vat_value:_vatValue
       }).then(async()=>{
           const {payment_info,pmts} = await StaffService.getPaymentInfo(billment.tableId)
           setBillMent({...billment,pmts,payment_info})
@@ -497,7 +500,6 @@ const Menu = () => {
     setChangePriceDialog(true)
   }
   const handleOpenChangeQuantityDialog = (order) =>{ 
-    console.log(user.staff_info.fields.role_name == "ADMIN")
     setSelectedOrder(order)
     setChangeQuantityDialog(true)
   }
@@ -631,7 +633,7 @@ const Menu = () => {
           <Grid item xs={3}  style={{fontSize:'14px'}} >
           <Grid spacing={3} container style={{width:'100%'}} alignItems="center" justify="center">
                     <Grid item xs={7} style={{textAlign:'center'}}>
-                      <Button disabled={(billment.payment_info.foods.length == 0 || false)} onClick={handlePrintInvoice} style={{fontSize:"12px",backgroundColor:"#444444",color:"white"}}>In hóa đơn tạm tính</Button>
+                      <Button disabled={(billment.payment_info.foods.length == 0)} onClick={handlePrintInvoice} style={{fontSize:"12px",backgroundColor:"#444444",color:"white"}}>In hóa đơn tạm tính</Button>
                     </Grid>
                     <Grid style={{textAlign:'center'}} item xs={5}>
                         <Button   onClick={confirmPayment} disabled={( billment.payment_info.foods.length == 0 && !billment.orders.some(o => o.quantity > 0) )? true : billment.orders.some(o => o.quantity > 0) ? true : false} style={{height:"100%",opacity:1,fontSize:"12px",backgroundColor:"#444444",color:"white"}} variant="outlined">Thanh toán</Button>
@@ -639,9 +641,13 @@ const Menu = () => {
               </Grid>
             <Text style={{margin:"0",padding:'0',height:'25px'}}><b>Bàn: </b> {billment.payment_info?.table_name || billment.table_name}</Text>
             <Text style={{margin:"0",padding:'0',height:'25px'}}><b>Thành tiền:</b>{convertToVnd(billment.payment_info.total)}</Text>
-            <Text style={{margin:"0",padding:'0',height:'25px'}}><b>Tổng giảm giá: </b> {convertToVnd(Math.max(0,billment.payment_info?.sub_total - billment.payment_info?.total))}</Text>
+            <Text style={{margin:"0",padding:'0',height:'25px'}}><b>Tổng giảm giá: </b> {convertToVnd(billment.payment_info?.discount_amount || 0)}</Text>
             <Text style={{margin:"0",padding:'0',height:'25px'}}  ><b>Tổng tiền món: </b> {convertToVnd(billment.payment_info?.sub_total || 0)}</Text>
+            {billment.payment_info?.vat_value  > 0 ?  (
+              <Text style={{margin:"0",padding:'0',height:'25px'}}><b>Thuế VAT: </b> {convertToVnd(billment.payment_info?.vat_value || 0)}</Text>
+            ): ""}
             <CustomerPayment/>
+            
             <Coupon/> 
             <Service/>
             <Currency/>
