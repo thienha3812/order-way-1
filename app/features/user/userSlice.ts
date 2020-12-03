@@ -37,6 +37,7 @@ const userSlice = createSlice({
     },
     userLogout: (state,action) =>{
       state.user = {staff_info : {},token:""}
+      localStorage.removeItem('token')
     }
   },
 });

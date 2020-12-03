@@ -219,7 +219,8 @@ const Menu = () => {
   const [changePriceDialog,setChangePriceDialog] = useState(false)
   const [changeQuantityDialog,setChangeQuantityDialog] = useState(false)
   const fetch = async () => {
-    const response = await MenuService.getMenuByStoreID(47)
+    const store_id = user.staff_info.fields.store_id
+    const response = await MenuService.getMenuByStoreID(store_id)
     setCategories([{category:"Tất cả"},...response.data.map(d=>({category:d.name}))])
     setData(response.data)
     initMenu(response.data)

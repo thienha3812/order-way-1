@@ -175,7 +175,7 @@ export const caculateValueDiscount = (billment) =>{
         <div>
             ${nameStoreText}
             ${phoneText}
-                    <h4 style="margin:0;text-align:center;font-size:${fontSizeForTitle};">Hóa đơn tạm tính</h4>
+                    <h4 style="margin:0;text-align:center;font-size:${fontSizeForTitle};">Hóa đơn t</h4>
                     ${billNumberText}
                     <div style="display:flex;justify-content:space-between;">
                     ${tableText}
