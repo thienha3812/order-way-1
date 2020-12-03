@@ -3,7 +3,7 @@ const Store = require('electron-store')
 const store = new Store()
 
 
-export const convertToVnd = (number) =>{ 
+export const convertToVnd = (number) =>{
     return Number(number).toLocaleString('it-IT', {style : 'currency', currency : 'VND'})
 }
 
@@ -20,7 +20,7 @@ export const caculateValueDiscount = (billment) =>{
     return billment.payment_info.sub_total * (value/100)
   }
   export const caculateValueFreeItem = (billment) =>{
-    let value = 0 
+    let value = 0
     let pmts = billment.pmts?.filter(p=> p.quantity_apply !== 0 && p.type === "free_item")
     pmts?.forEach((p)=>{
       const current_apply = p.quantity_apply
@@ -40,11 +40,11 @@ export const caculateValueDiscount = (billment) =>{
     let pmts = billment.pmts?.filter(p=> p.quantity_apply !== 0 && p.type === "discount_with_max_value")
     pmts?.forEach(p=>{
       if(billment.payment_info?.sub_total >= p.discount_on_amount){
-          let discountOnPercent = (p.discount_percent/100) * billment.payment_info?.sub_total 
+          let discountOnPercent = (p.discount_percent/100) * billment.payment_info?.sub_total
           value += Math.min(discountOnPercent,p.max_discount) * p.quantity_apply
       }
     })
-    return value 
+    return value
   }
   export const caculateValueVoucher = (billment) =>{
     let sum = 0
@@ -64,7 +64,7 @@ export const caculateValueDiscount = (billment) =>{
       let valueDiscount = caculateValueDiscount(billment)
       let valueFreeItem = caculateValueFreeItem(billment)
       let all_value =  valueDiscount + valueFreeItem + valueVoucher + valueMaxVoucher
-      return all_value 
+      return all_value
   }
   export const parseInvoiceBillToHtml = (data) => {
     const { fontSizeOrderBill } = store.get("orderBill")
@@ -74,7 +74,7 @@ export const caculateValueDiscount = (billment) =>{
     const nameStoreText = `
           <h3 style="margin:0;text-align:center;font-size:${fontSizeForTitle};">${content.store_name}</h3>
           <h3 style="margin:0;text-align:center;font-size:${fontSize};">${content.address}</h3>
-    ` 
+    `
     const phoneText = `
         <p style="margin:0;text-align:center;font-size:${fontSize};">${content.phone_number}</p>
     `
@@ -91,13 +91,13 @@ export const caculateValueDiscount = (billment) =>{
           <div style="font-size:${fontSize}">Nhân viên: ${content.staff_name}</div>
     `
     const billTimeText = `
-              <div style="font-size:${fontSize};">Giờ: ${content.bill_time}</div>   
+              <div style="font-size:${fontSize};">Giờ: ${content.bill_time}</div>
     `
     const foodsText = content.foods.reduce((a,b) => a + `
         <div style="border-top:1px solid #555555;width:100%;display:flex;flex-direction:row;flex-wrap:wrap">
         	 <div style="font-size:${fontSize};">
              	${b.name}
-             </div>           
+             </div>
               <div style="display:flex;width:100%">
 	             <div style="width:33.3%;text-align:center;font-size:${fontSize};" >
                  		${b.quantity}
@@ -110,22 +110,22 @@ export const caculateValueDiscount = (billment) =>{
 	             </div>
              </div>
         </div>
-        
+
     `,'')
     const timeInText = `
                       <div style="width:100%;font-size:${fontSize};">Vào: ${content.time_in}</div>
     `
     const timeOutText = `
                         <div style="width:100%;font-size:${fontSize};">Ra  : ${content.time_out}</div>
-      
+
     `
-    const convertToVnd = (number) =>{ 
+    const convertToVnd = (number) =>{
         return Number(number).toLocaleString('it-IT', {style : 'currency', currency : 'VND'})
     }
     const totalPriceFoodsText = content.foods.reduce((a,b) => a + b.quantity * b.price,0)
 
     const pmtsText = content.pmts.length > 0 ? content.pmts.reduce((a,b) => a + `
-      <div style="display:flex;justify-content:center;border-top:1px solid #555555;">
+      <div style="display:flex;justify-content:center;">
                         <div style="width:80%;font-size:${fontSize};" >${b.name}</div>
                         <div style="width:20%;font-size:${fontSize};">${b.quantity}</div>
         </div>
@@ -134,22 +134,22 @@ export const caculateValueDiscount = (billment) =>{
                           <div style="width:50%;font-size:${fontSize};text-align:end;"><b>${convertToVnd(content.sub_total-content.discount_amount+content.service_price + content.vat_value)}</b></div>
     `
     const discountText = content.discount_amount > 0 ? `
-                 <div style="display:flex;justify-content:center;margin-top:5px;">
+                 <div style="display:flex;justify-content:center;margin-top:5px;border-top:1px solid #555555;">
                         <div style="width:50%;font-size:${fontSize};text-align:end;" >Tổng giảm giá</div>
                         <div style="width:50%;text-align:end;font-size:${fontSize};">
-							  <b> - ${convertToVnd(content.discount_amount)} </b>
+							   - ${convertToVnd(content.discount_amount)}
                         </div>
 
                     </div>
     `  : ""
     const titlePmts = `
-    <div style="margin-top:5px;display:flex;justify-content:center;">
+    <div style="margin-top:10px;display:flex;justify-content:center;border-top:1px solid #555555;border-bottom:1px solid #555555;">
     <div style="width:80%;font-size:${fontSize};" >Tên khuyến mãi</div>
     <div style="width:20%;font-size:${fontSize};">SL</div>
     </div>
     `
     const serviceText = content.service.reduce((a,b) => a + `
-        <div style="border-top:1px solid #555555;width:100%;display:flex;">
+        <div style="width:100%;display:flex;">
         	 <div style="width:80%;font-size:${fontSize};" >
         				${b.name}
             </div>
@@ -157,18 +157,18 @@ export const caculateValueDiscount = (billment) =>{
             	${convertToVnd(b.price)}
             </div>
         </div>
-        
-    `,'')  
+
+    `,'')
     const vatText = `
     <div style="display:flex;justify-content:center;margin-top:5px">
         <div style="width:50%;font-size:${fontSize};text-align:end;" >Thuế VAT</div>
-        <div style="width:50%;font-size:${fontSize};text-align:end;" ><b>${convertToVnd(content.vat_value)}</b></div>
+        <div style="width:50%;font-size:${fontSize};text-align:end;" >${convertToVnd(content.vat_value)}</div>
       </div>
     `
     const servicePrice = `
     	             <div style="display:flex;justify-content:flex-end;border-top:1px solid #555555;">
                         <div style="width:50%;font-size:${fontSize};text-align:end;" >Tổng phí</div>
-                        <div style="width:50%;font-size:${fontSize};text-align:end;"><b>${convertToVnd(content.service.reduce((a,b) => a + Number(b.price),0  ))}</b></div>
+                        <div style="width:50%;font-size:${fontSize};text-align:end;">${convertToVnd(content.service.reduce((a,b) => a + Number(b.price),0  ))}</div>
                     </div>
     `
     const contentHtml = `
@@ -176,17 +176,17 @@ export const caculateValueDiscount = (billment) =>{
             ${nameStoreText}
             ${phoneText}
                     <h4 style="margin:0;text-align:center;font-size:${fontSizeForTitle};">Hóa đơn tạm tính</h4>
-                    ${billNumberText}            
-                    <div style="display:flex;justify-content:space-between;">           
+                    ${billNumberText}
+                    <div style="display:flex;justify-content:space-between;">
                     ${tableText}
                     ${bilDateText}
-                    </div>                    
+                    </div>
                     <div style="display:flex;justify-content:space-between;">
                 ${staffText}
                 ${billTimeText}
                     </div>
                     <div >
-                    	<div style="margin-top:5px;display:flex;width:100%;border-top:1px solid  #555555">
+                    	<div style="margin-top:10px;display:flex;width:100%;border-top:1px solid  #555555">
                         	<div style="width:33%;text-align:center;font-size:${fontSize};">
                             	Số lượng
                             </div>
@@ -197,21 +197,22 @@ export const caculateValueDiscount = (billment) =>{
                             	Thành tiền
                             </div>
                         </div>
-                        ${foodsText}   
+                        ${foodsText}
                     </div>
-                   <div style="display:flex;justify-content:flex-end;">
+                   <div style="display:flex;justify-content:flex-end;border-top:1px solid  #555555;">
                         <div style="width:50%;font-size:${fontSize};text-align:end;" >Tổng cộng</div>
-                        <div style="width:50%;font-size:${fontSize};text-align:end;"><b>${convertToVnd(totalPriceFoodsText)}</b></div>
+                        <div style="width:50%;font-size:${fontSize};text-align:end;">${convertToVnd(totalPriceFoodsText)}</div>
                     </div>
                     ${content.pmts.length > 0 ? titlePmts :"" }
                     ${pmtsText}
+
                   	${discountText}
-                    ${content.service.length > 0 ? `<div style='display:flex;margin-top:5px'><div style='width:80%;font-size:${fontSize};'>Tên dịch vụ/phụ thu</div><div style='width:20%;font-size:${fontSize};'>Số tiền</div> </div>` :""}
+                    ${content.service.length > 0 ? `<div style='display:flex;margin-top:10px;border-top:1px solid  #555555;border-bottom:1px solid  #555555;'><div style='width:80%;font-size:${fontSize};'>Tên dịch vụ/phụ thu</div><div style='width:20%;font-size:${fontSize};'>Số tiền</div> </div>` :""}
                     ${content.service.length > 0 ? serviceText : ""}
                     ${content.service.length > 0 ? servicePrice : ""}
                     ${content.vat_value > 0 ? vatText : ""}
                     <div style="display:flex;justify-content:center;margin-top:5px">
-                        <div style="width:50%;font-size:${fontSize};text-align:end;" >Thành tiền</div>
+                        <div style="width:50%;font-size:${fontSize};text-align:end;" ><b>Thành tiền</b></div>
               ${totalText}
                     </div>
                     <div style="display:flex;justify-content:start;">
@@ -222,13 +223,13 @@ export const caculateValueDiscount = (billment) =>{
                     </div>
                     <div style="padding-bottom:8cm;display:flex;justify-content:center;">
                       <h3 style="text-align:center;width:100%;font-size:${fontSizeForTitle};" >Cảm ơn quý khách và hẹn gặp lại!</h3>
-                    </div>                
-        
+                    </div>
+
                 </div>
     `
     return contentHtml
   }
-  
+
   export const parseBillMentToHtml = (data) => {
     const { fontSizeOrderBill } = store.get("orderBill")
     const fontSize = (fontSizeOrderBill/16) + 'rem'
@@ -237,7 +238,7 @@ export const caculateValueDiscount = (billment) =>{
     const nameStoreText = `
           <h3 style="margin:0;text-align:center;font-size:${fontSizeForTitle};">${content.store_name}</h3>
           <h3 style="margin:0;text-align:center;font-size:${fontSize};">${content.address}</h3>
-    ` 
+    `
     const phoneText = `
         <p style="margin:0;text-align:center;font-size:${fontSize};">${content.phone_number}</p>
     `
@@ -254,13 +255,13 @@ export const caculateValueDiscount = (billment) =>{
           <div style="font-size:${fontSize}">Nhân viên: ${content.staff_name}</div>
     `
     const billTimeText = `
-              <div style="font-size:${fontSize};">Giờ: ${content.bill_time}</div>   
+              <div style="font-size:${fontSize};">Giờ: ${content.bill_time}</div>
     `
     const foodsText = content.foods.reduce((a,b) => a + `
         <div style="border-top:1px solid #555555;width:100%;display:flex;flex-direction:row;flex-wrap:wrap">
         	 <div style="font-size:${fontSize};">
              	${b.name}
-             </div>           
+             </div>
               <div style="display:flex;width:100%">
 	             <div style="width:33.3%;text-align:center;font-size:${fontSize};" >
                  		${b.quantity}
@@ -273,22 +274,22 @@ export const caculateValueDiscount = (billment) =>{
 	             </div>
              </div>
         </div>
-        
+
     `,'')
     const timeInText = `
                       <div style="width:100%;font-size:${fontSize};">Vào: ${content.time_in}</div>
     `
     const timeOutText = `
                         <div style="width:100%;font-size:${fontSize};">Ra  : ${content.time_out}</div>
-      
+
     `
-    const convertToVnd = (number) =>{ 
+    const convertToVnd = (number) =>{
         return Number(number).toLocaleString('it-IT', {style : 'currency', currency : 'VND'})
     }
     const totalPriceFoodsText = content.foods.reduce((a,b) => a + b.quantity * b.price,0)
 
     const pmtsText = content.pmts.length > 0 ? content.pmts.reduce((a,b) => a + `
-      <div style="display:flex;justify-content:center;border-top:1px solid #555555;">
+      <div style="display:flex;justify-content:center;">
                         <div style="width:80%;font-size:${fontSize};" >${b.name}</div>
                         <div style="width:20%;font-size:${fontSize};">${b.quantity}</div>
         </div>
@@ -297,22 +298,22 @@ export const caculateValueDiscount = (billment) =>{
                           <div style="width:50%;font-size:${fontSize};text-align:end;"><b>${convertToVnd(content.sub_total-content.discount_amount+content.service_price + content.vat_value)}</b></div>
     `
     const discountText = content.discount_amount > 0 ? `
-                 <div style="display:flex;justify-content:center;margin-top:5px;">
+                 <div style="display:flex;justify-content:center;margin-top:5px;border-top:1px solid #555555;">
                         <div style="width:50%;font-size:${fontSize};text-align:end;" >Tổng giảm giá</div>
                         <div style="width:50%;text-align:end;font-size:${fontSize};">
-							  <b> - ${convertToVnd(content.discount_amount)} </b>
+							   - ${convertToVnd(content.discount_amount)}
                         </div>
 
                     </div>
     `  : ""
     const titlePmts = `
-    <div style="margin-top:5px;display:flex;justify-content:center;">
+    <div style="margin-top:10px;display:flex;justify-content:center;border-top:1px solid #555555;border-bottom:1px solid #555555;">
     <div style="width:80%;font-size:${fontSize};" >Tên khuyến mãi</div>
     <div style="width:20%;font-size:${fontSize};">SL</div>
     </div>
     `
     const serviceText = content.service.reduce((a,b) => a + `
-        <div style="border-top:1px solid #555555;width:100%;display:flex;">
+        <div style="width:100%;display:flex;">
         	 <div style="width:80%;font-size:${fontSize};" >
         				${b.name}
             </div>
@@ -320,18 +321,18 @@ export const caculateValueDiscount = (billment) =>{
             	${convertToVnd(b.price)}
             </div>
         </div>
-        
-    `,'')  
+
+    `,'')
     const vatText = `
     <div style="display:flex;justify-content:center;margin-top:5px">
         <div style="width:50%;font-size:${fontSize};text-align:end;" >Thuế VAT</div>
-        <div style="width:50%;font-size:${fontSize};text-align:end;" ><b>${convertToVnd(content.vat_value)}</b></div>
+        <div style="width:50%;font-size:${fontSize};text-align:end;" >${convertToVnd(content.vat_value)}</div>
       </div>
     `
     const servicePrice = `
     	             <div style="display:flex;justify-content:flex-end;border-top:1px solid #555555;">
                         <div style="width:50%;font-size:${fontSize};text-align:end;" >Tổng phí</div>
-                        <div style="width:50%;font-size:${fontSize};text-align:end;"><b>${convertToVnd(content.service.reduce((a,b) => a + Number(b.price),0  ))}</b></div>
+                        <div style="width:50%;font-size:${fontSize};text-align:end;">${convertToVnd(content.service.reduce((a,b) => a + Number(b.price),0  ))}</div>
                     </div>
     `
     const contentHtml = `
@@ -339,17 +340,17 @@ export const caculateValueDiscount = (billment) =>{
             ${nameStoreText}
             ${phoneText}
                     <h4 style="margin:0;text-align:center;font-size:${fontSizeForTitle};">Hóa đơn thanh toán</h4>
-                    ${billNumberText}            
-                    <div style="display:flex;justify-content:space-between;">           
+                    ${billNumberText}
+                    <div style="display:flex;justify-content:space-between;">
                     ${tableText}
                     ${bilDateText}
-                    </div>                    
+                    </div>
                     <div style="display:flex;justify-content:space-between;">
                 ${staffText}
                 ${billTimeText}
                     </div>
                     <div >
-                    	<div style="margin-top:5px;display:flex;width:100%;border-top:1px solid  #555555">
+                    	<div style="margin-top:10px;display:flex;width:100%;border-top:1px solid  #555555">
                         	<div style="width:33%;text-align:center;font-size:${fontSize};">
                             	Số lượng
                             </div>
@@ -360,21 +361,22 @@ export const caculateValueDiscount = (billment) =>{
                             	Thành tiền
                             </div>
                         </div>
-                        ${foodsText}   
+                        ${foodsText}
                     </div>
-                   <div style="display:flex;justify-content:flex-end;">
+                   <div style="display:flex;justify-content:flex-end;border-top:1px solid  #555555;">
                         <div style="width:50%;font-size:${fontSize};text-align:end;" >Tổng cộng</div>
-                        <div style="width:50%;font-size:${fontSize};text-align:end;"><b>${convertToVnd(totalPriceFoodsText)}</b></div>
+                        <div style="width:50%;font-size:${fontSize};text-align:end;">${convertToVnd(totalPriceFoodsText)}</div>
                     </div>
                     ${content.pmts.length > 0 ? titlePmts :"" }
                     ${pmtsText}
+
                   	${discountText}
-                    ${content.service.length > 0 ? `<div style='display:flex;margin-top:5px'><div style='width:80%;font-size:${fontSize};'>Tên dịch vụ/phụ thu</div><div style='width:20%;font-size:${fontSize};'>Số tiền</div> </div>` :""}
+                    ${content.service.length > 0 ? `<div style='display:flex;margin-top:10px;border-top:1px solid  #555555;border-bottom:1px solid  #555555;'><div style='width:80%;font-size:${fontSize};'>Tên dịch vụ/phụ thu</div><div style='width:20%;font-size:${fontSize};'>Số tiền</div> </div>` :""}
                     ${content.service.length > 0 ? serviceText : ""}
                     ${content.service.length > 0 ? servicePrice : ""}
                     ${content.vat_value > 0 ? vatText : ""}
                     <div style="display:flex;justify-content:center;margin-top:5px">
-                        <div style="width:50%;font-size:${fontSize};text-align:end;" >Thành tiền</div>
+                        <div style="width:50%;font-size:${fontSize};text-align:end;" ><b>Thành tiền</b></div>
               ${totalText}
                     </div>
                     <div style="display:flex;justify-content:start;">
@@ -385,8 +387,8 @@ export const caculateValueDiscount = (billment) =>{
                     </div>
                     <div style="padding-bottom:8cm;display:flex;justify-content:center;">
                       <h3 style="text-align:center;width:100%;font-size:${fontSizeForTitle};" >Cảm ơn quý khách và hẹn gặp lại!</h3>
-                    </div>                
-        
+                    </div>
+
                 </div>
     `
     return contentHtml
@@ -408,9 +410,9 @@ export  const parseKitchenBillToHtml = (data) => {
         </div>
     `,'')
     const contentHtml = `
-      
+
                     <div>
-          			      ${tableText}	            		
+          			      ${tableText}
                     </div>
                     <div>
                       ${bilDateText}

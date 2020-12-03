@@ -95,7 +95,7 @@ const createWindow = async () => {
 
   /// Worker Window
   workerWindow = new BrowserWindow({
-    show:true,
+    show:false,
     webPreferences:{
       nodeIntegration:true,
       preload: path.join(__dirname,"preload.js")

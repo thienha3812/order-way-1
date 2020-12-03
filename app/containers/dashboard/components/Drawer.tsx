@@ -11,7 +11,7 @@ import {FaFirstOrder,FaPrint,FaCalculator} from 'react-icons/fa'
 import styled from 'styled-components';
 import Logo from '../../../assets/images/logo.jpg'
 import { useHistory } from 'react-router';
-import { DASHBOARD ,DASHBOARD_PRINTER,DASHBOARD_STAFF_ORDER} from '../../../constants/routes';
+import { DASHBOARD ,DASHBOARD_MONEY_BOX,DASHBOARD_PRINTER,DASHBOARD_STAFF_ORDER} from '../../../constants/routes';
 const useStyles = makeStyles(() => ({
   paper: {
     width: '200px',
@@ -60,7 +60,12 @@ const CustomDrawer = () => {
       url: DASHBOARD_PRINTER,
       name: "Thiết lập máy in",
       icon: <FaPrint/>
-    }
+    },
+    // {
+    //   url:DASHBOARD_MONEY_BOX,
+    //   name: "Kétsắt",
+    //   icon: <FaPrint/>
+    // }
   ]
   return (
     <>
