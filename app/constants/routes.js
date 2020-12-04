@@ -6,3 +6,4 @@ export const DASHBOARD_ORDER_HISTORY = '/dashboard/order-history';
 export const DASHBOARD_BILL_HISTORY = '/dashboard/bill-history';
 export const DASHBOARD_PRINTER = '/dashboard/printer';
 export const DASHBOARD_MONEY_BOX = '/dashboard/money-box';
+export const DASHBOARD_MONEY_BOX_HISTORY = '/dashboard/money-box-history';

@@ -60,7 +60,15 @@ const RenderList = ()  => {
             setMessagBox({open:true,message:"Giao thành công!",type:"success"})    
             setOrders({...orders,orders_finish:[...orders.orders_finish,order],orders_done:[...orders.orders_done.filter(o => o.orderId !== order.orderId)]})
         }).catch(err=>{ 
-            setMessagBox({open:true,message:err.toString(),type:"error"})
+          const {status} = err.response
+          const {mess} = err.response.data
+          if(status === 422) {
+            setOrders({...orders,orders_finish:[...orders.orders_finish,order],orders_done:[...orders.orders_done.filter(o => o.orderId !== order.orderId)]})
+            setMessagBox({open:true,message:mess.toString(),type:"error"})
+          }
+          if(status === 500){
+            setMessagBox({open:true,message:"Lỗi hệ thống",type:"error"})
+          }
         })
     }
     const handleUpdateToDone = async (order:Order) =>{ 
@@ -68,7 +76,15 @@ const RenderList = ()  => {
                 setMessagBox({open:true,message:"Cập nhật Order thành công!",type:"success"})    
                 setOrders({...orders,orders_done:[...orders.orders_done,order],orders_doing:[...orders.orders_doing.filter(o => o.orderId !== order.orderId)]})
             }).catch((err)=>{
-                setMessagBox({open:true,message:err.toString(),type:"error"})
+              const {status} = err.response
+              const {mess} = err.response.data
+              if(status === 422) {
+                setOrders({...orders,orders_done:[...orders.orders_done,order],orders_doing:[...orders.orders_doing.filter(o => o.orderId !== order.orderId)]})
+                setMessagBox({open:true,message:mess.toString(),type:"error"})
+              }
+              if(status === 500){
+                setMessagBox({open:true,message:"Lỗi hệ thống",type:"error"})
+              }
             })
     }
     const handleUpdateToDoing = async (order:Order) =>{ 
@@ -76,7 +92,15 @@ const RenderList = ()  => {
             setOrders({...orders,orders_doing:[...orders.orders_doing,order],orders_approved:[...orders.orders_approved.filter(o=> o.orderId !== order.orderId)]})
             setMessagBox({open:true,message:"Cập nhật Order thành công!",type:"success"})
         }).catch((err)=>{
-            setMessagBox({open:true,message:err.toString(),type:"error"})
+            const {status} = err.response
+            const {mess} = err.response.data
+            if(status === 422) {
+              setOrders({...orders,orders_doing:[...orders.orders_doing,order],orders_approved:[...orders.orders_approved.filter(o=> o.orderId !== order.orderId)]})
+              setMessagBox({open:true,message:mess.toString(),type:"error"})
+            }
+            if(status === 500){
+              setMessagBox({open:true,message:"Lỗi hệ thống",type:"error"})
+            }
         })
     }
     const handleCloseMessageBox =() =>{
@@ -94,6 +118,16 @@ const RenderList = ()  => {
         OrderService.confirmCancelOrder({tableId:order.table_id,order_id:order.orderId}).then(()=>{
           setMessagBox({open:true,message:"Hủy Order thành công!",type:"success"})
           setOrders({...orders,orders_created:[...orders.orders_created.filter(o=> o.orderId !== order.orderId)]})
+        }).catch(err=>{
+          const {status} = err.response
+            const {mess} = err.response.data
+            if(status === 422) {
+              setOrders({...orders,orders_created:[...orders.orders_created.filter(o=> o.orderId !== order.orderId)]})
+              setMessagBox({open:true,message:mess.toString(),type:"error"})
+            }
+            if(status === 500){
+              setMessagBox({open:true,message:"Lỗi hệ thống",type:"error"})
+            }
         })
         return
       }
@@ -101,6 +135,16 @@ const RenderList = ()  => {
         OrderService.confirmCancelFood({tableId:order.table_id,order_id:order.orderId}).then(()=>{
           setMessagBox({open:true,message:"Hủy món thành công!",type:"success"})
           setOrders({...orders,orders_created:[...orders.orders_created.filter(o=> o.orderId !== order.orderId)]})
+        }).catch(err=>{
+            const {status} = err.response
+            const {mess} = err.response.data
+            if(status === 422) {
+              setOrders({...orders,orders_created:[...orders.orders_created.filter(o=> o.orderId !== order.orderId)]})
+              setMessagBox({open:true,message:mess.toString(),type:"error"})
+            }
+            if(status === 500){
+              setMessagBox({open:true,message:"Lỗi hệ thống",type:"error"})
+            }
         })
         return 
       }
@@ -109,6 +153,16 @@ const RenderList = ()  => {
           setMessagBox({open:true,message:"Xác nhận Order thành công!",type:"success"})     
           setOrders({...orders,orders_approved:[...orders.orders_approved,order],orders_created:[...orders.orders_created.filter(o=> o.orderId !== order.orderId)]})
           printBill(order)
+        }).catch(err=>{
+            const {status} = err.response
+            const {mess} = err.response.data
+            if(status === 422) {
+              setOrders({...orders,orders_approved:[...orders.orders_approved,order],orders_created:[...orders.orders_created.filter(o=> o.orderId !== order.orderId)]})
+              setMessagBox({open:true,message:mess.toString(),type:"error"})
+            }
+            if(status === 500){
+              setMessagBox({open:true,message:"Lỗi hệ thống",type:"error"})
+            }
         })
       }
       if(order.type ===  "request"){
@@ -116,6 +170,16 @@ const RenderList = ()  => {
           setMessagBox({open:true,message:"Xác nhận Order thành công!",type:"success"})     
           setOrders({...orders,orders_finish:[...orders.orders_finish,order],orders_created:[...orders.orders_created.filter(o=> o.orderId !== order.orderId)]})
           printBill(order)
+        }).catch(err=>{
+          const {status} = err.response
+          const {mess} = err.response.data
+          if(status === 422) {
+            setOrders({...orders,orders_finish:[...orders.orders_finish,order],orders_created:[...orders.orders_created.filter(o=> o.orderId !== order.orderId)]})
+            setMessagBox({open:true,message:mess.toString(),type:"error"})
+          }
+          if(status === 500){
+            setMessagBox({open:true,message:"Lỗi hệ thống",type:"error"})
+          }
         })
       }
     }
@@ -261,7 +325,7 @@ const DashboardHome = (props: any) => {
        setOrders,
        selected
    }}>
-        <Wrapper {...props}>
+    <Wrapper {...props}>
       <List style={{ marginBottom: "2%" }}>
         <Item>Quản lý gọi món</Item>
         <Item style={{ width: "auto", display: "flex"}}>
@@ -275,7 +339,6 @@ const DashboardHome = (props: any) => {
               Lịch sử Bill
             </Button>
           </Item>
-          
         </Item>
       </List>
       <Divider />

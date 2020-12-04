@@ -7,6 +7,7 @@ import {
   makeStyles,
   Divider,
 } from '@material-ui/core';
+import {MdAttachMoney} from 'react-icons/md'
 import {FaFirstOrder,FaPrint,FaCalculator} from 'react-icons/fa'
 import styled from 'styled-components';
 import Logo from '../../../assets/images/logo.jpg'
@@ -57,15 +58,16 @@ const CustomDrawer = () => {
       icon : <FaCalculator/>
     },
     {
+      url:DASHBOARD_MONEY_BOX,
+      name: "Két tiền - Thu chi",
+      icon: <MdAttachMoney/>
+    },
+    {
       url: DASHBOARD_PRINTER,
       name: "Thiết lập máy in",
-      icon: <FaPrint/>
+      icon: <FaPrint />
     },
-    // {
-    //   url:DASHBOARD_MONEY_BOX,
-    //   name: "Kétsắt",
-    //   icon: <FaPrint/>
-    // }
+    
   ]
   return (
     <>
@@ -78,16 +80,13 @@ const CustomDrawer = () => {
         open
       >
         <TitleImg/>
-        <Title>
-            Order Way
-        </Title>
         <Divider/>
         <List>
           {urls.map((u,index)=>(
             <>
               <ListItem button onClick={()=>navigate(u.url,index)} className={active(index)} >
                 {u.icon}
-              <ListItemText primary={u.name}  />
+              <ListItemText style={{marginLeft:"10px"}} primary={u.name}  />
             </ListItem>
             </>
           ))}

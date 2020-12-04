@@ -141,8 +141,8 @@ const StaffOrder = () => {
           await audio.play()       
       }
       return (()=>{
-        _notificationSocket.close()
-        _counterSocket.close()
+        // _notificationSocket.close()
+        // _counterSocket.close()
       })
   },[billment,openMenu,paidOrder])
   useEffect(()=>{

@@ -115,7 +115,7 @@ const OrderHistory = ( ) =>{
                <Pagination pageCount={Math.ceil(orders.total_row/10)} onSelect={handleSelectPage} />
             )}
           </Grid>
-          </Grid>
+        </Grid>
       </Wrapper>
       </Provider>
         

@@ -232,6 +232,14 @@ class StaffService {
             return Promise.reject(err)
         }
     }
+    static async staffOption(){
+        try{
+            const response = await apiConfig.get('staff/staff-option')
+            return response.data
+        }catch(err){
+
+        }
+    }
 }
 
 export default StaffService
