@@ -34,7 +34,6 @@ const TitleImg = styled.div`
 const CustomDrawer = () => {
   const styles = useStyles()
   const {user:{staff_info}} = useSelector(userSelector)
-  console.log(staff_info)
   const history  = useHistory() 
   const [selectedIndex,setIndex] = useState(0)
   const navigate  =  async (url,index) =>{ 

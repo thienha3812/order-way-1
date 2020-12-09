@@ -34,7 +34,6 @@ const CancelFood = () =>{
     const [messageBox,setMessagBox] = useState({open:false,message:"",type:""})
     const fetch = async () =>{ 
         const {data} = await StaffService.getOrderInfo(billment.tableId)
-        console.log(data)
         if(data.have_cancel){
             setLoading(true)
             setOrder({have_cancel:true,payment_info:{...order.payment_info}})
