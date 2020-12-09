@@ -126,6 +126,9 @@ const MoneyBoxPage = () =>{
     const handleCloseMessageBox = () =>{
         setMessageBox({...messageBox,open:false})
     }
+    const handleAddMoney = (event) =>{
+        setFormAddMoney({...formAddMoney,cash:Number(event.target.value),moneyNumber:Number(event.target.value)})
+    }
     useEffect(()=>{
         fetch()
     },[])
@@ -237,7 +240,7 @@ const MoneyBoxPage = () =>{
                
                     <Grid container>
                         <Grid item xs={12}>
-                            <TextField onChange={(event)=> setFormAddMoney({...formAddMoney,moneyNumber:Number(event.target.value)})}   type="number" classes={{root:styles.root}} style={{width:"100%"}} variant="outlined" label="Số tiền vốn" />
+                            <TextField onChange={handleAddMoney}   type="number" classes={{root:styles.root}} style={{width:"100%"}} variant="outlined" label="Số tiền vốn" />
                         </Grid>
                         <Grid item xs={12} style={{display:'flex'}}>
                             <TextArea  onChange={(event)=> setFormAddMoney({...formAddMoney,moneyContent:event.target.value})} rows={4} placeholder="Nội dung thêm"  />
